@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSA Cavite | Administrative System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#12274E;
+    --navy-deep:#0B1930;
+    --gold:#F5B301;
+    --red:#CE1126;
+    --bg:#F5F6F9;
+    --surface:#FFFFFF;
+    --ink:#1F2430;
+    --ink-soft:#5B6270;
+    --line:#E4E7EE;
+    --ok:#1E8E5A;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{font-family:'Fraunces',serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- Auth screen ---------- */
+  #authScreen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(245,179,1,0.10), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(206,17,38,0.08), transparent 40%),
+      var(--navy-deep);
+    padding:24px;
+  }
+  .auth-card{
+    background:var(--surface); border-radius:20px; width:100%; max-width:420px;
+    padding:40px 36px; box-shadow:0 30px 60px rgba(0,0,0,0.35);
+  }
+  .auth-brand{display:flex; align-items:center; gap:12px; margin-bottom:8px;}
+  .tri-arrow{width:34px; height:34px; flex-shrink:0;}
+  .auth-brand .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:600;}
+  .auth-brand h1{font-size:22px; color:var(--navy); line-height:1.15;}
+  .auth-sub{color:var(--ink-soft); font-size:13.5px; margin:6px 0 26px;}
+  .tabs{display:flex; gap:4px; background:var(--bg); padding:4px; border-radius:10px; margin-bottom:22px;}
+  .tab-btn{flex:1; border:none; background:transparent; padding:9px 0; border-radius:8px; font-weight:600; font-size:13.5px; color:var(--ink-soft); cursor:pointer;}
+  .tab-btn.active{background:var(--navy); color:#fff;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:5px;}
+  .field input, .field select{
+    width:100%; padding:11px 12px; border:1.5px solid var(--line); border-radius:9px;
+    font-size:14px; font-family:inherit; background:#fff; color:var(--ink);
+  }
+  .field input:focus, .field select:focus{outline:none; border-color:var(--navy);}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+  .btn{
+    width:100%; padding:12px; border:none; border-radius:9px; background:var(--navy); color:#fff;
+    font-weight:600; font-size:14.5px; cursor:pointer; margin-top:6px;
+  }
+  .btn:hover{background:var(--navy-deep);}
+  .btn-gold{background:var(--gold); color:var(--navy-deep);}
+  .btn-outline{background:transparent; border:1.5px solid var(--line); color:var(--ink);}
+  .btn-danger{background:var(--red); color:#fff;}
+  .btn-sm{width:auto; padding:7px 14px; font-size:13px;}
+  .msg{font-size:13px; padding:10px 12px; border-radius:8px; margin-bottom:14px;}
+  .msg.error{background:#FDECEC; color:var(--red);}
+  .msg.ok{background:#E9F7EF; color:var(--ok);}
+  .hidden{display:none !important;}
+
+  /* ---------- App shell ---------- */
+  #app{display:none; min-height:100vh; grid-template-columns:240px 1fr;}
+  #app.shown{display:grid;}
+  .sidebar{
+    background:var(--navy-deep); color:#fff; padding:24px 18px; display:flex; flex-direction:column;
+  }
+  .sb-brand{display:flex; align-items:center; gap:10px; margin-bottom:30px; padding:0 6px;}
+  .sb-brand span{font-family:'Fraunces',serif; font-size:16px; font-weight:600; line-height:1.2;}
+  .nav-item{
+    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:9px; color:#C7CEDC;
+    font-size:14px; font-weight:500; cursor:pointer; margin-bottom:2px;
+  }
+  .nav-item:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .nav-item.active{background:var(--gold); color:var(--navy-deep); font-weight:700;}
+  .nav-section-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.12em; color:#6C7690; margin:18px 6px 8px;}
+  .sb-spacer{flex:1;}
+  .sb-user{display:flex; align-items:center; gap:10px; padding:12px 6px; border-top:1px solid rgba(255,255,255,0.08); margin-top:10px;}
+  .avatar{width:34px; height:34px; border-radius:50%; background:var(--gold); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; overflow:hidden;}
+  .avatar img{width:100%; height:100%; object-fit:cover;}
+  .sb-user .name{font-size:13px; font-weight:600; color:#fff;}
+  .sb-user .role{font-size:11px; color:#8891A6;}
+  .logout-link{font-size:12px; color:#8891A6; cursor:pointer; margin-top:8px; display:block;}
+
+  .main{padding:32px 40px; overflow-y:auto; max-height:100vh;}
+  .page-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:10px;}
+  .page-head h2{font-size:26px; color:var(--navy);}
+  .page-head .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:600;}
+
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:16px; margin-bottom:30px;}
+  .card{background:var(--surface); border-radius:var(--radius); padding:20px; border:1px solid var(--line); position:relative; overflow:hidden;}
+  .card .num{font-family:'Fraunces',serif; font-size:32px; color:var(--navy); font-weight:600;}
+  .card .lbl{font-size:12.5px; color:var(--ink-soft); font-weight:600; margin-top:2px;}
+  .card::before{content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--gold);}
+  .card.blue::before{background:var(--navy);}
+  .card.red::before{background:var(--red);}
+
+  .panel{background:var(--surface); border-radius:var(--radius); border:1px solid var(--line); padding:22px; margin-bottom:24px;}
+  .panel h3{font-size:15px; color:var(--navy); margin-bottom:16px;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{text-align:left; padding:10px 8px; color:var(--ink-soft); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; border-bottom:1.5px solid var(--line);}
+  td{padding:11px 8px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .pill{display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:600;}
+  .pill.in{background:#E9F7EF; color:var(--ok);}
+  .pill.out{background:#FDECEC; color:var(--red);}
+  .pill.admin{background:#FFF4D9; color:#8A6300;}
+  .pill.user{background:#EEF1F8; color:var(--navy);}
+  .icon-btn{border:none; background:transparent; cursor:pointer; color:var(--ink-soft); font-size:13px; margin-right:8px;}
+  .icon-btn:hover{color:var(--navy);}
+  .icon-btn.del:hover{color:var(--red);}
+
+  .inline-form{display:flex; gap:8px; margin-bottom:16px;}
+  .inline-form input{flex:1; padding:9px 12px; border:1.5px solid var(--line); border-radius:8px; font-size:13.5px;}
+
+  .stepper{display:flex; align-items:center; gap:0; margin:6px 0;}
+  .step{display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; color:var(--ink-soft); padding:4px 10px 4px 4px;}
+  .step .dot{width:10px; height:10px; border-radius:50%; background:var(--line);}
+  .step.done .dot{background:var(--navy);}
+  .step.active .dot{background:var(--gold);}
+  .step.done, .step.active{color:var(--ink);}
+  .step-line{width:26px; height:2px; background:var(--line);}
+
+  .profile-head{display:flex; gap:20px; align-items:center; margin-bottom:24px;}
+  .avatar-lg{width:84px; height:84px; border-radius:50%; background:var(--gold); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:28px; overflow:hidden; flex-shrink:0;}
+  .avatar-lg img{width:100%; height:100%; object-fit:cover;}
+
+  @media (max-width: 800px){
+    #app.shown{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .main{padding:20px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH SCREEN ================= -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <svg class="tri-arrow" viewBox="0 0 40 40"><path d="M4 30 C10 14, 20 6, 34 4 L30 12 L20 15 C14 20, 10 26, 8 34 Z" fill="#12274E"/><path d="M8 32 C13 19, 21 12, 32 9 L29 15 L20 18 C15 22, 12 27, 11 34 Z" fill="#F5B301" opacity="0.9"/><path d="M11 33 C15 23, 22 17, 30 14 L28 19 L20 21 C16 24, 13 28, 13 34 Z" fill="#CE1126" opacity="0.9"/></svg>
+      <div>
+        <div class="eyebrow">Philippine Statistics Authority — Cavite</div>
+        <h1>Administrative System</h1>
+      </div>
+    </div>
+    <p class="auth-sub">Solid · Responsive · World-class</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">Register</button>
+    </div>
+
+    <div id="authMsg"></div>
+
+    <!-- LOGIN -->
+    <form id="loginForm" onsubmit="return handleLogin(event)">
+      <div class="field"><label>Username</label><input type="text" id="loginUsername" required></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPassword" required></div>
+      <button class="btn btn-gold" type="submit">Sign In</button>
+    </form>
+
+    <!-- REGISTER -->
+    <form id="registerForm" class="hidden" onsubmit="return handleRegister(event)">
+      <div class="row3">
+        <div class="field"><label>First name</label><input type="text" id="regFirst" required></div>
+        <div class="field"><label>Middle name</label><input type="text" id="regMiddle"></div>
+        <div class="field"><label>Last name</label><input type="text" id="regLast" required></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Position</label><select id="regPosition"><option value="">Select...</option></select></div>
+        <div class="field"><label>Department</label><select id="regDepartment"><option value="">Select...</option></select></div>
+      </div>
+      <div class="field"><label>Date hired</label><input type="date" id="regDateHired"></div>
+      <div class="row2">
+        <div class="field"><label>Username</label><input type="text" id="regUsername" required></div>
+        <div class="field"><label>Password</label><input type="password" id="regPassword" required></div>
+      </div>
+      <button class="btn btn-gold" type="submit">Create Account</button>
+    </form>
+  </div>
+</div>
+
+<!-- ================= APP SHELL ================= -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <svg class="tri-arrow" viewBox="0 0 40 40" width="28" height="28"><path d="M4 30 C10 14, 20 6, 34 4 L30 12 L20 15 C14 20, 10 26, 8 34 Z" fill="#F5B301"/><path d="M8 32 C13 19, 21 12, 32 9 L29 15 L20 18 C15 22, 12 27, 11 34 Z" fill="#CE1126" opacity="0.9"/><path d="M11 33 C15 23, 22 17, 30 14 L28 19 L20 21 C16 24, 13 28, 13 34 Z" fill="#fff" opacity="0.8"/></svg>
+      <span>PSA Cavite<br>Admin System</span>
+    </div>
+
+    <div class="nav-item active" data-page="dashboard" onclick="goPage('dashboard')">📊 Dashboard</div>
+    <div class="nav-item" data-page="profile" onclick="goPage('profile')">👤 My Profile</div>
+
+    <div class="nav-section-label" id="adminSectionLabel">Administration</div>
+    <div class="nav-item" data-page="users" onclick="goPage('users')">🧑‍🤝‍🧑 Personnel</div>
+    <div class="nav-item" data-page="deptpos" onclick="goPage('deptpos')">🏷️ Departments &amp; Positions</div>
+    <div class="nav-item" data-page="logs" onclick="goPage('logs')">🕒 Attendance Logs</div>
+
+    <div class="sb-spacer"></div>
+    <div class="sb-user">
+      <div class="avatar" id="sbAvatar">--</div>
+      <div>
+        <div class="name" id="sbName">—</div>
+        <div class="role" id="sbRole">—</div>
+      </div>
+    </div>
+    <span class="logout-link" onclick="handleLogout()">Sign out</span>
+  </aside>
+
+  <main class="main">
+    <!-- DASHBOARD -->
+    <section id="page-dashboard">
+      <div class="page-head">
+        <div><div class="eyebrow">Overview</div><h2>Administrative Dashboard</h2></div>
+      </div>
+      <div class="cards" id="statCards"></div>
+      <div class="panel">
+        <h3>Recent Activity</h3>
+        <table><thead><tr><th>Personnel</th><th>Action</th><th>Timestamp</th></tr></thead><tbody id="recentLogsBody"></tbody></table>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="page-profile" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Account</div><h2>My Profile</h2></div></div>
+      <div class="panel">
+        <div class="profile-head">
+          <div class="avatar-lg" id="profAvatar">--</div>
+          <div>
+            <input type="file" id="profPicInput" accept="image/*" style="font-size:12.5px;">
+            <div style="font-size:12px; color:var(--ink-soft); margin-top:4px;">JPG or PNG, uploaded to the PSA Drive folder</div>
+          </div>
+        </div>
+        <div class="row3">
+          <div class="field"><label>First name</label><input type="text" id="profFirst"></div>
+          <div class="field"><label>Middle name</label><input type="text" id="profMiddle"></div>
+          <div class="field"><label>Last name</label><input type="text" id="profLast"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Position</label><input type="text" id="profPosition" disabled></div>
+          <div class="field"><label>Department</label><input type="text" id="profDepartment" disabled></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Date hired</label><input type="text" id="profDateHired" disabled></div>
+          <div class="field"><label>Role</label><input type="text" id="profRoleField" disabled></div>
+        </div>
+        <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="saveProfile()">Save Changes</button>
+      </div>
+    </section>
+
+    <!-- USERS (admin) -->
+    <section id="page-users" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Administration</div><h2>Personnel</h2></div></div>
+      <div class="panel">
+        <table>
+          <thead><tr><th>Name</th><th>Position</th><th>Department</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- DEPT / POSITION (admin) -->
+    <section id="page-deptpos" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Administration</div><h2>Departments &amp; Positions</h2></div></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div class="panel">
+          <h3>Departments</h3>
+          <div class="inline-form">
+            <input type="text" id="newDeptName" placeholder="New department name">
+            <button class="btn btn-gold btn-sm" onclick="addLookup('departments','newDeptName')">Add</button>
+          </div>
+          <table><tbody id="deptBody"></tbody></table>
+        </div>
+        <div class="panel">
+          <h3>Positions</h3>
+          <div class="inline-form">
+            <input type="text" id="newPosName" placeholder="New position name">
+            <button class="btn btn-gold btn-sm" onclick="addLookup('positions','newPosName')">Add</button>
+          </div>
+          <table><tbody id="posBody"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGS (admin) -->
+    <section id="page-logs" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Administration</div><h2>Attendance &amp; Activity Logs</h2></div></div>
+      <div class="panel">
+        <table><thead><tr><th>Personnel</th><th>Action</th><th>Timestamp</th></tr></thead><tbody id="allLogsBody"></tbody></table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const API = ''; // same-origin: backend also serves this page. Change to e.g. 'http://localhost:4000' if hosted separately.
+let TOKEN = localStorage.getItem('psa_token') || null; // per-browser session token only, not app data
+let CURRENT_USER = null;
+
+function switchAuthTab(tab){
+  document.getElementById('tabLoginBtn').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegisterBtn').classList.toggle('active', tab==='register');
+  document.getElementById('loginForm').classList.toggle('hidden', tab!=='login');
+  document.getElementById('registerForm').classList.toggle('hidden', tab!=='register');
+  document.getElementById('authMsg').innerHTML='';
+  if(tab==='register') loadLookupsIntoRegisterForm();
+}
+
+function showAuthMsg(text, type){
+  document.getElementById('authMsg').innerHTML = `<div class="msg ${type}">${text}</div>`;
+}
+
+async function api(path, opts={}){
+  const headers = opts.body instanceof FormData ? {} : {'Content-Type':'application/json'};
+  if(TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
+  const res = await fetch(API + path, {...opts, headers: {...headers, ...(opts.headers||{})}});
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+async function loadLookupsIntoRegisterForm(){
+  try{
+    const [depts, positions] = await Promise.all([
+      fetch(API+'/api/departments-public').then(r=>r.json()).catch(()=>[]),
+      fetch(API+'/api/positions-public').then(r=>r.json()).catch(()=>[])
+    ]);
+    const deptSel = document.getElementById('regDepartment');
+    const posSel = document.getElementById('regPosition');
+    deptSel.innerHTML = '<option value="">Select...</option>' + depts.map(d=>`<option value="${d.Name}">${d.Name}</option>`).join('');
+    posSel.innerHTML = '<option value="">Select...</option>' + positions.map(p=>`<option value="${p.Name}">${p.Name}</option>`).join('');
+  }catch(e){ console.error('Could not load department/position list', e); }
+}
+
+async function handleLogin(e){
+  e.preventDefault();
+  try{
+    const data = await api('/api/auth/login', {method:'POST', body: JSON.stringify({
+      username: document.getElementById('loginUsername').value,
+      password: document.getElementById('loginPassword').value
+    })});
+    TOKEN = data.token;
+    localStorage.setItem('psa_token', TOKEN);
+    CURRENT_USER = data.user;
+    enterApp();
+  }catch(err){ showAuthMsg(err.message, 'error'); }
+  return false;
+}
+
+async function handleRegister(e){
+  e.preventDefault();
+  try{
+    await api('/api/auth/register', {method:'POST', body: JSON.stringify({
+      firstName: document.getElementById('regFirst').value,
+      middleName: document.getElementById('regMiddle').value,
+      lastName: document.getElementById('regLast').value,
+      position: document.getElementById('regPosition').value,
+      department: document.getElementById('regDepartment').value,
+      dateHired: document.getElementById('regDateHired').value,
+      username: document.getElementById('regUsername').value,
+      password: document.getElementById('regPassword').value
+    })});
+    showAuthMsg('Account created. You can now sign in.', 'ok');
+    switchAuthTab('login');
+  }catch(err){ showAuthMsg(err.message, 'error'); }
+  return false;
+}
+
+function handleLogout(){
+  api('/api/auth/logout', {method:'POST', body: JSON.stringify({userId: CURRENT_USER.id})}).catch(()=>{});
+  localStorage.removeItem('psa_token');
+  TOKEN = null; CURRENT_USER = null;
+  document.getElementById('app').classList.remove('shown');
+  document.getElementById('authScreen').style.display='flex';
+}
+
+function initials(u){ return ((u.firstName||u.FirstName||'')[0]||'')+((u.lastName||u.LastName||'')[0]||''); }
+
+async function enterApp(){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('app').classList.add('shown');
+  document.getElementById('sbName').textContent = `${CURRENT_USER.firstName} ${CURRENT_USER.lastName}`;
+  document.getElementById('sbRole').textContent = CURRENT_USER.role;
+  document.getElementById('sbAvatar').textContent = initials(CURRENT_USER);
+  if(CURRENT_USER.profilePicUrl){ document.getElementById('sbAvatar').innerHTML = `<img src="${CURRENT_USER.profilePicUrl}">`; }
+
+  const isAdmin = CURRENT_USER.role === 'Admin';
+  document.getElementById('adminSectionLabel').classList.toggle('hidden', !isAdmin);
+  ['users','deptpos','logs'].forEach(p=>{
+    document.querySelector(`.nav-item[data-page="${p}"]`).classList.toggle('hidden', !isAdmin);
+  });
+
+  await goPage('dashboard');
+}
+
+async function goPage(page){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
+  document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('page-'+page).classList.remove('hidden');
+
+  if(page==='dashboard') await loadDashboard();
+  if(page==='profile') await loadProfile();
+  if(page==='users') await loadUsers();
+  if(page==='deptpos') await loadDeptPos();
+  if(page==='logs') await loadAllLogs();
+}
+
+async function loadDashboard(){
+  try{
+    const stats = await api('/api/dashboard/stats');
+    document.getElementById('statCards').innerHTML = `
+      <div class="card blue"><div class="num">${stats.totalActiveUsers}</div><div class="lbl">Active Personnel</div></div>
+      <div class="card"><div class="num">${stats.signedInToday}</div><div class="lbl">Signed In Today</div></div>
+      <div class="card"><div class="num">${stats.totalDepartments}</div><div class="lbl">Departments</div></div>
+      <div class="card"><div class="num">${stats.totalPositions}</div><div class="lbl">Positions</div></div>
+      <div class="card red"><div class="num">${stats.totalRetiredResigned}</div><div class="lbl">Retired / Resigned</div></div>
+    `;
+    const logs = await api('/api/dashboard/logs');
+    document.getElementById('recentLogsBody').innerHTML = logs.slice(0,8).map(logRow).join('');
+  }catch(err){ console.error(err); }
+}
+
+function logRow(l){
+  const pillClass = l.Action==='TimeIn' ? 'in' : 'out';
+  const label = l.Action==='TimeIn' ? 'Time In' : 'Time Out';
+  return `<tr><td>${l.userName}</td><td><span class="pill ${pillClass}">${label}</span></td><td class="mono">${new Date(l.Timestamp).toLocaleString()}</td></tr>`;
+}
+
+async function loadProfile(){
+  const u = await api('/api/users/me');
+  document.getElementById('profFirst').value = u.FirstName || '';
+  document.getElementById('profMiddle').value = u.MiddleName || '';
+  document.getElementById('profLast').value = u.LastName || '';
+  document.getElementById('profPosition').value = u.Position || '';
+  document.getElementById('profDepartment').value = u.Department || '';
+  document.getElementById('profDateHired').value = u.DateHired || '';
+  document.getElementById('profRoleField').value = u.Role || '';
+  const av = document.getElementById('profAvatar');
+  av.innerHTML = u.ProfilePicUrl ? `<img src="${u.ProfilePicUrl}">` : initials({firstName:u.FirstName,lastName:u.LastName});
+}
+
+async function saveProfile(){
+  const fd = new FormData();
+  fd.append('FirstName', document.getElementById('profFirst').value);
+  fd.append('MiddleName', document.getElementById('profMiddle').value);
+  fd.append('LastName', document.getElementById('profLast').value);
+  const file = document.getElementById('profPicInput').files[0];
+  if(file) fd.append('profilePic', file);
+  try{
+    await api('/api/users/me', {method:'PUT', body: fd});
+    alert('Profile updated.');
+    loadProfile();
+  }catch(err){ alert(err.message); }
+}
+
+async function loadUsers(){
+  const users = await api('/api/users');
+  document.getElementById('usersBody').innerHTML = users.map(u=>`
+    <tr>
+      <td>${u.FirstName} ${u.MiddleName?u.MiddleName[0]+'. ':''}${u.LastName}</td>
+      <td>${u.Position||'—'}</td>
+      <td>${u.Department||'—'}</td>
+      <td><span class="pill ${u.Role==='Admin'?'admin':'user'}">${u.Role}</span></td>
+      <td>${u.DateRetiredResigned ? `<span class="pill out">Inactive</span>` : `<span class="pill in">Active</span>`}</td>
+      <td>
+        <button class="icon-btn" onclick="promptRetire('${u.ID}')">Set retire/resign date</button>
+        <button class="icon-btn del" onclick="deleteUser('${u.ID}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function promptRetire(id){
+  const date = prompt('Enter retirement/resignation date (YYYY-MM-DD), or leave blank to reactivate:');
+  if(date===null) return;
+  await api('/api/users/'+id, {method:'PUT', body: JSON.stringify({DateRetiredResigned: date})});
+  loadUsers();
+}
+async function deleteUser(id){
+  if(!confirm('Permanently delete this personnel record?')) return;
+  await api('/api/users/'+id, {method:'DELETE'});
+  loadUsers();
+}
+
+async function loadDeptPos(){
+  const [depts, positions] = await Promise.all([api('/api/departments'), api('/api/positions')]);
+  document.getElementById('deptBody').innerHTML = depts.map(d=>lookupRow(d,'departments')).join('');
+  document.getElementById('posBody').innerHTML = positions.map(p=>lookupRow(p,'positions')).join('');
+}
+function lookupRow(item, kind){
+  return `<tr><td>${item.Name}</td><td style="text-align:right;">
+    <button class="icon-btn del" onclick="deleteLookup('${kind}','${item.ID}')">Remove</button>
+  </td></tr>`;
+}
+async function addLookup(kind, inputId){
+  const val = document.getElementById(inputId).value.trim();
+  if(!val) return;
+  await api('/api/'+kind, {method:'POST', body: JSON.stringify({Name: val})});
+  document.getElementById(inputId).value='';
+  loadDeptPos();
+}
+async function deleteLookup(kind, id){
+  await api('/api/'+kind+'/'+id, {method:'DELETE'});
+  loadDeptPos();
+}
+
+async function loadAllLogs(){
+  const logs = await api('/api/dashboard/logs');
+  document.getElementById('allLogsBody').innerHTML = logs.map(logRow).join('');
+}
+
+// Auto sign-in if a token is already stored
+(async function init(){
+  if(TOKEN){
+    try{
+      const me = await api('/api/users/me');
+      CURRENT_USER = {
+        id: me.ID, firstName: me.FirstName, lastName: me.LastName, role: me.Role,
+        department: me.Department, position: me.Position, profilePicUrl: me.ProfilePicUrl
+      };
+      enterApp();
+    }catch(e){ localStorage.removeItem('psa_token'); }
+  }
+})();
+</script>
+</body>
+</html>

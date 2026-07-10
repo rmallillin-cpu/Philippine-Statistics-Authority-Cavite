@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: psa-cavite-admin-system
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: GOOGLE_SHEET_ID
+        value: 1sqF-oRgRU6A1_QtP-r8JJpEyLLuhzO7QJHUzvd6KRHg
+      - key: GOOGLE_DRIVE_FOLDER_ID
+        value: 1VUDFzcIw3H-Tmf8bwQuTkWA-3yGU2CXn
+      - key: JWT_SECRET
+        generateValue: true
