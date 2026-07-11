@@ -49,6 +49,7 @@ router.post('/', requireAuth, async (req, res) => {
       TimeStart: timeStart || '',
       TimeEnd: timeEnd || '',
       CreatedBy: req.user.id,
+      Completed: 'false',
     });
     res.json(record);
   } catch (err) {
@@ -75,6 +76,24 @@ router.put('/:id', requireAuth, async (req, res) => {
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: 'Could not update schedule entry', detail: err.message });
+  }
+});
+
+// PATCH /api/schedule/:id/complete - the entry's creator, an admin, or anyone it's assigned to
+router.patch('/:id/complete', requireAuth, async (req, res) => {
+  try {
+    const existing = await sheetsService.getById('Schedule', req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    const myId = String(req.user.id);
+    const assignedIds = existing.AssignedTo === 'all' ? [] : String(existing.AssignedTo || '').split(',').filter(Boolean);
+    const isAssigned = existing.AssignedTo === 'all' || assignedIds.includes(myId);
+    const canToggle = isAssigned || existing.CreatedBy === myId || req.user.role === 'Admin';
+    if (!canToggle) return res.status(403).json({ error: 'Not allowed to update this entry' });
+    const completed = req.body.completed === true || req.body.completed === 'true';
+    const updated = await sheetsService.update('Schedule', req.params.id, { Completed: completed ? 'true' : 'false' });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'Could not update completion status', detail: err.message });
   }
 });
 
