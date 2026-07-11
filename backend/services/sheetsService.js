@@ -18,7 +18,7 @@ const SCHEMAS = {
   Logs: ['ID', 'UserID', 'Action', 'Timestamp'],
   Accomplishments: ['ID', 'UserID', 'Title', 'Description', 'Date', 'CreatedAt'],
   Files: ['ID', 'UploaderID', 'AssigneeID', 'FileName', 'FileUrl', 'Status', 'Comment', 'CreatedAt', 'UpdatedAt'],
-  Posts: ['ID', 'AuthorID', 'Content', 'ImageUrl', 'CreatedAt'],
+  Posts: ['ID', 'AuthorID', 'Content', 'ImageUrl', 'CreatedAt', 'MediaType', 'Featured'],
   Messages: ['ID', 'FromID', 'ToID', 'Content', 'CreatedAt', 'Read'],
   Schedule: ['ID', 'Title', 'AssignedTo', 'Date', 'TimeStart', 'TimeEnd', 'CreatedBy', 'CreatedAt'],
   Comments: ['ID', 'PostID', 'AuthorID', 'Content', 'CreatedAt', 'ParentCommentID'],

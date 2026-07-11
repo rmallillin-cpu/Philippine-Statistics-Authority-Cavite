@@ -208,7 +208,7 @@
   .hamburger{display:none; background:none; border:none; color:#fff; font-size:20px; cursor:pointer; padding:6px;}
   #mobileMenuPanel{display:none;}
 
-  .main{flex:1; padding:36px 28px 60px; max-width:1360px; margin:0 auto; width:100%;}
+  .main{flex:1; min-width:0; padding:36px 0 60px; width:100%;}
   section:not(.hidden){animation:fadeUp .38s ease both;}
   .page-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:26px; flex-wrap:wrap; gap:10px;}
   .page-head h2{font-size:27px; color:var(--navy); position:relative; display:inline-block;}
@@ -304,7 +304,44 @@
   .post-head .p-name{font-weight:600; color:var(--navy); font-size:13.5px;}
   .post-head .p-time{font-size:11.5px; color:var(--ink-faint);}
   .post-content{font-size:14px; color:var(--ink); line-height:1.6; white-space:pre-wrap;}
-  .post-image{max-width:100%; border-radius:14px; margin-top:12px; display:block;}
+  .post-media-wrap{position:relative; width:100%; height:380px; margin-top:12px; border-radius:14px; overflow:hidden; background:#0b1220; cursor:pointer;}
+  .post-media-wrap img, .post-media-wrap video{width:100%; height:100%; object-fit:cover; display:block;}
+  .post-media-wrap iframe{width:100%; height:100%; border:0; pointer-events:none;}
+  .post-media-wrap .play-badge{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; background:rgba(6,13,28,.18);}
+  .post-media-wrap .play-badge::after{content:''; width:0; height:0; border-top:14px solid transparent; border-bottom:14px solid transparent; border-left:22px solid #fff; margin-left:4px;}
+  .play-circle{width:60px; height:60px; border-radius:50%; background:rgba(6,13,28,.55); display:flex; align-items:center; justify-content:center;}
+
+  .lightbox-overlay{position:fixed; inset:0; background:rgba(6,13,28,.92); z-index:999; display:flex; align-items:center; justify-content:center; padding:24px;}
+  .lightbox-overlay.hidden{display:none;}
+  .lightbox-box{background:#0b1220; border-radius:16px; overflow:hidden; display:flex; width:min(1100px,96vw); height:min(82vh,760px); position:relative; box-shadow:0 30px 80px rgba(0,0,0,.5);}
+  .lightbox-media{flex:1; background:#000; display:flex; align-items:center; justify-content:center; min-width:0;}
+  .lightbox-media img{max-width:100%; max-height:100%; object-fit:contain;}
+  .lightbox-media iframe{width:100%; height:100%; border:0;}
+  .lightbox-comments{width:360px; flex-shrink:0; background:var(--surface); display:flex; flex-direction:column; border-left:1px solid rgba(255,255,255,.08);}
+  .lightbox-comments-head{padding:16px; border-bottom:1px solid var(--line); flex-shrink:0;}
+  .lightbox-comments-list{flex:1; overflow-y:auto; padding:14px;}
+  .lightbox-comments .comment-add{padding:12px 14px; border-top:1px solid var(--line); margin-top:0; flex-shrink:0;}
+  .lightbox-close{position:absolute; top:12px; right:12px; background:rgba(255,255,255,.14); color:#fff; border:none; width:34px; height:34px; border-radius:50%; font-size:16px; cursor:pointer; z-index:2;}
+  .lightbox-close:hover{background:rgba(255,255,255,.24);}
+  @media (max-width:760px){
+    .lightbox-box{flex-direction:column; width:94vw; height:92vh;}
+    .lightbox-comments{width:100%; height:40%;}
+    .lightbox-media{height:60%;}
+  }
+
+  .app-shell{display:flex; align-items:flex-start; gap:24px; max-width:1360px; margin:0 auto; width:100%; padding:0 28px;}
+  .ad-sidebar{width:296px; flex-shrink:0; position:sticky; top:24px; display:flex; flex-direction:column; gap:14px; padding-top:36px; max-height:calc(100vh - 48px); overflow-y:auto;}
+  .ad-sidebar:empty{display:none;}
+  .ad-sidebar-title{font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); padding:0 4px;}
+  .ad-card{background:var(--surface); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.5); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); cursor:pointer; transition:box-shadow .18s;}
+  .ad-card:hover{box-shadow:var(--shadow-md);}
+  .ad-card-media{width:100%; height:150px; background:#0b1220; overflow:hidden;}
+  .ad-card-media img{width:100%; height:100%; object-fit:cover; display:block;}
+  .ad-card-media iframe{width:100%; height:100%; border:0; pointer-events:none;}
+  .ad-card-body{padding:10px 12px;}
+  .ad-card-name{font-size:11.5px; font-weight:700; color:var(--navy);}
+  .ad-card-text{font-size:12.5px; color:var(--ink-soft); margin-top:3px; line-height:1.45;}
+  @media (max-width:1100px){ .ad-sidebar{display:none;} }
   .post-delete{margin-left:auto;}
   .comment-section{margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
   .comment-item{display:flex; gap:8px; margin-bottom:10px;}
@@ -370,7 +407,8 @@
     #mobileMenuPanel .menu-item.has-sub.open .submenu{display:block;}
     #mobileMenuPanel .submenu-item{color:#C7CEDC;}
     #mobileMenuPanel .submenu-item:hover, #mobileMenuPanel .submenu-item.active{background:rgba(255,255,255,.08); color:#fff;}
-    .main{padding:24px 18px 50px;}
+    .main{padding:24px 0 50px;}
+    .app-shell{padding:0 18px;}
   }
 </style>
 </head>
@@ -493,6 +531,7 @@
     </nav>
   </header>
 
+  <div class="app-shell">
   <main class="main">
     <!-- DASHBOARD -->
     <section id="page-dashboard">
@@ -654,7 +693,11 @@
       <div class="panel hidden" id="newPostPanel">
         <h3>Post an announcement</h3>
         <div class="field"><label>Message</label><textarea id="postContent" rows="3" placeholder="What's happening?"></textarea></div>
-        <div class="field"><label>Image (optional)</label><input type="file" id="postImageInput" accept="image/*"></div>
+        <div class="field"><label>Photo or video (optional)</label><input type="file" id="postImageInput" accept="image/*,video/*"></div>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; cursor:pointer;">
+          <input type="checkbox" id="postFeatured" style="width:auto;">
+          Feature this announcement in the sidebar (visible to everyone, on every page)
+        </label>
         <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="publishPost()">Publish</button>
       </div>
       <div id="postsFeed"></div>
@@ -711,6 +754,20 @@
       </div>
     </section>
   </main>
+  <aside class="ad-sidebar" id="adSidebar"></aside>
+  </div>
+
+  <div class="lightbox-overlay hidden" id="lightboxOverlay" onclick="if(event.target===this) closeLightbox()">
+    <div class="lightbox-box">
+      <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+      <div class="lightbox-media" id="lightboxMedia"></div>
+      <div class="lightbox-comments">
+        <div class="lightbox-comments-head" id="lightboxHead"></div>
+        <div class="lightbox-comments-list" id="lightboxCommentsList"></div>
+        <div id="lightboxCommentAdd"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -816,6 +873,8 @@ function handleLogout(){
   api('/api/auth/logout', {method:'POST', body: JSON.stringify({userId: CURRENT_USER.id})}).catch(()=>{});
   localStorage.removeItem('psa_token');
   TOKEN = null; CURRENT_USER = null;
+  ALL_POSTS = [];
+  document.getElementById('adSidebar').innerHTML = '';
   document.getElementById('app').classList.remove('shown');
   document.getElementById('authScreen').style.display='flex';
 }
@@ -843,6 +902,7 @@ async function enterApp(){
   await goPage('dashboard');
   refreshUnreadBadge();
   setInterval(refreshUnreadBadge, 20000);
+  setInterval(refreshFeaturedSidebar, 30000);
 }
 
 async function refreshUnreadBadge(){
@@ -897,6 +957,8 @@ async function loadDashboard(){
 
   try{
     const posts = await api('/api/posts');
+    ALL_POSTS = posts;
+    renderFeaturedSidebar();
     const feed = document.getElementById('dashboardPostsFeed');
     if(!posts.length){ feed.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">No announcements yet.</div>`; return; }
     feed.innerHTML = posts.slice(0,5).map(p=>`
@@ -906,7 +968,12 @@ async function loadDashboard(){
           <div><div class="p-name">${escapeHtml(p.authorName)}</div><div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div></div>
         </div>
         <div class="post-content">${escapeHtml(p.Content)}</div>
-        ${p.ImageUrl ? `<img class="post-image" src="${p.ImageUrl}" style="max-height:220px; object-fit:cover;">` : ''}
+        ${p.ImageUrl ? `
+          <div class="post-media-wrap" style="height:220px;" onclick="goToPostAndOpen('${p.ID}')">
+            ${mediaHtml(p)}
+            ${p.MediaType==='video' ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
+          </div>
+        ` : ''}
       </div>
     `).join('');
   }catch(err){ console.error(err); }
@@ -1228,15 +1295,27 @@ async function sendThreadMessage(){
 
 /* ---------- Announcements ---------- */
 let ALL_COMMENTS = [];
+let ALL_POSTS = [];
+let LIGHTBOX_POST_ID = null;
 
 async function loadPosts(){
   const isAdmin = CURRENT_USER.role === 'Admin';
   document.getElementById('newPostPanel').classList.toggle('hidden', !isAdmin);
   const [posts, comments] = await Promise.all([api('/api/posts'), api('/api/comments')]);
+  ALL_POSTS = posts;
   ALL_COMMENTS = comments;
   const feed = document.getElementById('postsFeed');
-  if(!posts.length){ feed.innerHTML = `<div class="panel" style="text-align:center; color:var(--ink-faint);">No announcements yet.</div>`; return; }
-  feed.innerHTML = posts.map(p=>postCardHtml(p, isAdmin)).join('');
+  if(!posts.length){ feed.innerHTML = `<div class="panel" style="text-align:center; color:var(--ink-faint);">No announcements yet.</div>`; }
+  else{ feed.innerHTML = posts.map(p=>postCardHtml(p, isAdmin)).join(''); }
+  renderFeaturedSidebar();
+}
+
+function mediaHtml(p, forLightbox=false){
+  if(!p.ImageUrl) return '';
+  if(p.MediaType==='video'){
+    return `<iframe src="${p.ImageUrl}" allow="autoplay; fullscreen" allowfullscreen ${forLightbox ? '' : 'style="pointer-events:none;"'}></iframe>`;
+  }
+  return `<img src="${p.ImageUrl}" alt="">`;
 }
 
 function postCardHtml(p, isAdmin){
@@ -1248,12 +1327,17 @@ function postCardHtml(p, isAdmin){
         <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
         <div>
           <div class="p-name">${escapeHtml(p.authorName)}</div>
-          <div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div>
+          <div class="p-time">${new Date(p.CreatedAt).toLocaleString()} ${p.Featured==='true' ? '· 📌 Featured' : ''}</div>
         </div>
         ${isAdmin ? `<button class="icon-btn del post-delete" onclick="deletePost('${p.ID}')">Delete</button>` : ''}
       </div>
       <div class="post-content">${escapeHtml(p.Content)}</div>
-      ${p.ImageUrl ? `<img class="post-image" src="${p.ImageUrl}">` : ''}
+      ${p.ImageUrl ? `
+        <div class="post-media-wrap" onclick="openLightbox('${p.ID}')">
+          ${mediaHtml(p)}
+          ${p.MediaType==='video' ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
+        </div>
+      ` : ''}
       <div class="comment-section">
         ${topLevel.map(c=>commentItemHtml(c, postComments, p.ID)).join('')}
         <div class="comment-add">
@@ -1299,13 +1383,14 @@ function toggleReplyBox(commentId){
 async function addComment(postId, parentCommentId=null){
   const input = parentCommentId
     ? document.getElementById('replyInput-'+parentCommentId)
-    : document.getElementById('commentInput-'+postId);
+    : (document.getElementById('commentInput-'+postId) || document.getElementById('lightboxCommentInput'));
   const content = input.value.trim();
   if(!content) return;
   input.value = '';
   try{
     await api('/api/comments', {method:'POST', body: JSON.stringify({postId, content, parentCommentId})});
-    loadPosts();
+    await loadPosts();
+    if(LIGHTBOX_POST_ID === postId) renderLightbox();
   }catch(err){ alert(err.message); }
 }
 
@@ -1313,8 +1398,87 @@ async function deleteComment(id){
   if(!confirm('Delete this comment?')) return;
   try{
     await api('/api/comments/'+id, {method:'DELETE'});
-    loadPosts();
+    await loadPosts();
+    if(LIGHTBOX_POST_ID) renderLightbox();
   }catch(err){ alert(err.message); }
+}
+
+/* ---------- Lightbox (Facebook-style media viewer with comments alongside) ---------- */
+function openLightbox(postId){
+  LIGHTBOX_POST_ID = postId;
+  renderLightbox();
+  document.getElementById('lightboxOverlay').classList.remove('hidden');
+}
+
+function closeLightbox(){
+  document.getElementById('lightboxOverlay').classList.add('hidden');
+  document.getElementById('lightboxMedia').innerHTML = '';
+  LIGHTBOX_POST_ID = null;
+}
+
+function renderLightbox(){
+  const p = ALL_POSTS.find(x=>x.ID===LIGHTBOX_POST_ID);
+  if(!p){ closeLightbox(); return; }
+  const isAdmin = CURRENT_USER.role === 'Admin';
+
+  document.getElementById('lightboxMedia').innerHTML = mediaHtml(p, true);
+
+  document.getElementById('lightboxHead').innerHTML = `
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
+      <div><div class="p-name">${escapeHtml(p.authorName)}</div><div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div></div>
+    </div>
+    <div class="post-content" style="margin-top:10px;">${escapeHtml(p.Content)}</div>
+  `;
+
+  const postComments = ALL_COMMENTS.filter(c=>c.PostID===p.ID);
+  const topLevel = postComments.filter(c=>!c.ParentCommentID);
+  document.getElementById('lightboxCommentsList').innerHTML = topLevel.length
+    ? topLevel.map(c=>commentItemHtml(c, postComments, p.ID)).join('')
+    : `<div style="color:var(--ink-faint); font-size:13px;">No comments yet — be the first to say something.</div>`;
+
+  document.getElementById('lightboxCommentAdd').innerHTML = `
+    <div class="comment-add">
+      <input type="text" id="lightboxCommentInput" placeholder="Write a comment..." onkeydown="if(event.key==='Enter') addComment('${p.ID}');">
+      <button class="btn btn-outline btn-sm" onclick="addComment('${p.ID}')">Post</button>
+    </div>
+  `;
+}
+
+/* ---------- Sitewide featured-announcements sidebar ---------- */
+async function refreshFeaturedSidebar(){
+  try{
+    ALL_POSTS = await api('/api/posts');
+    renderFeaturedSidebar();
+  }catch(err){ /* not logged in yet, or offline — ignore */ }
+}
+
+function renderFeaturedSidebar(){
+  const el = document.getElementById('adSidebar');
+  if(!el) return;
+  const featured = ALL_POSTS.filter(p=>p.Featured==='true');
+  if(!featured.length){ el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="ad-sidebar-title">📌 Featured Announcements</div>` + featured.map(featuredCardHtml).join('');
+}
+
+function featuredCardHtml(p){
+  const preview = p.Content.length > 90 ? p.Content.slice(0,90)+'…' : p.Content;
+  return `
+    <div class="ad-card" onclick="goToPostAndOpen('${p.ID}')">
+      ${p.ImageUrl ? `<div class="ad-card-media">${mediaHtml(p)}</div>` : ''}
+      <div class="ad-card-body">
+        <div class="ad-card-name">${escapeHtml(p.authorName || 'PSA Cavite')}</div>
+        <div class="ad-card-text">${escapeHtml(preview)}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function goToPostAndOpen(postId){
+  if(document.getElementById('page-posts').classList.contains('hidden')){
+    await goPage('posts');
+  }
+  openLightbox(postId);
 }
 
 async function publishPost(){
@@ -1323,11 +1487,13 @@ async function publishPost(){
   const fd = new FormData();
   fd.append('content', content);
   const file = document.getElementById('postImageInput').files[0];
-  if(file) fd.append('image', file);
+  if(file) fd.append('media', file);
+  fd.append('featured', document.getElementById('postFeatured').checked ? 'true' : '');
   try{
     await api('/api/posts', {method:'POST', body: fd});
     document.getElementById('postContent').value = '';
     document.getElementById('postImageInput').value = '';
+    document.getElementById('postFeatured').checked = false;
     loadPosts();
   }catch(err){ alert(err.message); }
 }
@@ -1335,6 +1501,7 @@ async function publishPost(){
 async function deletePost(id){
   if(!confirm('Delete this announcement?')) return;
   await api('/api/posts/'+id, {method:'DELETE'});
+  if(LIGHTBOX_POST_ID === id) closeLightbox();
   loadPosts();
 }
 

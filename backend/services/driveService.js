@@ -41,6 +41,9 @@ async function uploadFile(buffer, filename, mimeType, subfolderId = null) {
     // page and will never render as an image. sz=w1000 caps width at 1000px;
     // bump it if you need larger images.
     embedUrl: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
+    // Use this one inside an <iframe> to play video with controls. Also works for
+    // images/PDFs, but embedUrl above is lighter-weight for plain images.
+    previewUrl: `https://drive.google.com/file/d/${fileId}/preview`,
   };
 }
 
