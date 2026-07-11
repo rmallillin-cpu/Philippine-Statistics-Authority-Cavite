@@ -4,37 +4,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PSA Cavite | Administrative System</title>
+<link rel="icon" type="image/png" href="/psa-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
     --navy:#122A52;
-    --navy-deep:#081428;
+    --navy-deep:#060D1C;
     --navy-mid:#1B3970;
+    --navy-glass:rgba(10,22,48,.62);
     --gold:#F5B301;
     --gold-soft:#FFD666;
     --red:#CE1126;
-    --bg:#F3F5FA;
-    --surface:#FFFFFF;
-    --surface-2:#FAFBFD;
-    --ink:#151B2B;
+    --glow:#2FD3E8;
+    --bg:#EEF2FA;
+    --surface:rgba(255,255,255,.86);
+    --surface-2:rgba(246,248,253,.9);
+    --ink:#131A2B;
     --ink-soft:#5B6478;
     --ink-faint:#8890A3;
-    --line:#E6E9F1;
+    --line:rgba(18,42,82,.10);
     --ok:#1E8E5A;
-    --radius:18px;
-    --radius-sm:12px;
-    --shadow-sm:0 1px 2px rgba(15,34,82,.06);
-    --shadow-md:0 16px 36px -16px rgba(15,34,82,.28);
+    --radius:20px;
+    --radius-sm:13px;
+    --shadow-sm:0 1px 2px rgba(15,34,82,.06), 0 1px 1px rgba(15,34,82,.04);
+    --shadow-md:0 20px 44px -18px rgba(15,34,82,.32);
+    --shadow-glow:0 0 0 1px rgba(245,179,1,.16), 0 12px 32px -12px rgba(245,179,1,.30);
     --tricolor:linear-gradient(90deg, var(--navy) 0%, var(--red) 50%, var(--gold) 100%);
+    --tricolor-soft:linear-gradient(90deg, rgba(18,42,82,.9), rgba(206,17,38,.9), rgba(245,179,1,.9));
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
   body{
     font-family:'Inter',sans-serif;
     background:
-      radial-gradient(circle at 100% 0%, rgba(18,42,82,0.05), transparent 45%),
-      radial-gradient(circle at 0% 100%, rgba(245,179,1,0.06), transparent 40%),
+      radial-gradient(circle at 12% 8%, rgba(47,211,232,.09), transparent 38%),
+      radial-gradient(circle at 88% 4%, rgba(245,179,1,.10), transparent 40%),
+      radial-gradient(circle at 100% 90%, rgba(18,42,82,.08), transparent 45%),
+      radial-gradient(circle at 6% 96%, rgba(206,17,38,.06), transparent 40%),
       var(--bg);
+    background-attachment:fixed;
     color:var(--ink);
     min-height:100vh;
   }
@@ -43,58 +52,80 @@
   ::selection{background:var(--gold-soft); color:var(--navy-deep);}
   @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
 
+  /* thin glowing scrollbars */
+  ::-webkit-scrollbar{width:9px; height:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(18,42,82,.25); border-radius:20px; border:2px solid transparent; background-clip:content-box;}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(18,42,82,.4); background-clip:content-box;}
+
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes shimmer{ 0%{background-position:-140px 0;} 100%{background-position:140px 0;} }
+  @keyframes floatGlow{ 0%,100%{transform:translate(0,0);} 50%{transform:translate(-3%,3%);} }
+  @keyframes sweep{ 0%{background-position:0% 50%;} 100%{background-position:200% 50%;} }
+
   /* ---------- Auth screen ---------- */
   #authScreen{
     min-height:100vh; display:flex; align-items:center; justify-content:center;
     background:
-      radial-gradient(circle at 15% 20%, rgba(245,179,1,0.12), transparent 40%),
-      radial-gradient(circle at 85% 80%, rgba(206,17,38,0.10), transparent 40%),
+      radial-gradient(circle at 15% 20%, rgba(245,179,1,0.14), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(47,211,232,0.10), transparent 38%),
+      radial-gradient(circle at 85% 85%, rgba(206,17,38,0.12), transparent 40%),
       var(--navy-deep);
     padding:24px; position:relative; overflow:hidden;
   }
   #authScreen::before{
-    content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--tricolor);
+    content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--tricolor); z-index:2;
+  }
+  #authScreen::after{
+    content:''; position:absolute; inset:-20%; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(245,179,1,.08), transparent 30%),
+      radial-gradient(circle at 80% 70%, rgba(47,211,232,.08), transparent 30%);
+    animation:floatGlow 14s ease-in-out infinite;
   }
   .auth-card{
-    background:var(--surface); border-radius:22px; width:100%; max-width:430px;
-    padding:40px 36px; box-shadow:0 40px 80px rgba(0,0,0,0.40); position:relative;
-    animation:cardIn .5s cubic-bezier(.2,.8,.2,1);
+    background:rgba(255,255,255,.94); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border-radius:26px; width:100%; max-width:430px; border:1px solid rgba(255,255,255,.5);
+    padding:40px 36px; box-shadow:0 40px 90px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,.06) inset;
+    position:relative; z-index:1; animation:cardIn .55s cubic-bezier(.2,.8,.2,1);
   }
-  @keyframes cardIn{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes cardIn{ from{opacity:0; transform:translateY(16px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);} }
   .auth-brand{display:flex; align-items:center; gap:12px; margin-bottom:8px;}
-  .tri-arrow{width:34px; height:34px; flex-shrink:0;}
+  .tri-arrow{width:34px; height:34px; flex-shrink:0; border-radius:9px;}
   .auth-brand .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:600;}
   .auth-brand h1{font-size:22px; color:var(--navy); line-height:1.15;}
   .auth-sub{color:var(--ink-soft); font-size:13.5px; margin:6px 0 26px;}
   .default-hint{
-    font-size:12px; background:var(--surface-2); border:1px dashed var(--line); border-radius:10px;
+    font-size:12px; background:var(--surface-2); border:1px dashed rgba(18,42,82,.22); border-radius:12px;
     padding:9px 12px; color:var(--ink-soft); margin-bottom:20px; line-height:1.5;
   }
   .default-hint b{color:var(--navy);}
-  .tabs{display:flex; gap:4px; background:var(--bg); padding:4px; border-radius:11px; margin-bottom:22px;}
-  .tab-btn{flex:1; border:none; background:transparent; padding:9px 0; border-radius:8px; font-weight:600; font-size:13.5px; color:var(--ink-soft); cursor:pointer; transition:background .18s,color .18s;}
-  .tab-btn.active{background:var(--navy); color:#fff;}
+  .tabs{display:flex; gap:4px; background:var(--bg); padding:4px; border-radius:13px; margin-bottom:22px;}
+  .tab-btn{flex:1; border:none; background:transparent; padding:9px 0; border-radius:9px; font-weight:600; font-size:13.5px; color:var(--ink-soft); cursor:pointer; transition:background .18s,color .18s, box-shadow .18s;}
+  .tab-btn.active{background:linear-gradient(135deg, var(--navy), var(--navy-mid)); color:#fff; box-shadow:0 6px 16px -6px rgba(18,42,82,.5);}
   .field{margin-bottom:14px;}
   .field label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:5px;}
   .field input, .field select{
-    width:100%; padding:11px 12px; border:1.5px solid var(--line); border-radius:10px;
-    font-size:14px; font-family:inherit; background:#fff; color:var(--ink); transition:border-color .15s, box-shadow .15s;
+    width:100%; padding:11px 13px; border:1.5px solid var(--line); border-radius:12px;
+    font-size:14px; font-family:inherit; background:rgba(255,255,255,.9); color:var(--ink); transition:border-color .15s, box-shadow .15s;
   }
-  .field input:focus, .field select:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(18,42,82,.10);}
+  .field input:focus, .field select:focus{outline:none; border-color:var(--glow); box-shadow:0 0 0 4px rgba(47,211,232,.14);}
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
   .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
   .btn{
-    width:100%; padding:12px; border:none; border-radius:10px; background:var(--navy); color:#fff;
-    font-weight:600; font-size:14.5px; cursor:pointer; margin-top:6px; transition:background .18s, transform .1s;
+    width:100%; padding:12px; border:none; border-radius:12px; background:linear-gradient(135deg, var(--navy), var(--navy-mid)); color:#fff;
+    font-weight:600; font-size:14.5px; cursor:pointer; margin-top:6px; transition:transform .12s, box-shadow .18s, filter .18s;
+    box-shadow:0 10px 24px -10px rgba(18,42,82,.55);
   }
-  .btn:hover{background:var(--navy-deep);}
+  .btn:hover{filter:brightness(1.08); box-shadow:0 14px 30px -10px rgba(18,42,82,.65);}
   .btn:active{transform:scale(.98);}
-  .btn-gold{background:var(--gold); color:var(--navy-deep);}
-  .btn-gold:hover{background:var(--gold-soft);}
-  .btn-outline{background:transparent; border:1.5px solid var(--line); color:var(--ink);}
-  .btn-danger{background:var(--red); color:#fff;}
+  .btn-gold{background:linear-gradient(135deg, var(--gold), var(--gold-soft)); color:var(--navy-deep); box-shadow:0 10px 24px -10px rgba(245,179,1,.55);}
+  .btn-gold:hover{filter:brightness(1.05); box-shadow:0 14px 30px -10px rgba(245,179,1,.65);}
+  .btn-outline{background:rgba(255,255,255,.5); border:1.5px solid var(--line); color:var(--ink); box-shadow:none;}
+  .btn-outline:hover{background:rgba(255,255,255,.85); filter:none;}
+  .btn-danger{background:linear-gradient(135deg, var(--red), #E23B4F); color:#fff; box-shadow:0 10px 24px -10px rgba(206,17,38,.5);}
   .btn-sm{width:auto; padding:8px 14px; font-size:13px; margin-top:0;}
-  .msg{font-size:13px; padding:10px 12px; border-radius:9px; margin-bottom:14px;}
+  .msg{font-size:13px; padding:10px 12px; border-radius:11px; margin-bottom:14px;}
   .msg.error{background:#FDECEC; color:var(--red);}
   .msg.ok{background:#E9F7EF; color:var(--ok);}
   .hidden{display:none !important;}
@@ -103,12 +134,17 @@
   #app{display:none; min-height:100vh; flex-direction:column;}
   #app.shown{display:flex;}
   .topbar{
-    position:sticky; top:0; z-index:100; background:linear-gradient(180deg, var(--navy-deep), #0A1830);
+    position:sticky; top:0; z-index:100;
+    background:linear-gradient(180deg, rgba(8,17,38,.92), rgba(6,12,28,.96));
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
     border-bottom:1px solid rgba(255,255,255,.06); position:relative;
   }
-  .topbar::before{content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--tricolor);}
+  .topbar::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--tricolor-soft);
+    background-size:200% 100%; animation:sweep 9s linear infinite;
+  }
   .topbar-inner{
-    max-width:1360px; margin:0 auto; padding:0 28px; height:64px;
+    max-width:1360px; margin:0 auto; padding:0 28px; height:66px;
     display:flex; align-items:center; gap:24px;
   }
   .tb-brand{display:flex; align-items:center; gap:10px; flex-shrink:0; cursor:pointer;}
@@ -117,24 +153,25 @@
 
   .menu{display:flex; align-items:center; gap:2px; margin-left:8px;}
   .menu-item{
-    position:relative; display:flex; align-items:center; gap:5px; padding:10px 14px; border-radius:9px;
+    position:relative; display:flex; align-items:center; gap:5px; padding:10px 14px; border-radius:10px;
     color:#C7CEDC; font-size:13.5px; font-weight:500; cursor:pointer; white-space:nowrap;
     transition:background .15s, color .15s;
   }
-  .menu-item:hover{background:rgba(255,255,255,.07); color:#fff;}
-  .menu-item.active{color:var(--gold);}
-  .menu-item.active::after{content:''; position:absolute; left:14px; right:14px; bottom:3px; height:2px; background:var(--gold); border-radius:2px;}
+  .menu-item:hover{background:rgba(255,255,255,.08); color:#fff;}
+  .menu-item.active{color:var(--gold); background:rgba(245,179,1,.08);}
+  .menu-item.active::after{content:''; position:absolute; left:14px; right:14px; bottom:3px; height:2px; background:var(--gold); border-radius:2px; box-shadow:0 0 8px rgba(245,179,1,.7);}
   .menu-item .chev{font-size:9px; opacity:.7; transition:transform .18s;}
   .menu-item.has-sub.open .chev{transform:rotate(180deg);}
 
   .submenu{
-    position:absolute; top:calc(100% + 8px); left:0; min-width:230px; background:var(--surface);
-    border-radius:13px; box-shadow:var(--shadow-md); border:1px solid var(--line); padding:6px;
+    position:absolute; top:calc(100% + 8px); left:0; min-width:230px;
+    background:rgba(255,255,255,.92); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border-radius:15px; box-shadow:var(--shadow-md); border:1px solid rgba(255,255,255,.6); padding:6px;
     opacity:0; visibility:hidden; transform:translateY(-6px); transition:opacity .16s, transform .16s, visibility .16s;
   }
   .menu-item.has-sub.open .submenu{opacity:1; visibility:visible; transform:translateY(0);}
   .submenu-item{
-    padding:10px 12px; border-radius:8px; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer;
+    padding:10px 12px; border-radius:9px; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer;
     display:flex; align-items:center; gap:9px; transition:background .12s;
   }
   .submenu-item:hover{background:var(--surface-2);}
@@ -144,11 +181,11 @@
 
   .account{position:relative;}
   .account-trigger{
-    display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+    display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10);
     padding:6px 12px 6px 6px; border-radius:30px; cursor:pointer; transition:background .15s;
   }
-  .account-trigger:hover{background:rgba(255,255,255,.10);}
-  .avatar{width:32px; height:32px; border-radius:50%; background:var(--gold); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.5px; flex-shrink:0; overflow:hidden;}
+  .account-trigger:hover{background:rgba(255,255,255,.12);}
+  .avatar{width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-soft)); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.5px; flex-shrink:0; overflow:hidden; box-shadow:0 0 0 2px rgba(245,179,1,.25);}
   .avatar img{width:100%; height:100%; object-fit:cover;}
   .account-text{text-align:left; line-height:1.25;}
   .account-text .name{font-size:12.5px; font-weight:600; color:#fff;}
@@ -157,12 +194,13 @@
   .account.open .chev{transform:rotate(180deg);}
 
   .account-dropdown{
-    position:absolute; top:calc(100% + 8px); right:0; min-width:200px; background:var(--surface);
-    border-radius:13px; box-shadow:var(--shadow-md); border:1px solid var(--line); padding:6px;
+    position:absolute; top:calc(100% + 8px); right:0; min-width:200px;
+    background:rgba(255,255,255,.92); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border-radius:15px; box-shadow:var(--shadow-md); border:1px solid rgba(255,255,255,.6); padding:6px;
     opacity:0; visibility:hidden; transform:translateY(-6px); transition:opacity .16s, transform .16s, visibility .16s; z-index:50;
   }
   .account.open .account-dropdown{opacity:1; visibility:visible; transform:translateY(0);}
-  .dropdown-item{padding:10px 12px; border-radius:8px; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:9px;}
+  .dropdown-item{padding:10px 12px; border-radius:9px; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:9px;}
   .dropdown-item:hover{background:var(--surface-2);}
   .dropdown-item.danger{color:var(--red);}
   .dropdown-divider{height:1px; background:var(--line); margin:5px 4px;}
@@ -171,49 +209,58 @@
   #mobileMenuPanel{display:none;}
 
   .main{flex:1; padding:36px 28px 60px; max-width:1360px; margin:0 auto; width:100%;}
+  section:not(.hidden){animation:fadeUp .38s ease both;}
   .page-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:26px; flex-wrap:wrap; gap:10px;}
   .page-head h2{font-size:27px; color:var(--navy); position:relative; display:inline-block;}
   .page-head .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:600; display:flex; align-items:center; gap:8px;}
   .page-head .eyebrow::before{content:''; width:16px; height:3px; border-radius:2px; background:var(--tricolor);}
 
   .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:16px; margin-bottom:30px;}
-  .card{background:var(--surface); border-radius:var(--radius); padding:20px; border:1px solid var(--line); position:relative; overflow:hidden; box-shadow:var(--shadow-sm); transition:transform .18s, box-shadow .18s;}
-  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
+  .card{
+    background:var(--surface); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-radius:var(--radius); padding:20px; border:1px solid rgba(255,255,255,.5); position:relative; overflow:hidden;
+    box-shadow:var(--shadow-sm); transition:transform .2s, box-shadow .2s;
+  }
+  .card:hover{transform:translateY(-3px); box-shadow:var(--shadow-glow);}
   .card .num{font-family:'Fraunces',serif; font-size:33px; color:var(--navy); font-weight:600;}
   .card .lbl{font-size:12.5px; color:var(--ink-soft); font-weight:600; margin-top:2px;}
-  .card::before{content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--gold);}
+  .card::before{content:''; position:absolute; top:0; left:0; width:100%; height:4px; background:var(--gold);}
   .card.blue::before{background:var(--navy);}
   .card.red::before{background:var(--red);}
 
-  .panel{background:var(--surface); border-radius:var(--radius); border:1px solid var(--line); padding:22px; margin-bottom:24px; box-shadow:var(--shadow-sm);}
+  .panel{
+    background:var(--surface); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-radius:var(--radius); border:1px solid rgba(255,255,255,.5); padding:22px; margin-bottom:24px; box-shadow:var(--shadow-sm);
+  }
   .panel h3{font-size:15px; color:var(--navy); margin-bottom:16px;}
   table{width:100%; border-collapse:collapse; font-size:13.5px;}
   th{text-align:left; padding:10px 8px; color:var(--ink-soft); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; border-bottom:1.5px solid var(--line);}
   td{padding:11px 8px; border-bottom:1px solid var(--line);}
   tr:last-child td{border-bottom:none;}
   tr{transition:background .12s;}
-  tbody tr:hover{background:var(--surface-2);}
+  tbody tr:hover{background:rgba(18,42,82,.035);}
   .pill{display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:600;}
   .pill.in{background:#E9F7EF; color:var(--ok);}
   .pill.out{background:#FDECEC; color:var(--red);}
   .pill.admin{background:#FFF4D9; color:#8A6300;}
   .pill.user{background:#EEF1F8; color:var(--navy);}
-  .icon-btn{border:none; background:transparent; cursor:pointer; color:var(--ink-soft); font-size:13px; margin-right:8px; font-weight:600;}
+  .icon-btn{border:none; background:transparent; cursor:pointer; color:var(--ink-soft); font-size:13px; margin-right:8px; font-weight:600; transition:color .15s;}
   .icon-btn:hover{color:var(--navy);}
   .icon-btn.del:hover{color:var(--red);}
   .icon-btn.gold:hover{color:#8A6300;}
 
   .inline-form{display:flex; gap:8px; margin-bottom:16px;}
-  .inline-form input{flex:1; padding:9px 12px; border:1.5px solid var(--line); border-radius:9px; font-size:13.5px;}
+  .inline-form input{flex:1; padding:9px 12px; border:1.5px solid var(--line); border-radius:11px; font-size:13.5px;}
 
   .profile-head{display:flex; gap:20px; align-items:center; margin-bottom:24px;}
-  .avatar-lg{width:84px; height:84px; border-radius:50%; background:var(--gold); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:28px; overflow:hidden; flex-shrink:0;}
+  .avatar-lg{width:84px; height:84px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-soft)); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:28px; overflow:hidden; flex-shrink:0; box-shadow:0 0 0 4px rgba(245,179,1,.18);}
   .avatar-lg img{width:100%; height:100%; object-fit:cover;}
 
-  .badge{display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px; padding:0 5px; margin-left:6px; border-radius:20px; background:var(--red); color:#fff; font-size:10.5px; font-weight:700; line-height:17px;}
+  .badge{display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px; padding:0 5px; margin-left:6px; border-radius:20px; background:var(--red); color:#fff; font-size:10.5px; font-weight:700; line-height:17px; box-shadow:0 0 8px rgba(206,17,38,.5);}
 
   /* ---------- Accomplishments ---------- */
-  .accomp-item{border:1px solid var(--line); border-radius:13px; padding:14px 16px; margin-bottom:10px; position:relative; padding-left:20px;}
+  .accomp-item{border:1px solid var(--line); background:var(--surface-2); border-radius:15px; padding:14px 16px; margin-bottom:10px; position:relative; padding-left:22px; transition:box-shadow .18s;}
+  .accomp-item:hover{box-shadow:var(--shadow-sm);}
   .accomp-item::before{content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--gold); border-radius:4px 0 0 4px;}
   .accomp-item .a-title{font-weight:600; color:var(--navy); font-size:14.5px;}
   .accomp-item .a-date{font-size:11.5px; color:var(--ink-faint); font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-top:2px;}
@@ -221,13 +268,13 @@
   .accomp-item .a-actions{position:absolute; top:14px; right:14px; display:flex; gap:10px;}
   .accomp-item .a-meta{font-size:11.5px; color:var(--ink-faint); margin-top:4px;}
   .report-filters{display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;}
-  .report-filters select, .report-filters input{padding:9px 12px; border:1.5px solid var(--line); border-radius:9px; font-size:13px; font-family:inherit;}
+  .report-filters select, .report-filters input{padding:9px 12px; border:1.5px solid var(--line); border-radius:11px; font-size:13px; font-family:inherit; background:rgba(255,255,255,.85);}
 
   /* ---------- Messenger ---------- */
-  .msg-shell{display:grid; grid-template-columns:280px 1fr; gap:0; background:var(--surface); border-radius:var(--radius); border:1px solid var(--line); box-shadow:var(--shadow-sm); overflow:hidden; height:calc(100vh - 220px); min-height:420px;}
+  .msg-shell{display:grid; grid-template-columns:280px 1fr; gap:0; background:var(--surface); backdrop-filter:blur(16px); border-radius:var(--radius); border:1px solid rgba(255,255,255,.5); box-shadow:var(--shadow-sm); overflow:hidden; height:calc(100vh - 220px); min-height:420px;}
   .conv-list{border-right:1px solid var(--line); overflow-y:auto;}
   .conv-item{display:flex; gap:10px; align-items:center; padding:12px 14px; cursor:pointer; border-bottom:1px solid var(--line); transition:background .12s;}
-  .conv-item:hover, .conv-item.active{background:var(--surface-2);}
+  .conv-item:hover, .conv-item.active{background:rgba(18,42,82,.05);}
   .conv-item .c-info{flex:1; min-width:0;}
   .conv-item .c-name{font-size:13.5px; font-weight:600; color:var(--ink);}
   .conv-item .c-last{font-size:12px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
@@ -236,33 +283,35 @@
   .thread-head{padding:14px 18px; border-bottom:1px solid var(--line); font-weight:600; color:var(--navy); font-size:14.5px; display:flex; align-items:center; gap:10px;}
   .thread-body{flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:8px;}
   .thread-placeholder{margin:auto; color:var(--ink-faint); font-size:13.5px; text-align:center;}
-  .bubble{max-width:64%; padding:9px 13px; border-radius:14px; font-size:13.5px; line-height:1.45;}
-  .bubble.theirs{background:var(--surface-2); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
-  .bubble.mine{background:var(--navy); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
+  .bubble{max-width:64%; padding:9px 13px; border-radius:16px; font-size:13.5px; line-height:1.45;}
+  .bubble.theirs{background:rgba(18,42,82,.05); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
+  .bubble.mine{background:linear-gradient(135deg, var(--navy), var(--navy-mid)); color:#fff; align-self:flex-end; border-bottom-right-radius:4px; box-shadow:0 6px 18px -8px rgba(18,42,82,.5);}
   .bubble .b-time{display:block; font-size:10px; opacity:.65; margin-top:4px;}
   .thread-input{display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--line);}
-  .thread-input input{flex:1; padding:10px 13px; border:1.5px solid var(--line); border-radius:20px; font-size:13.5px; font-family:inherit;}
+  .thread-input input{flex:1; padding:10px 13px; border:1.5px solid var(--line); border-radius:20px; font-size:13.5px; font-family:inherit; background:rgba(255,255,255,.9);}
   .new-conv-picker{padding:10px 14px; border-bottom:1px solid var(--line);}
-  .new-conv-picker select{width:100%; padding:9px 10px; border:1.5px solid var(--line); border-radius:9px; font-size:13px;}
+  .new-conv-picker select{width:100%; padding:9px 10px; border:1.5px solid var(--line); border-radius:11px; font-size:13px;}
   @media (max-width:700px){ .msg-shell{grid-template-columns:1fr; height:auto;} .conv-list{max-height:220px;} }
 
-  .field textarea{width:100%; padding:11px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:14px; font-family:inherit; background:#fff; color:var(--ink); resize:vertical;}
-  .field textarea:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(18,42,82,.10);}
+  .field textarea{width:100%; padding:11px 13px; border:1.5px solid var(--line); border-radius:12px; font-size:14px; font-family:inherit; background:rgba(255,255,255,.9); color:var(--ink); resize:vertical;}
+  .field textarea:focus{outline:none; border-color:var(--glow); box-shadow:0 0 0 4px rgba(47,211,232,.14);}
   .field select[multiple]{height:auto;}
 
   /* ---------- Announcements ---------- */
-  .post-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:16px; box-shadow:var(--shadow-sm);}
+  .post-card{background:var(--surface); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.5); border-radius:var(--radius); padding:20px; margin-bottom:16px; box-shadow:var(--shadow-sm); transition:box-shadow .18s;}
+  .post-card:hover{box-shadow:var(--shadow-md);}
   .post-head{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .post-head .p-name{font-weight:600; color:var(--navy); font-size:13.5px;}
   .post-head .p-time{font-size:11.5px; color:var(--ink-faint);}
   .post-content{font-size:14px; color:var(--ink); line-height:1.6; white-space:pre-wrap;}
-  .post-image{max-width:100%; border-radius:12px; margin-top:12px; display:block;}
+  .post-image{max-width:100%; border-radius:14px; margin-top:12px; display:block;}
   .post-delete{margin-left:auto;}
 
   /* ---------- Schedule ---------- */
-  .sched-item{display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); border-radius:13px; padding:14px 16px; margin-bottom:10px; position:relative;}
-  .sched-item.mine{border-color:var(--gold); background:#FFFBF0;}
-  .sched-date-box{flex-shrink:0; width:56px; text-align:center; background:var(--navy); color:#fff; border-radius:10px; padding:8px 4px;}
+  .sched-item{display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); background:var(--surface-2); border-radius:15px; padding:14px 16px; margin-bottom:10px; position:relative; transition:box-shadow .18s;}
+  .sched-item:hover{box-shadow:var(--shadow-sm);}
+  .sched-item.mine{border-color:rgba(245,179,1,.5); background:linear-gradient(135deg, rgba(255,251,240,.9), rgba(255,244,217,.55)); box-shadow:0 0 0 1px rgba(245,179,1,.15);}
+  .sched-date-box{flex-shrink:0; width:56px; text-align:center; background:linear-gradient(160deg, var(--navy), var(--navy-mid)); color:#fff; border-radius:12px; padding:8px 4px; box-shadow:0 8px 18px -8px rgba(18,42,82,.5);}
   .sched-date-box .d-num{font-family:'Fraunces',serif; font-size:20px; font-weight:600; line-height:1;}
   .sched-date-box .d-mon{font-size:10px; text-transform:uppercase; letter-spacing:.05em; opacity:.85;}
   .sched-info{flex:1; padding-right:70px;}
@@ -271,12 +320,36 @@
   .sched-info .s-assigned{font-size:12px; color:var(--ink-faint); margin-top:4px;}
   .sched-actions{position:absolute; top:14px; right:14px; display:flex; gap:10px;}
 
+  /* ---------- Files (approval / revision workflow) ---------- */
+  .file-tabs{display:flex; gap:4px; background:var(--bg); padding:4px; border-radius:13px; margin-bottom:20px; max-width:360px;}
+  .file-tab-btn{flex:1; border:none; background:transparent; padding:9px 0; border-radius:9px; font-weight:600; font-size:13px; color:var(--ink-soft); cursor:pointer; transition:background .18s, color .18s, box-shadow .18s;}
+  .file-tab-btn.active{background:linear-gradient(135deg, var(--navy), var(--navy-mid)); color:#fff; box-shadow:0 6px 16px -6px rgba(18,42,82,.5);}
+  .file-card{border:1px solid var(--line); background:var(--surface-2); border-radius:15px; padding:16px; margin-bottom:12px; transition:box-shadow .18s;}
+  .file-card:hover{box-shadow:var(--shadow-sm);}
+  .file-card .f-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;}
+  .file-card .f-name{font-weight:600; color:var(--navy); font-size:14px;}
+  .file-card .f-meta{font-size:12px; color:var(--ink-faint); margin-top:2px;}
+  .file-card .f-link{font-size:12.5px; color:var(--navy); text-decoration:underline; font-weight:600;}
+  .status-pill{display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap;}
+  .status-pill.st-pending{background:#EEF1F8; color:var(--navy);}
+  .status-pill.st-progress{background:#E6F0FF; color:#1D5FD1;}
+  .status-pill.st-revision{background:#FFF4D9; color:#8A6300;}
+  .status-pill.st-approved{background:#E9F7EF; color:var(--ok);}
+  .progress-track{background:var(--line); border-radius:20px; height:8px; overflow:hidden; margin:10px 0 6px;}
+  .progress-fill{height:100%; border-radius:20px; transition:width .3s; background-size:200% 100%;}
+  .progress-fill.st-pending{background:var(--ink-faint);}
+  .progress-fill.st-progress{background:linear-gradient(90deg,#1D5FD1,#4FA8FF,#1D5FD1); animation:sweep 2.4s linear infinite;}
+  .progress-fill.st-revision{background:linear-gradient(90deg,var(--gold),var(--gold-soft),var(--gold)); animation:sweep 2.4s linear infinite;}
+  .progress-fill.st-approved{background:var(--ok);}
+  .file-comment{font-size:12.5px; color:var(--ink-soft); background:rgba(18,42,82,.05); border-radius:11px; padding:8px 10px; margin-top:6px;}
+  .file-actions{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+
   @media (max-width: 900px){
     .menu, .tb-brand small{display:none;}
     .hamburger{display:block;}
     .account-text{display:none;}
     #mobileMenuPanel{
-      display:none; flex-direction:column; gap:2px; background:var(--navy-deep); padding:10px 14px 16px;
+      display:none; flex-direction:column; gap:2px; background:rgba(6,12,28,.97); backdrop-filter:blur(14px); padding:10px 14px 16px;
       border-bottom:1px solid rgba(255,255,255,.08);
     }
     #mobileMenuPanel.shown{display:flex;}
@@ -295,7 +368,7 @@
 <div id="authScreen">
   <div class="auth-card">
     <div class="auth-brand">
-      <svg class="tri-arrow" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#F5B301"/><rect x="13" y="9" width="5" height="22" rx="2.5" fill="#122A52"/><path d="M18 9 h4.5 a7 7 0 0 1 0 14 h-4.5 z" fill="#122A52"/><circle cx="29.5" cy="29.5" r="3" fill="#CE1126"/></svg>
+      <img class="tri-arrow" src="/psa-logo.png" alt="PSA Seal" style="object-fit:contain;">
       <div>
         <div class="eyebrow">Philippine Statistics Authority — Cavite</div>
         <h1>Administrative System</h1>
@@ -344,8 +417,8 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="tb-brand" onclick="goPage('dashboard')">
-        <svg class="tri-arrow" viewBox="0 0 40 40" width="26" height="26"><rect width="40" height="40" rx="11" fill="#F5B301"/><rect x="13" y="9" width="5" height="22" rx="2.5" fill="#122A52"/><path d="M18 9 h4.5 a7 7 0 0 1 0 14 h-4.5 z" fill="#122A52"/><circle cx="29.5" cy="29.5" r="3" fill="#CE1126"/></svg>
-        <div><span>PSA Cavite</span><small>Administrative System</small></div>
+        <img class="tri-arrow" src="/psa-logo.png" alt="PSA Seal" width="32" height="32" style="object-fit:contain;">
+        <div><span>Philippine Statistics Authority</span><small>Cavite &middot; Administrative System</small></div>
       </div>
 
       <!-- Desktop menu (upper right) -->
@@ -353,6 +426,7 @@
         <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
         <div class="menu-item" data-page="posts" onclick="goPage('posts')">Announcements</div>
         <div class="menu-item" data-page="schedule" onclick="goPage('schedule')">Schedule</div>
+        <div class="menu-item" data-page="files" onclick="goPage('files')">Files</div>
         <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
         <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')">My Accomplishments</div>
         <div class="menu-item" data-page="messages" onclick="goPage('messages')">Messages<span class="badge hidden" id="navMsgBadge">0</span></div>
@@ -390,6 +464,7 @@
       <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
       <div class="menu-item" data-page="posts" onclick="goPage('posts')">Announcements</div>
       <div class="menu-item" data-page="schedule" onclick="goPage('schedule')">Schedule</div>
+      <div class="menu-item" data-page="files" onclick="goPage('files')">Files</div>
       <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
       <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')">My Accomplishments</div>
       <div class="menu-item" data-page="messages" onclick="goPage('messages')">Messages<span class="badge hidden" id="navMsgBadgeMobile">0</span></div>
@@ -412,10 +487,16 @@
       <div class="page-head">
         <div><div class="eyebrow">Overview</div><h2>Administrative Dashboard</h2></div>
       </div>
-      <div class="cards" id="statCards"></div>
+      <div id="dashboardAdminSection" class="hidden">
+        <div class="cards" id="statCards"></div>
+        <div class="panel">
+          <h3>Recent Activity</h3>
+          <table><thead><tr><th>Personnel</th><th>Action</th><th>Timestamp</th></tr></thead><tbody id="recentLogsBody"></tbody></table>
+        </div>
+      </div>
       <div class="panel">
-        <h3>Recent Activity</h3>
-        <table><thead><tr><th>Personnel</th><th>Action</th><th>Timestamp</th></tr></thead><tbody id="recentLogsBody"></tbody></table>
+        <h3>Recent Announcements</h3>
+        <div id="dashboardPostsFeed"></div>
       </div>
     </section>
 
@@ -596,6 +677,31 @@
         <div id="scheduleList"></div>
       </div>
     </section>
+    <!-- FILES (approval / revision workflow) -->
+    <section id="page-files" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Workflow</div><h2>Files</h2></div></div>
+
+      <div class="panel">
+        <h3>Submit a file for approval</h3>
+        <div class="row2">
+          <div class="field"><label>File</label><input type="file" id="fileUploadInput"></div>
+          <div class="field"><label>Send to</label><select id="fileAssigneeSelect"><option value="">Select...</option></select></div>
+        </div>
+        <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="submitFile()">Submit</button>
+      </div>
+
+      <div class="file-tabs">
+        <button class="file-tab-btn active" id="fileTabMineBtn" onclick="switchFileTab('mine')">My Submissions</button>
+        <button class="file-tab-btn" id="fileTabAssignedBtn" onclick="switchFileTab('assigned')">Assigned To Me</button>
+      </div>
+
+      <div class="panel" id="fileTabMine">
+        <div id="filesMineList"></div>
+      </div>
+      <div class="panel hidden" id="fileTabAssigned">
+        <div id="filesAssignedList"></div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -756,20 +862,42 @@ async function goPage(page){
   if(page==='messages') await loadMessagesPage();
   if(page==='posts') await loadPosts();
   if(page==='schedule') await loadSchedule();
+  if(page==='files') await loadFilesPage();
 }
 
 async function loadDashboard(){
+  const isAdmin = CURRENT_USER.role === 'Admin';
+  document.getElementById('dashboardAdminSection').classList.toggle('hidden', !isAdmin);
+
+  if(isAdmin){
+    try{
+      const stats = await api('/api/dashboard/stats');
+      document.getElementById('statCards').innerHTML = `
+        <div class="card blue"><div class="num">${stats.totalActiveUsers}</div><div class="lbl">Active Personnel</div></div>
+        <div class="card"><div class="num">${stats.signedInToday}</div><div class="lbl">Signed In Today</div></div>
+        <div class="card"><div class="num">${stats.totalDepartments}</div><div class="lbl">Departments</div></div>
+        <div class="card"><div class="num">${stats.totalPositions}</div><div class="lbl">Positions</div></div>
+        <div class="card red"><div class="num">${stats.totalRetiredResigned}</div><div class="lbl">Retired / Resigned</div></div>
+      `;
+      const logs = await api('/api/dashboard/logs');
+      document.getElementById('recentLogsBody').innerHTML = logs.slice(0,8).map(logRow).join('');
+    }catch(err){ console.error(err); }
+  }
+
   try{
-    const stats = await api('/api/dashboard/stats');
-    document.getElementById('statCards').innerHTML = `
-      <div class="card blue"><div class="num">${stats.totalActiveUsers}</div><div class="lbl">Active Personnel</div></div>
-      <div class="card"><div class="num">${stats.signedInToday}</div><div class="lbl">Signed In Today</div></div>
-      <div class="card"><div class="num">${stats.totalDepartments}</div><div class="lbl">Departments</div></div>
-      <div class="card"><div class="num">${stats.totalPositions}</div><div class="lbl">Positions</div></div>
-      <div class="card red"><div class="num">${stats.totalRetiredResigned}</div><div class="lbl">Retired / Resigned</div></div>
-    `;
-    const logs = await api('/api/dashboard/logs');
-    document.getElementById('recentLogsBody').innerHTML = logs.slice(0,8).map(logRow).join('');
+    const posts = await api('/api/posts');
+    const feed = document.getElementById('dashboardPostsFeed');
+    if(!posts.length){ feed.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">No announcements yet.</div>`; return; }
+    feed.innerHTML = posts.slice(0,5).map(p=>`
+      <div class="post-card" style="box-shadow:none; margin-bottom:12px;">
+        <div class="post-head">
+          <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
+          <div><div class="p-name">${escapeHtml(p.authorName)}</div><div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div></div>
+        </div>
+        <div class="post-content">${escapeHtml(p.Content)}</div>
+        ${p.ImageUrl ? `<img class="post-image" src="${p.ImageUrl}" style="max-height:220px; object-fit:cover;">` : ''}
+      </div>
+    `).join('');
   }catch(err){ console.error(err); }
 }
 
@@ -1137,13 +1265,14 @@ let SCHEDULE_PERSONNEL = [];
 
 async function loadSchedule(){
   const isAdmin = CURRENT_USER.role === 'Admin';
+  const myId = String(CURRENT_USER.id);
   cancelScheduleEdit();
-  document.getElementById('newSchedulePanel').classList.toggle('hidden', !isAdmin);
+  document.getElementById('newSchedulePanel').classList.remove('hidden');
 
-  if(isAdmin && !SCHEDULE_PERSONNEL.length){
-    SCHEDULE_PERSONNEL = await api('/api/users');
+  if(!SCHEDULE_PERSONNEL.length){
+    SCHEDULE_PERSONNEL = await api('/api/messages/directory');
     document.getElementById('scheduleAssignees').innerHTML = SCHEDULE_PERSONNEL
-      .map(u=>`<option value="${u.ID}">${escapeHtml(u.FirstName+' '+u.LastName)} — ${escapeHtml(u.Department||'—')}</option>`).join('');
+      .map(u=>`<option value="${u.id}">${escapeHtml(u.name)} — ${escapeHtml(u.department||'—')}</option>`).join('');
   }
 
   SCHEDULE_ENTRIES = await api('/api/schedule');
@@ -1153,6 +1282,7 @@ async function loadSchedule(){
   list.innerHTML = SCHEDULE_ENTRIES.map(e=>{
     const d = new Date(e.Date+'T00:00:00');
     const timeRange = e.TimeStart ? `${e.TimeStart}${e.TimeEnd?' – '+e.TimeEnd:''}` : 'All day';
+    const canManage = isAdmin || e.CreatedBy === myId;
     return `
     <div class="sched-item ${e.isMine?'mine':''}">
       <div class="sched-date-box">
@@ -1164,7 +1294,7 @@ async function loadSchedule(){
         <div class="s-time">${timeRange}</div>
         <div class="s-assigned">Assigned: ${escapeHtml(e.assignedNames)}</div>
       </div>
-      ${isAdmin ? `
+      ${canManage ? `
       <div class="sched-actions">
         <button class="icon-btn" onclick="editScheduleEntry('${e.ID}')">Edit</button>
         <button class="icon-btn del" onclick="deleteScheduleEntry('${e.ID}')">Delete</button>
@@ -1233,6 +1363,145 @@ async function deleteScheduleEntry(id){
   if(!confirm('Delete this schedule entry?')) return;
   await api('/api/schedule/'+id, {method:'DELETE'});
   loadSchedule();
+}
+
+/* ---------- Files (approval / revision workflow) ---------- */
+const FILE_STATUS_META = {
+  'Pending': {pct:20, cls:'st-pending'},
+  'In Progress': {pct:50, cls:'st-progress'},
+  'Needs Revision': {pct:70, cls:'st-revision'},
+  'Approved': {pct:100, cls:'st-approved'},
+};
+let FILE_DIRECTORY = [];
+let FILES_MINE = [];
+let FILES_ASSIGNED = [];
+
+async function loadFilesPage(){
+  if(!FILE_DIRECTORY.length){
+    FILE_DIRECTORY = await api('/api/messages/directory');
+    document.getElementById('fileAssigneeSelect').innerHTML = '<option value="">Select...</option>' +
+      FILE_DIRECTORY.map(u=>`<option value="${u.id}">${escapeHtml(u.name)}${u.department?' — '+escapeHtml(u.department):''}</option>`).join('');
+  }
+  switchFileTab('mine');
+  [FILES_MINE, FILES_ASSIGNED] = await Promise.all([
+    api('/api/files/mine'),
+    api('/api/files/assigned'),
+  ]);
+  renderFilesMine();
+  renderFilesAssigned();
+}
+
+function switchFileTab(tab){
+  document.getElementById('fileTabMineBtn').classList.toggle('active', tab==='mine');
+  document.getElementById('fileTabAssignedBtn').classList.toggle('active', tab==='assigned');
+  document.getElementById('fileTabMine').classList.toggle('hidden', tab!=='mine');
+  document.getElementById('fileTabAssigned').classList.toggle('hidden', tab!=='assigned');
+}
+
+function progressBarHtml(status){
+  const meta = FILE_STATUS_META[status] || FILE_STATUS_META['Pending'];
+  return `
+    <span class="status-pill ${meta.cls}">${escapeHtml(status)}</span>
+    <div class="progress-track"><div class="progress-fill ${meta.cls}" style="width:${meta.pct}%"></div></div>
+  `;
+}
+
+function renderFilesMine(){
+  const body = document.getElementById('filesMineList');
+  if(!FILES_MINE.length){ body.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">You haven't submitted any files yet.</div>`; return; }
+  body.innerHTML = FILES_MINE.map(f=>`
+    <div class="file-card">
+      <div class="f-top">
+        <div>
+          <div class="f-name">${escapeHtml(f.FileName)}</div>
+          <div class="f-meta">Sent to ${escapeHtml(f.assigneeName)} · ${new Date(f.UpdatedAt||f.CreatedAt).toLocaleString()}</div>
+        </div>
+        <a class="f-link" href="${f.FileUrl}" target="_blank" rel="noopener">View</a>
+      </div>
+      ${progressBarHtml(f.Status)}
+      ${f.Comment ? `<div class="file-comment">💬 ${escapeHtml(f.Comment)}</div>` : ''}
+      <div class="file-actions">
+        ${f.Status==='Needs Revision' ? `
+          <input type="file" id="resubmit-${f.ID}" class="hidden" onchange="doResubmit('${f.ID}')">
+          <button class="btn btn-gold btn-sm" onclick="document.getElementById('resubmit-${f.ID}').click()">Upload Revised File</button>
+        ` : ''}
+        ${f.Status!=='Approved' ? `<button class="icon-btn del" onclick="deleteFileEntry('${f.ID}')">Delete</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderFilesAssigned(){
+  const body = document.getElementById('filesAssignedList');
+  if(!FILES_ASSIGNED.length){ body.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">Nothing's been sent to you for review yet.</div>`; return; }
+  body.innerHTML = FILES_ASSIGNED.map(f=>`
+    <div class="file-card">
+      <div class="f-top">
+        <div>
+          <div class="f-name">${escapeHtml(f.FileName)}</div>
+          <div class="f-meta">From ${escapeHtml(f.uploaderName)} · ${new Date(f.UpdatedAt||f.CreatedAt).toLocaleString()}</div>
+        </div>
+        <a class="f-link" href="${f.FileUrl}" target="_blank" rel="noopener">View</a>
+      </div>
+      ${progressBarHtml(f.Status)}
+      ${f.Comment ? `<div class="file-comment">💬 ${escapeHtml(f.Comment)}</div>` : ''}
+      <div class="file-actions">
+        ${f.Status==='Pending' ? `<button class="btn btn-outline btn-sm" onclick="setFileStatus('${f.ID}','In Progress')">Start Review</button>` : ''}
+        ${f.Status!=='Approved' ? `<button class="btn btn-outline btn-sm" onclick="requestRevision('${f.ID}')">Request Revision</button>` : ''}
+        ${f.Status!=='Approved' ? `<button class="btn btn-gold btn-sm" onclick="setFileStatus('${f.ID}','Approved')">Approve</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function submitFile(){
+  const file = document.getElementById('fileUploadInput').files[0];
+  const assigneeId = document.getElementById('fileAssigneeSelect').value;
+  if(!file){ alert('Choose a file first.'); return; }
+  if(!assigneeId){ alert('Choose who this is for.'); return; }
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('assigneeId', assigneeId);
+  try{
+    await api('/api/files', {method:'POST', body: fd});
+    document.getElementById('fileUploadInput').value = '';
+    document.getElementById('fileAssigneeSelect').value = '';
+    loadFilesPage();
+  }catch(err){ alert(err.message); }
+}
+
+async function setFileStatus(id, status, comment=''){
+  try{
+    await api('/api/files/'+id+'/status', {method:'PUT', body: JSON.stringify({status, comment})});
+    loadFilesPage();
+  }catch(err){ alert(err.message); }
+}
+
+function requestRevision(id){
+  const comment = prompt('What needs to be revised?');
+  if(comment===null) return;
+  if(!comment.trim()){ alert('Please describe what needs revision.'); return; }
+  setFileStatus(id, 'Needs Revision', comment.trim());
+}
+
+async function doResubmit(id){
+  const input = document.getElementById('resubmit-'+id);
+  const file = input.files[0];
+  if(!file) return;
+  const fd = new FormData();
+  fd.append('file', file);
+  try{
+    await api('/api/files/'+id+'/resubmit', {method:'PUT', body: fd});
+    loadFilesPage();
+  }catch(err){ alert(err.message); }
+}
+
+async function deleteFileEntry(id){
+  if(!confirm('Delete this file submission?')) return;
+  try{
+    await api('/api/files/'+id, {method:'DELETE'});
+    loadFilesPage();
+  }catch(err){ alert(err.message); }
 }
 
 // Auto sign-in if a token is already stored

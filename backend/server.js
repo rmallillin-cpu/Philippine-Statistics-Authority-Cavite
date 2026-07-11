@@ -12,6 +12,7 @@ const accomplishmentRoutes = require('./routes/accomplishments');
 const messageRoutes = require('./routes/messages');
 const scheduleRoutes = require('./routes/schedule');
 const postRoutes = require('./routes/posts');
+const fileRoutes = require('./routes/files');
 
 const app = express();
 app.use(cors());
@@ -25,6 +26,7 @@ app.use('/api/accomplishments', accomplishmentRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/files', fileRoutes);
 
 // Serve the frontend
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));

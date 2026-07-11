@@ -37,8 +37,8 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(enriched);
 });
 
-// POST /api/schedule - admin only
-router.post('/', requireAuth, requireAdmin, async (req, res) => {
+// POST /api/schedule - any signed-in user can add to the shared schedule
+router.post('/', requireAuth, async (req, res) => {
   try {
     const { title, date, timeStart, timeEnd, assignedTo } = req.body;
     if (!title || !date) return res.status(400).json({ error: 'Title and date are required' });
@@ -56,9 +56,14 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// PUT /api/schedule/:id - admin only
-router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
+// PUT /api/schedule/:id - the entry's creator, or an admin
+router.put('/:id', requireAuth, async (req, res) => {
   try {
+    const existing = await sheetsService.getById('Schedule', req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    if (existing.CreatedBy !== String(req.user.id) && req.user.role !== 'Admin') {
+      return res.status(403).json({ error: 'Only the person who created this entry (or an admin) can edit it' });
+    }
     const { title, date, timeStart, timeEnd, assignedTo } = req.body;
     const updates = {};
     if (title !== undefined) updates.Title = title;
@@ -73,8 +78,13 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// DELETE /api/schedule/:id - admin only
-router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
+// DELETE /api/schedule/:id - the entry's creator, or an admin
+router.delete('/:id', requireAuth, async (req, res) => {
+  const existing = await sheetsService.getById('Schedule', req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+  if (existing.CreatedBy !== String(req.user.id) && req.user.role !== 'Admin') {
+    return res.status(403).json({ error: 'Only the person who created this entry (or an admin) can delete it' });
+  }
   await sheetsService.remove('Schedule', req.params.id);
   res.json({ message: 'Deleted' });
 });
