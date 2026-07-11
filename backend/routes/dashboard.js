@@ -36,9 +36,13 @@ router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
 router.get('/logs', requireAuth, requireAdmin, async (req, res) => {
   const [logs, users] = await Promise.all([sheetsService.getAll('Logs'), sheetsService.getAll('Users')]);
   const nameById = Object.fromEntries(users.map((u) => [u.ID, `${u.FirstName} ${u.LastName}`]));
+  const parsedMs = (ts) => {
+    const ms = Date.parse(ts);
+    return Number.isNaN(ms) ? 0 : ms; // unparseable timestamps sink to the bottom instead of scrambling the sort
+  };
   const enriched = logs
     .map((l) => ({ ...l, userName: nameById[l.UserID] || 'Unknown' }))
-    .sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+    .sort((a, b) => parsedMs(b.Timestamp) - parsedMs(a.Timestamp));
   res.json(enriched);
 });
 

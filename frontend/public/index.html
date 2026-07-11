@@ -384,6 +384,36 @@
   .sched-info .s-assigned{font-size:12px; color:var(--ink-faint); margin-top:4px;}
   .sched-actions{position:absolute; top:14px; right:14px; display:flex; gap:10px;}
 
+  /* ---------- Modern calendar (Schedule page) ---------- */
+  .view-toggle{display:flex; gap:4px; background:var(--surface-2); border:1px solid var(--line); border-radius:11px; padding:3px;}
+  .view-toggle-btn{background:none; border:none; padding:7px 14px; border-radius:8px; font-size:12.5px; font-weight:600; color:var(--ink-soft); cursor:pointer; transition:.15s;}
+  .view-toggle-btn.active{background:var(--navy); color:#fff; box-shadow:var(--shadow-sm);}
+  .cal-header{display:flex; align-items:center; gap:10px; margin:16px 0 12px;}
+  .cal-title{font-family:'Fraunces',serif; font-size:19px; font-weight:600; color:var(--navy); min-width:170px; text-align:center;}
+  .cal-nav-btn{width:32px; height:32px; border-radius:50%; border:1.5px solid var(--line); background:var(--surface-2); color:var(--navy); font-size:16px; cursor:pointer; transition:.15s;}
+  .cal-nav-btn:hover{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .cal-weekdays{display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-faint); padding:0 0 6px;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
+  .cal-cell{aspect-ratio:1/1; min-height:64px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface-2); padding:6px; cursor:pointer; display:flex; flex-direction:column; transition:.15s; position:relative; overflow:hidden;}
+  .cal-cell:hover{border-color:var(--glow); box-shadow:0 0 0 3px rgba(47,211,232,.12);}
+  .cal-cell.outside{opacity:.35;}
+  .cal-cell.today{border-color:var(--gold); box-shadow:0 0 0 3px rgba(245,179,1,.16);}
+  .cal-cell.selected{background:linear-gradient(160deg, var(--navy), var(--navy-mid)); border-color:var(--navy);}
+  .cal-cell.selected .cal-daynum{color:#fff;}
+  .cal-daynum{font-size:13px; font-weight:700; color:var(--navy);}
+  .cal-dots{display:flex; flex-wrap:wrap; gap:3px; margin-top:auto;}
+  .cal-dot{width:6px; height:6px; border-radius:50%; background:var(--gold);}
+  .cal-cell.selected .cal-dot{background:var(--glow);}
+  .cal-more{font-size:9.5px; color:var(--ink-faint); margin-top:2px;}
+  .cal-cell.selected .cal-more{color:rgba(255,255,255,.75);}
+  .cal-day-panel{margin-top:16px; border-top:1px solid var(--line); padding-top:14px;}
+  .cal-day-panel-head{font-weight:600; color:var(--navy); font-size:14px; margin-bottom:10px;}
+  @media (max-width:640px){
+    .cal-cell{min-height:44px; padding:4px;}
+    .cal-daynum{font-size:11.5px;}
+    .cal-weekdays{font-size:9.5px;}
+  }
+
   /* ---------- Files (approval / revision workflow) ---------- */
   .file-tabs{display:flex; gap:4px; background:var(--bg); padding:4px; border-radius:13px; margin-bottom:20px; max-width:360px;}
   .file-tab-btn{flex:1; border:none; background:transparent; padding:9px 0; border-radius:9px; font-weight:600; font-size:13px; color:var(--ink-soft); cursor:pointer; transition:background .18s, color .18s, box-shadow .18s;}
@@ -638,7 +668,12 @@
     <section id="page-logs" class="hidden">
       <div class="page-head"><div><div class="eyebrow">Administration</div><h2>Attendance &amp; Activity Logs</h2></div></div>
       <div class="panel">
-        <table><thead><tr><th>Personnel</th><th>Action</th><th>Timestamp</th></tr></thead><tbody id="allLogsBody"></tbody></table>
+        <div class="report-filters">
+          <select id="logsPersonnelFilter" onchange="renderLogsTable()"><option value="">All personnel</option></select>
+          <input type="date" id="logsDateFilter" onchange="renderLogsTable()">
+          <button class="btn btn-outline btn-sm" style="width:auto;" onclick="clearLogsFilters()">Clear filters</button>
+        </div>
+        <table><thead><tr><th>Personnel</th><th>Sign In</th><th>Sign Out</th><th>Duration</th></tr></thead><tbody id="allLogsBody"></tbody></table>
       </div>
     </section>
 
@@ -739,8 +774,29 @@
         <button class="btn btn-outline hidden" style="width:auto; padding:11px 20px; margin-left:8px;" id="scheduleCancelBtn" onclick="cancelScheduleEdit()">Cancel</button>
       </div>
       <div class="panel">
-        <h3>Upcoming &amp; Past</h3>
-        <div id="scheduleList"></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <h3 style="margin:0;" id="scheduleListTitle">Calendar</h3>
+          <div class="view-toggle" id="scheduleViewToggle">
+            <button type="button" class="view-toggle-btn active" id="viewCalBtn" onclick="setScheduleView('calendar')">📅 Calendar</button>
+            <button type="button" class="view-toggle-btn" id="viewListBtn" onclick="setScheduleView('list')">☰ List</button>
+          </div>
+        </div>
+
+        <div id="scheduleCalendarView">
+          <div class="cal-header">
+            <button type="button" class="cal-nav-btn" onclick="calShiftMonth(-1)">‹</button>
+            <div class="cal-title" id="calTitle"></div>
+            <button type="button" class="cal-nav-btn" onclick="calShiftMonth(1)">›</button>
+            <button type="button" class="btn btn-outline btn-sm" style="margin-left:auto;" onclick="calGoToday()">Today</button>
+          </div>
+          <div class="cal-weekdays">
+            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-day-panel hidden" id="calDayPanel"></div>
+        </div>
+
+        <div id="scheduleList" class="hidden"></div>
       </div>
     </section>
     <!-- FILES (approval / revision workflow) -->
@@ -904,6 +960,16 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
+/* ---------- Notification sounds ---------- */
+const MESSAGE_SOUND = new Audio('/sounds/message-notification.mp3');
+const UPDATE_SOUND = new Audio('/sounds/updates-notification.mp3');
+[MESSAGE_SOUND, UPDATE_SOUND].forEach(a=>{ a.volume = 0.55; });
+function playNotificationSound(audio){
+  try{ audio.currentTime = 0; audio.play().catch(()=>{ /* browser blocked autoplay until user interacts with the page — safe to ignore */ }); }catch(e){}
+}
+
+let PREV_UNREAD_COUNT = null; // null = not checked yet, so we don't ding on first load
+
 async function enterApp(){
   document.getElementById('authScreen').style.display='none';
   document.getElementById('app').classList.add('shown');
@@ -918,6 +984,7 @@ async function enterApp(){
 
   await goPage('dashboard');
   refreshUnreadBadge();
+  refreshFeaturedSidebar();
   setInterval(refreshUnreadBadge, 20000);
   setInterval(refreshFeaturedSidebar, 30000);
 }
@@ -925,6 +992,9 @@ async function enterApp(){
 async function refreshUnreadBadge(){
   try{
     const {count} = await api('/api/messages/unread-count');
+    // A rising unread count means a new message came in since the last check — play the message ringtone.
+    if(PREV_UNREAD_COUNT !== null && count > PREV_UNREAD_COUNT) playNotificationSound(MESSAGE_SOUND);
+    PREV_UNREAD_COUNT = count;
     ['navMsgBadge','navMsgBadgeMobile'].forEach(id=>{
       const el = document.getElementById(id);
       el.textContent = count > 9 ? '9+' : count;
@@ -996,10 +1066,108 @@ async function loadDashboard(){
   }catch(err){ console.error(err); }
 }
 
-function logRow(l){
-  const pillClass = l.Action==='TimeIn' ? 'in' : 'out';
-  const label = l.Action==='TimeIn' ? 'Time In' : 'Time Out';
-  return `<tr><td>${l.userName}</td><td><span class="pill ${pillClass}">${label}</span></td><td class="mono">${new Date(l.Timestamp).toLocaleString()}</td></tr>`;
+/* ---------- Attendance & Activity Logs (admin) ----------
+   The raw log is one row per TimeIn/TimeOut event. We pair each person's events
+   into sessions so the table can show "Sign In" / "Sign Out" per row instead of
+   a flat action+timestamp feed. */
+let ALL_LOGS_RAW = [];
+
+function parsedTime(ts){
+  const ms = Date.parse(ts);
+  return isNaN(ms) ? null : ms;
+}
+
+function formatLogTime(ts){
+  const ms = parsedTime(ts);
+  return ms===null ? '—' : new Date(ms).toLocaleString();
+}
+
+function buildLogSessions(logs){
+  const byUser = {};
+  logs.forEach(l=>{
+    if(!byUser[l.UserID]) byUser[l.UserID] = { userName: l.userName, entries: [] };
+    byUser[l.UserID].entries.push(l);
+  });
+
+  const sessions = [];
+  Object.values(byUser).forEach(group=>{
+    // Oldest first, so we can pair each Time In with the Time Out that follows it.
+    // Unparseable timestamps sort as "oldest" rather than corrupting the order.
+    const sorted = group.entries.slice().sort((a,b)=>(parsedTime(a.Timestamp)||0)-(parsedTime(b.Timestamp)||0));
+    let open = null;
+    sorted.forEach(l=>{
+      if(l.Action==='TimeIn'){
+        if(open) sessions.push(open); // an earlier Time In was never closed out
+        open = { userName: group.userName, signIn: l.Timestamp, signOut: null };
+      }else{
+        if(open){ open.signOut = l.Timestamp; sessions.push(open); open = null; }
+        else sessions.push({ userName: group.userName, signIn: null, signOut: l.Timestamp }); // orphan Time Out
+      }
+    });
+    if(open) sessions.push(open); // still signed in, no Time Out yet
+  });
+
+  // Newest activity first.
+  sessions.sort((a,b)=>{
+    const ak = parsedTime(a.signOut) ?? parsedTime(a.signIn) ?? 0;
+    const bk = parsedTime(b.signOut) ?? parsedTime(b.signIn) ?? 0;
+    return bk - ak;
+  });
+  return sessions;
+}
+
+function durationLabel(s){
+  const inMs = parsedTime(s.signIn), outMs = parsedTime(s.signOut);
+  if(inMs===null || outMs===null || outMs<inMs) return '—';
+  const mins = Math.round((outMs-inMs)/60000);
+  const h = Math.floor(mins/60), m = mins%60;
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function logSessionRow(s){
+  const signOutCell = s.signOut ? `<span class="mono">${formatLogTime(s.signOut)}</span>` : `<span class="pill in">Still signed in</span>`;
+  return `<tr>
+    <td>${escapeHtml(s.userName)}</td>
+    <td class="mono">${formatLogTime(s.signIn)}</td>
+    <td>${signOutCell}</td>
+    <td class="mono">${durationLabel(s)}</td>
+  </tr>`;
+}
+
+async function loadAllLogs(){
+  ALL_LOGS_RAW = await api('/api/dashboard/logs');
+  const names = [...new Set(ALL_LOGS_RAW.map(l=>l.userName))].sort();
+  const sel = document.getElementById('logsPersonnelFilter');
+  const current = sel.value;
+  sel.innerHTML = `<option value="">All personnel</option>` + names.map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+  sel.value = current;
+  renderLogsTable();
+}
+
+function clearLogsFilters(){
+  document.getElementById('logsPersonnelFilter').value = '';
+  document.getElementById('logsDateFilter').value = '';
+  renderLogsTable();
+}
+
+function renderLogsTable(){
+  const personnel = document.getElementById('logsPersonnelFilter').value;
+  const dateFilter = document.getElementById('logsDateFilter').value; // YYYY-MM-DD
+
+  let sessions = buildLogSessions(ALL_LOGS_RAW);
+  if(personnel) sessions = sessions.filter(s=>s.userName===personnel);
+  if(dateFilter){
+    sessions = sessions.filter(s=>{
+      const inDate = parsedTime(s.signIn)!==null ? new Date(s.signIn).toISOString().slice(0,10) : null;
+      const outDate = parsedTime(s.signOut)!==null ? new Date(s.signOut).toISOString().slice(0,10) : null;
+      return inDate===dateFilter || outDate===dateFilter;
+    });
+  }
+
+  const body = document.getElementById('allLogsBody');
+  body.innerHTML = sessions.length
+    ? sessions.map(logSessionRow).join('')
+    : `<tr><td colspan="4" style="text-align:center; color:var(--ink-faint);">No matching activity.</td></tr>`;
 }
 
 async function loadProfile(){
@@ -1103,11 +1271,6 @@ async function addLookup(kind, inputId){
 async function deleteLookup(kind, id){
   await api('/api/'+kind+'/'+id, {method:'DELETE'});
   loadDeptPos();
-}
-
-async function loadAllLogs(){
-  const logs = await api('/api/dashboard/logs');
-  document.getElementById('allLogsBody').innerHTML = logs.map(logRow).join('');
 }
 
 /* ---------- My Accomplishments ---------- */
@@ -1547,6 +1710,10 @@ function openLightbox(postId){
 function closeLightbox(){
   document.getElementById('lightboxOverlay').classList.add('hidden');
   document.getElementById('lightboxMedia').innerHTML = '';
+  // Auto-hide: forget which comment threads/replies were expanded so the next
+  // time this (or any) post is opened, comments start collapsed again.
+  [...EXPANDED_COMMENT_SECTIONS].filter(k=>k.startsWith('lightbox-')).forEach(k=>EXPANDED_COMMENT_SECTIONS.delete(k));
+  [...EXPANDED_REPLIES].filter(k=>k.startsWith('lightbox-')).forEach(k=>EXPANDED_REPLIES.delete(k));
   LIGHTBOX_POST_ID = null;
 }
 
@@ -1573,9 +1740,20 @@ function renderLightbox(){
 }
 
 /* ---------- Sitewide featured-announcements sidebar ---------- */
+let LAST_TOP_POST_ID; // undefined until the first successful poll, so we don't ding on page load
+
 async function refreshFeaturedSidebar(){
   try{
-    ALL_POSTS = await api('/api/posts');
+    const posts = await api('/api/posts');
+    if(posts.length){
+      const newest = posts[0];
+      // A new top post that isn't ours means someone else just published an update — play the updates ringtone.
+      if(LAST_TOP_POST_ID !== undefined && newest.ID !== LAST_TOP_POST_ID && String(newest.AuthorID) !== String(CURRENT_USER && CURRENT_USER.id)){
+        playNotificationSound(UPDATE_SOUND);
+      }
+      LAST_TOP_POST_ID = newest.ID;
+    }
+    ALL_POSTS = posts;
     renderFeaturedSidebar();
   }catch(err){ /* not logged in yet, or offline — ignore */ }
 }
@@ -1635,10 +1813,11 @@ async function deletePost(id){
 /* ---------- Schedule ---------- */
 let SCHEDULE_ENTRIES = [];
 let SCHEDULE_PERSONNEL = [];
+let SCHEDULE_VIEW = 'calendar';
+let CAL_CURSOR = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+let CAL_SELECTED_DATE = null;
 
 async function loadSchedule(){
-  const isAdmin = CURRENT_USER.role === 'Admin';
-  const myId = String(CURRENT_USER.id);
   cancelScheduleEdit();
   document.getElementById('newSchedulePanel').classList.remove('hidden');
 
@@ -1649,6 +1828,13 @@ async function loadSchedule(){
   }
 
   SCHEDULE_ENTRIES = await api('/api/schedule');
+  renderScheduleList();
+  renderCalendar();
+}
+
+function renderScheduleList(){
+  const isAdmin = CURRENT_USER.role === 'Admin';
+  const myId = String(CURRENT_USER.id);
   const list = document.getElementById('scheduleList');
   if(!SCHEDULE_ENTRIES.length){ list.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">Nothing scheduled yet.</div>`; return; }
 
@@ -1674,6 +1860,108 @@ async function loadSchedule(){
       </div>` : ''}
     </div>`;
   }).join('');
+}
+
+function setScheduleView(view){
+  SCHEDULE_VIEW = view;
+  document.getElementById('viewCalBtn').classList.toggle('active', view==='calendar');
+  document.getElementById('viewListBtn').classList.toggle('active', view==='list');
+  document.getElementById('scheduleCalendarView').classList.toggle('hidden', view!=='calendar');
+  document.getElementById('scheduleList').classList.toggle('hidden', view!=='list');
+  document.getElementById('scheduleListTitle').textContent = view==='calendar' ? 'Calendar' : 'Upcoming & Past';
+}
+
+/* ---------- Modern calendar view ---------- */
+function calShiftMonth(delta){
+  CAL_CURSOR = new Date(CAL_CURSOR.getFullYear(), CAL_CURSOR.getMonth()+delta, 1);
+  CAL_SELECTED_DATE = null;
+  renderCalendar();
+}
+
+function calGoToday(){
+  const now = new Date();
+  CAL_CURSOR = new Date(now.getFullYear(), now.getMonth(), 1);
+  CAL_SELECTED_DATE = toDateStr(now);
+  renderCalendar();
+}
+
+function toDateStr(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function renderCalendar(){
+  const year = CAL_CURSOR.getFullYear();
+  const month = CAL_CURSOR.getMonth();
+  document.getElementById('calTitle').textContent = CAL_CURSOR.toLocaleDateString('en-US',{month:'long', year:'numeric'});
+
+  const entriesByDate = {};
+  SCHEDULE_ENTRIES.forEach(e=>{
+    (entriesByDate[e.Date] = entriesByDate[e.Date] || []).push(e);
+  });
+
+  const firstOfMonth = new Date(year, month, 1);
+  const gridStart = new Date(year, month, 1 - firstOfMonth.getDay());
+  const todayStr = toDateStr(new Date());
+
+  let cells = '';
+  for(let i=0; i<42; i++){
+    const d = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate()+i);
+    const dateStr = toDateStr(d);
+    const dayEntries = entriesByDate[dateStr] || [];
+    const isOutside = d.getMonth() !== month;
+    const classes = ['cal-cell'];
+    if(isOutside) classes.push('outside');
+    if(dateStr===todayStr) classes.push('today');
+    if(dateStr===CAL_SELECTED_DATE) classes.push('selected');
+    const dots = dayEntries.slice(0,4).map(()=>`<span class="cal-dot"></span>`).join('');
+    const more = dayEntries.length>4 ? `<div class="cal-more">+${dayEntries.length-4}</div>` : '';
+    cells += `
+      <div class="${classes.join(' ')}" onclick="selectCalDay('${dateStr}')">
+        <div class="cal-daynum">${d.getDate()}</div>
+        <div class="cal-dots">${dots}</div>
+        ${more}
+      </div>`;
+  }
+  document.getElementById('calGrid').innerHTML = cells;
+  renderCalDayPanel();
+}
+
+function selectCalDay(dateStr){
+  CAL_SELECTED_DATE = CAL_SELECTED_DATE===dateStr ? null : dateStr;
+  renderCalendar();
+}
+
+function renderCalDayPanel(){
+  const panel = document.getElementById('calDayPanel');
+  if(!CAL_SELECTED_DATE){ panel.classList.add('hidden'); panel.innerHTML=''; return; }
+  panel.classList.remove('hidden');
+
+  const isAdmin = CURRENT_USER.role === 'Admin';
+  const myId = String(CURRENT_USER.id);
+  const dayEntries = SCHEDULE_ENTRIES.filter(e=>e.Date===CAL_SELECTED_DATE);
+  const niceDate = new Date(CAL_SELECTED_DATE+'T00:00:00').toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'});
+
+  panel.innerHTML = `
+    <div class="cal-day-panel-head">${niceDate}</div>
+    ${!dayEntries.length ? `<div style="color:var(--ink-faint); font-size:13px;">Nothing scheduled this day.</div>` : dayEntries.map(e=>{
+      const timeRange = e.TimeStart ? `${e.TimeStart}${e.TimeEnd?' – '+e.TimeEnd:''}` : 'All day';
+      const canManage = isAdmin || e.CreatedBy === myId;
+      return `
+      <div class="sched-item ${e.isMine?'mine':''}" style="margin-bottom:8px;">
+        <div class="sched-date-box"><div class="d-num">${new Date(e.Date+'T00:00:00').getDate()}</div><div class="d-mon">${new Date(e.Date+'T00:00:00').toLocaleDateString('en-US',{month:'short'})}</div></div>
+        <div class="sched-info">
+          <div class="s-title">${escapeHtml(e.Title)}</div>
+          <div class="s-time">${timeRange}</div>
+          <div class="s-assigned">Assigned: ${escapeHtml(e.assignedNames)}</div>
+        </div>
+        ${canManage ? `
+        <div class="sched-actions">
+          <button class="icon-btn" onclick="editScheduleEntry('${e.ID}')">Edit</button>
+          <button class="icon-btn del" onclick="deleteScheduleEntry('${e.ID}')">Delete</button>
+        </div>` : ''}
+      </div>`;
+    }).join('')}
+  `;
 }
 
 function toggleScheduleAssignAll(){
