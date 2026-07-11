@@ -21,6 +21,7 @@ async function uploadFile(buffer, filename, mimeType, subfolderId = null) {
     requestBody: fileMetadata,
     media,
     fields: 'id',
+    supportsAllDrives: true,
   });
 
   const fileId = file.data.id;
@@ -29,6 +30,7 @@ async function uploadFile(buffer, filename, mimeType, subfolderId = null) {
   await drive.permissions.create({
     fileId,
     requestBody: { role: 'reader', type: 'anyone' },
+    supportsAllDrives: true,
   });
 
   return {
@@ -48,6 +50,7 @@ async function createSubfolder(name, parentId = FOLDER_ID) {
       parents: [parentId],
     },
     fields: 'id',
+    supportsAllDrives: true,
   });
   return res.data.id;
 }
