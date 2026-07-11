@@ -435,6 +435,29 @@
   @keyframes toastIn{from{opacity:0; transform:translateX(20px);} to{opacity:1; transform:translateX(0);}}
   @media (max-width:640px){ #scheduleToastWrap{left:12px; right:12px; max-width:none; top:66px;} }
 
+  /* ---------- Rich text: linkified URLs + inline link previews ---------- */
+  .rich-link{color:#1D5FD1; text-decoration:underline; word-break:break-all; font-weight:600;}
+  .rich-link:hover{color:var(--navy);}
+  .link-preview-embed{margin-top:8px; border-radius:12px; overflow:hidden; background:#000; max-width:480px;}
+  .link-preview-embed iframe{width:100%; aspect-ratio:16/9; border:none; display:block;}
+  .link-preview-embed video{width:100%; max-height:360px; display:block; background:#000;}
+  .link-preview-embed img{width:100%; display:block; border-radius:12px;}
+  .link-preview-audio{margin-top:8px;}
+  .link-preview-audio audio{width:100%; max-width:420px;}
+
+  /* ---------- Search preview (schedule / announcements) ---------- */
+  #scheduleSearchPreview.shown, #postSearchPreview.shown{margin-top:10px; border:1px solid var(--line); border-radius:13px; background:var(--surface-2); padding:6px;}
+  .search-preview-label{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); padding:6px 10px 4px;}
+  .search-preview-empty{font-size:13px; color:var(--ink-faint); padding:8px 10px;}
+  .search-preview-item{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:9px; cursor:pointer; transition:background .15s;}
+  .search-preview-item:hover{background:rgba(18,42,82,.06);}
+  .search-preview-item .sp-date{font-size:11px; font-weight:700; color:var(--navy); background:rgba(18,42,82,.08); border-radius:6px; padding:2px 7px; flex-shrink:0;}
+  .search-preview-item .sp-title{flex:1; font-size:13.5px; font-weight:600; color:var(--navy); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .search-preview-item .sp-title.done{text-decoration:line-through; color:var(--ink-faint);}
+  .search-preview-item .sp-time{font-size:12px; color:var(--ink-faint); flex-shrink:0;}
+  .search-preview-item .sp-preview{flex:1; font-size:13px; color:var(--ink-soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .search-preview-item .sp-author{font-size:12px; color:var(--ink-faint); flex-shrink:0;}
+
   /* ---------- Files (approval / revision workflow) ---------- */
   .file-tabs{display:flex; gap:4px; background:var(--bg); padding:4px; border-radius:13px; margin-bottom:20px; max-width:360px;}
   .file-tab-btn{flex:1; border:none; background:transparent; padding:9px 0; border-radius:9px; font-weight:600; font-size:13px; color:var(--ink-soft); cursor:pointer; transition:background .18s, color .18s, box-shadow .18s;}
@@ -771,6 +794,12 @@
         </label>
         <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="publishPost()">Publish</button>
       </div>
+      <div class="panel" style="padding:14px 16px;">
+        <div class="field" style="margin:0;">
+          <input type="text" id="postSearchInput" placeholder="🔍 Search announcements..." oninput="filterPosts()">
+        </div>
+        <div id="postSearchPreview"></div>
+      </div>
       <div id="postsFeed"></div>
     </section>
 
@@ -802,6 +831,11 @@
             <button type="button" class="view-toggle-btn" id="viewListBtn" onclick="setScheduleView('list')">☰ List</button>
           </div>
         </div>
+
+        <div class="field" style="margin:14px 0 0; max-width:420px;">
+          <input type="text" id="scheduleSearchInput" placeholder="🔍 Search schedule by title or person..." oninput="filterSchedule()">
+        </div>
+        <div id="scheduleSearchPreview"></div>
 
         <div id="scheduleCalendarView">
           <div class="cal-header">
@@ -981,6 +1015,47 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
+/* ---------- Rich text: auto-linkify URLs and preview videos/images/audio inline ---------- */
+function youTubeId(url){
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtube\.com\/shorts\/|youtube\.com\/embed\/|youtu\.be\/)([\w-]{6,})/i);
+  return m ? m[1] : null;
+}
+function vimeoId(url){
+  const m = url.match(/vimeo\.com\/(?:.*\/)?(\d+)/i);
+  return m ? m[1] : null;
+}
+function linkEmbedHtml(url){
+  const yt = youTubeId(url);
+  if(yt) return `<div class="link-preview-embed"><iframe src="https://www.youtube.com/embed/${yt}" allowfullscreen allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe></div>`;
+  const vm = vimeoId(url);
+  if(vm) return `<div class="link-preview-embed"><iframe src="https://player.vimeo.com/video/${vm}" allowfullscreen allow="autoplay; fullscreen" loading="lazy"></iframe></div>`;
+  if(/\.(mp4|webm|ogv)(\?[^\s]*)?$/i.test(url)) return `<div class="link-preview-embed"><video controls preload="metadata" src="${url}"></video></div>`;
+  if(/\.(mp3|wav|m4a)(\?[^\s]*)?$/i.test(url)) return `<div class="link-preview-audio"><audio controls preload="metadata" src="${url}"></audio></div>`;
+  if(/\.(png|jpe?g|gif|webp|svg)(\?[^\s]*)?$/i.test(url)) return `<div class="link-preview-embed"><img src="${url}" alt="Linked image" loading="lazy"></div>`;
+  return '';
+}
+/** Escapes text, turns any http(s) URL into a clickable link, and appends an inline
+    preview (video/audio/image) beneath the text for links it recognizes. Use for any
+    user-entered text that might contain a shared link — posts, comments, messages,
+    schedule entries, etc. Set embeds=false to linkify only, with no inline preview
+    (for cramped spaces like calendar grid cells). */
+function renderRichText(text, embeds=true){
+  const escaped = escapeHtml(text);
+  const urlRegex = /((https?:\/\/)[^\s<]+)/gi;
+  const previews = [];
+  const seen = new Set();
+  const linked = escaped.replace(urlRegex, (match)=>{
+    const url = match.replace(/[.,;:!?)\]]+$/, '');
+    const trailing = match.slice(url.length);
+    if(embeds){
+      const preview = linkEmbedHtml(url);
+      if(preview && !seen.has(url)){ seen.add(url); previews.push(preview); }
+    }
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="rich-link">${url}</a>${trailing}`;
+  });
+  return `<span class="rich-text">${linked}</span>${previews.join('')}`;
+}
+
 /* ---------- Notification sounds ---------- */
 const MESSAGE_SOUND = new Audio('/sounds/message-notification.mp3');
 const UPDATE_SOUND = new Audio('/sounds/updates-notification.mp3');
@@ -1044,6 +1119,7 @@ async function pollScheduleNotifications(){
     const schedPage = document.getElementById('page-schedule');
     if(schedPage && !schedPage.classList.contains('hidden')){
       SCHEDULE_ENTRIES = entries;
+      renderScheduleSearchPreview();
       renderScheduleList();
       renderCalendar();
     }
@@ -1120,7 +1196,7 @@ async function loadDashboard(){
           <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
           <div><div class="p-name">${escapeHtml(p.authorName)}</div><div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div></div>
         </div>
-        <div class="post-content">${escapeHtml(p.Content)}</div>
+        <div class="post-content">${renderRichText(p.Content)}</div>
         ${p.ImageUrl ? `
           <div class="post-media-wrap" style="height:220px;" onclick="goToPostAndOpen('${p.ID}')">
             ${mediaHtml(p)}
@@ -1518,7 +1594,7 @@ function renderThread(thread){
   }
   body.innerHTML = thread.map(m=>`
     <div class="bubble ${m.mine?'mine':'theirs'}">
-      ${escapeHtml(m.Content)}
+      ${renderRichText(m.Content)}
       <span class="b-time">${new Date(m.CreatedAt).toLocaleString()}</span>
     </div>
   `).join('');
@@ -1554,10 +1630,51 @@ async function loadPosts(){
   const [posts, comments] = await Promise.all([api('/api/posts'), api('/api/comments')]);
   ALL_POSTS = posts;
   ALL_COMMENTS = comments;
-  const feed = document.getElementById('postsFeed');
-  if(!posts.length){ feed.innerHTML = `<div class="panel" style="text-align:center; color:var(--ink-faint);">No announcements yet.</div>`; }
-  else{ feed.innerHTML = posts.map(p=>postCardHtml(p, isAdmin)).join(''); }
+  renderPostsFeed();
+  renderPostSearchPreview();
   renderFeaturedSidebar();
+}
+
+function getFilteredPosts(){
+  const q = (document.getElementById('postSearchInput')?.value || '').trim().toLowerCase();
+  if(!q) return ALL_POSTS;
+  return ALL_POSTS.filter(p => p.Content.toLowerCase().includes(q) || (p.authorName||'').toLowerCase().includes(q));
+}
+
+function renderPostsFeed(){
+  const isAdmin = CURRENT_USER.role === 'Admin';
+  const feed = document.getElementById('postsFeed');
+  const posts = getFilteredPosts();
+  if(!posts.length){
+    feed.innerHTML = `<div class="panel" style="text-align:center; color:var(--ink-faint);">${ALL_POSTS.length ? 'No announcements match your search.' : 'No announcements yet.'}</div>`;
+    return;
+  }
+  feed.innerHTML = posts.map(p=>postCardHtml(p, isAdmin)).join('');
+}
+
+function filterPosts(){
+  renderPostSearchPreview();
+  renderPostsFeed();
+}
+
+function renderPostSearchPreview(){
+  const q = (document.getElementById('postSearchInput')?.value || '').trim();
+  const box = document.getElementById('postSearchPreview');
+  if(!q){ box.classList.remove('shown'); box.innerHTML = ''; return; }
+  const matches = getFilteredPosts();
+  box.classList.add('shown');
+  if(!matches.length){
+    box.innerHTML = `<div class="search-preview-empty">No announcements match "${escapeHtml(q)}".</div>`;
+    return;
+  }
+  box.innerHTML = `<div class="search-preview-label">${matches.length} match${matches.length===1?'':'es'}</div>` +
+    matches.slice(0,8).map(p=>{
+      const preview = p.Content.length > 80 ? p.Content.slice(0,80)+'…' : p.Content;
+      return `<div class="search-preview-item" onclick="goToPostAndOpen('${p.ID}')">
+        <span class="sp-author">${escapeHtml(p.authorName||'')}</span>
+        <span class="sp-preview">${escapeHtml(preview)}</span>
+      </div>`;
+    }).join('');
 }
 
 function mediaHtml(p, forLightbox=false){
@@ -1583,7 +1700,7 @@ function postCardHtml(p, isAdmin){
         ${canManage ? `<button class="icon-btn post-edit" onclick="startEditPost('${p.ID}')">✏️ Edit</button>` : ''}
         ${canManage ? `<button class="icon-btn del post-delete" onclick="deletePost('${p.ID}')">Delete</button>` : ''}
       </div>
-      <div class="post-content" id="postContent-${p.ID}">${escapeHtml(p.Content)}</div>
+      <div class="post-content" id="postContent-${p.ID}">${renderRichText(p.Content)}</div>
       <div class="post-edit-box hidden" id="postEditBox-${p.ID}">
         <textarea id="postEditInput-${p.ID}" rows="3">${escapeHtml(p.Content)}</textarea>
         <div style="margin-top:8px; display:flex; gap:8px;">
@@ -1641,7 +1758,7 @@ function commentItemHtml(c, allPostComments, postId, depth, ctx){
       <div class="avatar" style="width:26px;height:26px;font-size:10px;">${c.authorProfilePic ? `<img src="${c.authorProfilePic}">` : initials({FirstName:c.authorName.split(' ')[0], LastName:c.authorName.split(' ').slice(1).join(' ')})}</div>
       <div class="c-bubble">
         <div class="c-name">${escapeHtml(c.authorName)}</div>
-        <div class="c-text">${escapeHtml(c.Content)}</div>
+        <div class="c-text">${renderRichText(c.Content)}</div>
         <div class="c-time">
           ${new Date(c.CreatedAt).toLocaleString()}
           <button class="comment-del" style="color:var(--ink-soft);" onclick="toggleReplyBox('${c.ID}','${ctx}')">Reply</button>
@@ -1794,7 +1911,7 @@ function renderLightbox(){
       <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
       <div><div class="p-name">${escapeHtml(p.authorName)}</div><div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div></div>
     </div>
-    <div class="post-content" style="margin-top:10px;">${escapeHtml(p.Content)}</div>
+    <div class="post-content" style="margin-top:10px;">${renderRichText(p.Content)}</div>
   `;
 
   const postComments = ALL_COMMENTS.filter(c=>c.PostID===p.ID);
@@ -1896,17 +2013,73 @@ async function loadSchedule(){
   }
 
   SCHEDULE_ENTRIES = await api('/api/schedule');
+  renderScheduleSearchPreview();
   renderScheduleList();
   renderCalendar();
+}
+
+function getFilteredScheduleEntries(){
+  const q = (document.getElementById('scheduleSearchInput')?.value || '').trim().toLowerCase();
+  if(!q) return SCHEDULE_ENTRIES;
+  return SCHEDULE_ENTRIES.filter(e =>
+    e.Title.toLowerCase().includes(q) ||
+    (e.assignedNames||'').toLowerCase().includes(q) ||
+    e.Date.includes(q)
+  );
+}
+
+function filterSchedule(){
+  renderScheduleSearchPreview();
+  renderScheduleList();
+  renderCalendar();
+}
+
+function renderScheduleSearchPreview(){
+  const q = (document.getElementById('scheduleSearchInput')?.value || '').trim();
+  const box = document.getElementById('scheduleSearchPreview');
+  if(!q){ box.classList.remove('shown'); box.innerHTML = ''; return; }
+  const matches = getFilteredScheduleEntries();
+  box.classList.add('shown');
+  if(!matches.length){
+    box.innerHTML = `<div class="search-preview-empty">No schedule entries match "${escapeHtml(q)}".</div>`;
+    return;
+  }
+  box.innerHTML = `<div class="search-preview-label">${matches.length} match${matches.length===1?'':'es'}</div>` +
+    matches.slice(0,8).map(e=>{
+      const d = new Date(e.Date+'T00:00:00');
+      const niceDate = d.toLocaleDateString('en-US',{month:'short', day:'numeric'});
+      const timeRange = e.TimeStart ? `${e.TimeStart}${e.TimeEnd?' – '+e.TimeEnd:''}` : 'All day';
+      const isDone = e.Completed === 'true' || e.Completed === true;
+      return `<div class="search-preview-item" onclick="jumpToScheduleEntry('${e.ID}')">
+        <span class="sp-date">${niceDate}</span>
+        <span class="sp-title ${isDone?'done':''}">${escapeHtml(e.Title)}</span>
+        <span class="sp-time">${timeRange}</span>
+      </div>`;
+    }).join('');
+}
+
+function jumpToScheduleEntry(id){
+  const e = SCHEDULE_ENTRIES.find(x=>x.ID===id);
+  if(!e) return;
+  setScheduleView('calendar');
+  const d = new Date(e.Date+'T00:00:00');
+  CAL_CURSOR = new Date(d.getFullYear(), d.getMonth(), 1);
+  CAL_SELECTED_DATE = e.Date;
+  renderCalendar();
+  document.getElementById('calDayPanel').scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 function renderScheduleList(){
   const isAdmin = CURRENT_USER.role === 'Admin';
   const myId = String(CURRENT_USER.id);
   const list = document.getElementById('scheduleList');
-  if(!SCHEDULE_ENTRIES.length){ list.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">Nothing scheduled yet.</div>`; return; }
+  const entries = getFilteredScheduleEntries();
+  if(!entries.length){
+    list.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">${SCHEDULE_ENTRIES.length ? 'No schedule entries match your search.' : 'Nothing scheduled yet.'}</div>`;
+    return;
+  }
 
-  list.innerHTML = SCHEDULE_ENTRIES.map(e=>{
+  list.innerHTML = entries.map(e=>{
     const d = new Date(e.Date+'T00:00:00');
     const timeRange = e.TimeStart ? `${e.TimeStart}${e.TimeEnd?' – '+e.TimeEnd:''}` : 'All day';
     const canManage = isAdmin || e.CreatedBy === myId;
@@ -1922,7 +2095,7 @@ function renderScheduleList(){
         <div class="d-mon">${d.toLocaleDateString('en-US',{month:'short'})}</div>
       </div>
       <div class="sched-info">
-        <div class="s-title">${escapeHtml(e.Title)}</div>
+        <div class="s-title">${renderRichText(e.Title)}</div>
         <div class="s-time">${timeRange}${isDone?' · Completed':''}</div>
         <div class="s-assigned">Assigned: ${escapeHtml(e.assignedNames)}</div>
       </div>
@@ -1968,7 +2141,7 @@ function renderCalendar(){
   document.getElementById('calTitle').textContent = CAL_CURSOR.toLocaleDateString('en-US',{month:'long', year:'numeric'});
 
   const entriesByDate = {};
-  SCHEDULE_ENTRIES.forEach(e=>{
+  getFilteredScheduleEntries().forEach(e=>{
     (entriesByDate[e.Date] = entriesByDate[e.Date] || []).push(e);
   });
 
@@ -1990,7 +2163,7 @@ function renderCalendar(){
     const items = dayEntries.slice(0,maxShow).map(e=>{
       const isDone = e.Completed === 'true' || e.Completed === true;
       const time = e.TimeStart ? e.TimeStart : '';
-      return `<div class="cal-entry ${isDone?'done':''}" title="${escapeHtml(e.Title)}${time?' — '+time:''}">${isDone?'✓ ':''}<span class="ce-title">${escapeHtml(e.Title)}</span>${time?`<span class="ce-time">${time}</span>`:''}</div>`;
+      return `<div class="cal-entry ${isDone?'done':''}" title="${escapeHtml(e.Title)}${time?' — '+time:''}">${isDone?'✓ ':''}<span class="ce-title">${renderRichText(e.Title, false)}</span>${time?`<span class="ce-time">${time}</span>`:''}</div>`;
     }).join('');
     const more = dayEntries.length>maxShow ? `<div class="cal-more">+${dayEntries.length-maxShow} more</div>` : '';
     cells += `
@@ -2015,7 +2188,7 @@ function renderCalDayPanel(){
 
   const isAdmin = CURRENT_USER.role === 'Admin';
   const myId = String(CURRENT_USER.id);
-  const dayEntries = SCHEDULE_ENTRIES.filter(e=>e.Date===CAL_SELECTED_DATE);
+  const dayEntries = getFilteredScheduleEntries().filter(e=>e.Date===CAL_SELECTED_DATE);
   const niceDate = new Date(CAL_SELECTED_DATE+'T00:00:00').toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'});
 
   panel.innerHTML = `
@@ -2032,7 +2205,7 @@ function renderCalDayPanel(){
         </label>` : ''}
         <div class="sched-date-box"><div class="d-num">${new Date(e.Date+'T00:00:00').getDate()}</div><div class="d-mon">${new Date(e.Date+'T00:00:00').toLocaleDateString('en-US',{month:'short'})}</div></div>
         <div class="sched-info">
-          <div class="s-title">${escapeHtml(e.Title)}</div>
+          <div class="s-title">${renderRichText(e.Title)}</div>
           <div class="s-time">${timeRange}${isDone?' · Completed':''}</div>
           <div class="s-assigned">Assigned: ${escapeHtml(e.assignedNames)}</div>
         </div>
