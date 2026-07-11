@@ -306,6 +306,18 @@
   .post-content{font-size:14px; color:var(--ink); line-height:1.6; white-space:pre-wrap;}
   .post-image{max-width:100%; border-radius:14px; margin-top:12px; display:block;}
   .post-delete{margin-left:auto;}
+  .comment-section{margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
+  .comment-item{display:flex; gap:8px; margin-bottom:10px;}
+  .comment-item .c-bubble{flex:1; background:rgba(18,42,82,.05); border-radius:13px; padding:8px 12px;}
+  .comment-item .c-name{font-size:12.5px; font-weight:600; color:var(--navy);}
+  .comment-item .c-text{font-size:13px; color:var(--ink); margin-top:2px; line-height:1.45;}
+  .comment-item .c-time{font-size:10.5px; color:var(--ink-faint); margin-top:3px;}
+  .comment-del{background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:11px; margin-top:4px;}
+  .comment-del:hover{color:var(--red);}
+  .comment-add{display:flex; gap:8px; margin-top:6px;}
+  .comment-add input{flex:1; padding:9px 13px; border:1.5px solid var(--line); border-radius:20px; font-size:13px; font-family:inherit; background:rgba(255,255,255,.9);}
+  .comment-toggle{background:none; border:none; color:var(--ink-soft); font-size:12.5px; font-weight:600; cursor:pointer; padding:0;}
+  .comment-toggle:hover{color:var(--navy);}
 
   /* ---------- Schedule ---------- */
   .sched-item{display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); background:var(--surface-2); border-radius:15px; padding:14px 16px; margin-bottom:10px; position:relative; transition:box-shadow .18s;}
@@ -748,7 +760,12 @@ async function api(path, opts={}){
   if(TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
   const res = await fetch(API + path, {...opts, headers: {...headers, ...(opts.headers||{})}});
   const data = await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(data.error || 'Request failed');
+  if(!res.ok){
+    const message = data.error || 'Request failed';
+    const full = data.detail ? `${message} (${data.detail})` : message;
+    console.error('API error on', path, data);
+    throw new Error(full);
+  }
   return data;
 }
 
@@ -1216,13 +1233,21 @@ async function sendThreadMessage(){
 }
 
 /* ---------- Announcements ---------- */
+let ALL_COMMENTS = [];
+
 async function loadPosts(){
   const isAdmin = CURRENT_USER.role === 'Admin';
   document.getElementById('newPostPanel').classList.toggle('hidden', !isAdmin);
-  const posts = await api('/api/posts');
+  const [posts, comments] = await Promise.all([api('/api/posts'), api('/api/comments')]);
+  ALL_COMMENTS = comments;
   const feed = document.getElementById('postsFeed');
   if(!posts.length){ feed.innerHTML = `<div class="panel" style="text-align:center; color:var(--ink-faint);">No announcements yet.</div>`; return; }
-  feed.innerHTML = posts.map(p=>`
+  feed.innerHTML = posts.map(p=>postCardHtml(p, isAdmin)).join('');
+}
+
+function postCardHtml(p, isAdmin){
+  const postComments = ALL_COMMENTS.filter(c=>c.PostID===p.ID);
+  return `
     <div class="post-card">
       <div class="post-head">
         <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
@@ -1234,8 +1259,49 @@ async function loadPosts(){
       </div>
       <div class="post-content">${escapeHtml(p.Content)}</div>
       ${p.ImageUrl ? `<img class="post-image" src="${p.ImageUrl}">` : ''}
+      <div class="comment-section">
+        ${postComments.map(c=>commentItemHtml(c)).join('')}
+        <div class="comment-add">
+          <input type="text" id="commentInput-${p.ID}" placeholder="Write a comment..." onkeydown="if(event.key==='Enter') addComment('${p.ID}');">
+          <button class="btn btn-outline btn-sm" onclick="addComment('${p.ID}')">Post</button>
+        </div>
+      </div>
     </div>
-  `).join('');
+  `;
+}
+
+function commentItemHtml(c){
+  const myId = String(CURRENT_USER.id);
+  const canDelete = c.AuthorID===myId || CURRENT_USER.role==='Admin';
+  return `
+    <div class="comment-item">
+      <div class="avatar" style="width:26px;height:26px;font-size:10px;">${c.authorProfilePic ? `<img src="${c.authorProfilePic}">` : initials({FirstName:c.authorName.split(' ')[0], LastName:c.authorName.split(' ').slice(1).join(' ')})}</div>
+      <div class="c-bubble">
+        <div class="c-name">${escapeHtml(c.authorName)}</div>
+        <div class="c-text">${escapeHtml(c.Content)}</div>
+        <div class="c-time">${new Date(c.CreatedAt).toLocaleString()} ${canDelete?`<button class="comment-del" onclick="deleteComment('${c.ID}')">Delete</button>`:''}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function addComment(postId){
+  const input = document.getElementById('commentInput-'+postId);
+  const content = input.value.trim();
+  if(!content) return;
+  input.value = '';
+  try{
+    await api('/api/comments', {method:'POST', body: JSON.stringify({postId, content})});
+    loadPosts();
+  }catch(err){ alert(err.message); }
+}
+
+async function deleteComment(id){
+  if(!confirm('Delete this comment?')) return;
+  try{
+    await api('/api/comments/'+id, {method:'DELETE'});
+    loadPosts();
+  }catch(err){ alert(err.message); }
 }
 
 async function publishPost(){

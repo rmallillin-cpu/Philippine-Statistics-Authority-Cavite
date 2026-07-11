@@ -13,6 +13,7 @@ const messageRoutes = require('./routes/messages');
 const scheduleRoutes = require('./routes/schedule');
 const postRoutes = require('./routes/posts');
 const fileRoutes = require('./routes/files');
+const commentRoutes = require('./routes/comments');
 
 const app = express();
 app.use(cors());
@@ -27,6 +28,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Serve the frontend
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));

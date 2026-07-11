@@ -21,6 +21,7 @@ const SCHEMAS = {
   Posts: ['ID', 'AuthorID', 'Content', 'ImageUrl', 'CreatedAt'],
   Messages: ['ID', 'FromID', 'ToID', 'Content', 'CreatedAt', 'Read'],
   Schedule: ['ID', 'Title', 'AssignedTo', 'Date', 'TimeStart', 'TimeEnd', 'CreatedBy', 'CreatedAt'],
+  Comments: ['ID', 'PostID', 'AuthorID', 'Content', 'CreatedAt'],
 };
 
 /** Ensures every schema tab exists with the correct header row. Run once at startup. */
