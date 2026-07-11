@@ -317,6 +317,8 @@
   .lightbox-media{flex:1; background:#000; display:flex; align-items:center; justify-content:center; min-width:0;}
   .lightbox-media img{max-width:100%; max-height:100%; object-fit:contain;}
   .lightbox-media iframe{width:100%; height:100%; border:0;}
+  .lightbox-box.no-media .lightbox-media{display:none;}
+  .lightbox-box.no-media .lightbox-comments{width:100%;}
   .lightbox-comments{width:360px; flex-shrink:0; background:var(--surface); display:flex; flex-direction:column; border-left:1px solid rgba(255,255,255,.08);}
   .lightbox-comments-head{padding:16px; border-bottom:1px solid var(--line); flex-shrink:0;}
   .lightbox-comments-list{flex:1; overflow-y:auto; padding:14px;}
@@ -335,7 +337,7 @@
   .ad-sidebar-title{font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); padding:0 4px;}
   .ad-card{background:var(--surface); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.5); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); cursor:pointer; transition:box-shadow .18s;}
   .ad-card:hover{box-shadow:var(--shadow-md);}
-  .ad-card-media{width:100%; height:150px; background:#0b1220; overflow:hidden;}
+  .ad-card-media{width:100%; height:150px; background:#0b1220; overflow:hidden; position:relative;}
   .ad-card-media img{width:100%; height:100%; object-fit:cover; display:block;}
   .ad-card-media iframe{width:100%; height:100%; border:0; pointer-events:none;}
   .ad-card-body{padding:10px 12px;}
@@ -884,7 +886,7 @@
   </div>
 
   <div class="lightbox-overlay hidden" id="lightboxOverlay" onclick="if(event.target===this) closeLightbox()">
-    <div class="lightbox-box">
+    <div class="lightbox-box" id="lightboxBox">
       <button class="lightbox-close" onclick="closeLightbox()">✕</button>
       <div class="lightbox-media" id="lightboxMedia"></div>
       <div class="lightbox-comments">
@@ -1023,6 +1025,13 @@ function youTubeId(url){
 function vimeoId(url){
   const m = url.match(/vimeo\.com\/(?:.*\/)?(\d+)/i);
   return m ? m[1] : null;
+}
+/** First raw http(s) URL found in a block of text, trailing punctuation trimmed off, or null. */
+function extractFirstUrl(text){
+  if(!text) return null;
+  const m = String(text).match(/((https?:\/\/)[^\s<]+)/i);
+  if(!m) return null;
+  return m[0].replace(/[.,;:!?)\]]+$/, '');
 }
 function linkEmbedHtml(url){
   const yt = youTubeId(url);
@@ -1196,11 +1205,11 @@ async function loadDashboard(){
           <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
           <div><div class="p-name">${escapeHtml(p.authorName)}</div><div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div></div>
         </div>
-        <div class="post-content">${renderRichText(p.Content)}</div>
-        ${p.ImageUrl ? `
+        <div class="post-content">${renderRichText(p.Content, !postHasVisual(p))}</div>
+        ${postHasVisual(p) ? `
           <div class="post-media-wrap" style="height:220px;" onclick="goToPostAndOpen('${p.ID}')">
             ${mediaHtml(p)}
-            ${p.MediaType==='video' ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
+            ${postIsVideoVisual(p) ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
           </div>
         ` : ''}
       </div>
@@ -1678,11 +1687,41 @@ function renderPostSearchPreview(){
 }
 
 function mediaHtml(p, forLightbox=false){
-  if(!p.ImageUrl) return '';
-  if(p.MediaType==='video'){
-    return `<iframe src="${p.ImageUrl}" allow="autoplay; fullscreen" allowfullscreen ${forLightbox ? '' : 'style="pointer-events:none;"'}></iframe>`;
+  if(p.ImageUrl){
+    if(p.MediaType==='video'){
+      return `<iframe src="${p.ImageUrl}" allow="autoplay; fullscreen" allowfullscreen ${forLightbox ? '' : 'style="pointer-events:none;"'}></iframe>`;
+    }
+    return `<img src="${p.ImageUrl}" alt="">`;
   }
-  return `<img src="${p.ImageUrl}" alt="">`;
+  // No uploaded file — fall back to the first video/image link pasted into the text,
+  // so a shared YouTube/Vimeo/image link gets the same big preview treatment as an
+  // upload, everywhere a post's media is shown (feed, dashboard, sidebar, lightbox).
+  const url = linkVisualUrl(p.Content);
+  if(!url) return '';
+  const yt = youTubeId(url);
+  if(yt) return `<iframe src="https://www.youtube.com/embed/${yt}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen ${forLightbox ? '' : 'style="pointer-events:none;"'}></iframe>`;
+  const vm = vimeoId(url);
+  if(vm) return `<iframe src="https://player.vimeo.com/video/${vm}" allow="autoplay; fullscreen" allowfullscreen ${forLightbox ? '' : 'style="pointer-events:none;"'}></iframe>`;
+  if(/\.(mp4|webm|ogv)(\?[^\s]*)?$/i.test(url)) return `<video ${forLightbox?'controls':''} preload="metadata" src="${url}" ${forLightbox?'':'style="pointer-events:none;"'}></video>`;
+  return `<img src="${url}" alt="">`;
+}
+
+/** First recognizable video/image link in a block of text, or null. Used to decide
+    whether a link-only post (no upload) gets a big media preview. */
+function linkVisualUrl(text){
+  const url = extractFirstUrl(text);
+  if(!url) return null;
+  if(youTubeId(url) || vimeoId(url)) return url;
+  if(/\.(mp4|webm|ogv|png|jpe?g|gif|webp|svg)(\?[^\s]*)?$/i.test(url)) return url;
+  return null;
+}
+function postHasVisual(p){
+  return !!p.ImageUrl || !!linkVisualUrl(p.Content);
+}
+function postIsVideoVisual(p){
+  if(p.ImageUrl) return p.MediaType === 'video';
+  const u = linkVisualUrl(p.Content);
+  return !!(u && (youTubeId(u) || vimeoId(u) || /\.(mp4|webm|ogv)(\?[^\s]*)?$/i.test(u)));
 }
 
 function postCardHtml(p, isAdmin){
@@ -1700,7 +1739,7 @@ function postCardHtml(p, isAdmin){
         ${canManage ? `<button class="icon-btn post-edit" onclick="startEditPost('${p.ID}')">✏️ Edit</button>` : ''}
         ${canManage ? `<button class="icon-btn del post-delete" onclick="deletePost('${p.ID}')">Delete</button>` : ''}
       </div>
-      <div class="post-content" id="postContent-${p.ID}">${renderRichText(p.Content)}</div>
+      <div class="post-content" id="postContent-${p.ID}">${renderRichText(p.Content, !postHasVisual(p))}</div>
       <div class="post-edit-box hidden" id="postEditBox-${p.ID}">
         <textarea id="postEditInput-${p.ID}" rows="3">${escapeHtml(p.Content)}</textarea>
         <div style="margin-top:8px; display:flex; gap:8px;">
@@ -1708,10 +1747,10 @@ function postCardHtml(p, isAdmin){
           <button class="btn btn-outline btn-sm" onclick="cancelEditPost('${p.ID}')">Cancel</button>
         </div>
       </div>
-      ${p.ImageUrl ? `
+      ${postHasVisual(p) ? `
         <div class="post-media-wrap" onclick="openLightbox('${p.ID}')">
           ${mediaHtml(p)}
-          ${p.MediaType==='video' ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
+          ${postIsVideoVisual(p) ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
         </div>
       ` : ''}
       ${commentSectionHtml(postComments, topLevel, p.ID, 'feed')}
@@ -1904,14 +1943,16 @@ function renderLightbox(){
   const p = ALL_POSTS.find(x=>x.ID===LIGHTBOX_POST_ID);
   if(!p){ closeLightbox(); return; }
 
-  document.getElementById('lightboxMedia').innerHTML = mediaHtml(p, true);
+  const hasVisual = postHasVisual(p);
+  document.getElementById('lightboxBox').classList.toggle('no-media', !hasVisual);
+  document.getElementById('lightboxMedia').innerHTML = hasVisual ? mediaHtml(p, true) : '';
 
   document.getElementById('lightboxHead').innerHTML = `
     <div style="display:flex; align-items:center; gap:10px;">
       <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
       <div><div class="p-name">${escapeHtml(p.authorName)}</div><div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div></div>
     </div>
-    <div class="post-content" style="margin-top:10px;">${renderRichText(p.Content)}</div>
+    <div class="post-content" style="margin-top:10px;">${renderRichText(p.Content, !hasVisual)}</div>
   `;
 
   const postComments = ALL_COMMENTS.filter(c=>c.PostID===p.ID);
@@ -1953,7 +1994,7 @@ function featuredCardHtml(p){
   const preview = p.Content.length > 90 ? p.Content.slice(0,90)+'…' : p.Content;
   return `
     <div class="ad-card" onclick="goToPostAndOpen('${p.ID}')">
-      ${p.ImageUrl ? `<div class="ad-card-media">${mediaHtml(p)}</div>` : ''}
+      ${postHasVisual(p) ? `<div class="ad-card-media">${mediaHtml(p)}${postIsVideoVisual(p) ? `<div class="play-badge"><div class="play-circle" style="width:40px;height:40px;"></div></div>` : ''}</div>` : ''}
       <div class="ad-card-body">
         <div class="ad-card-name">${escapeHtml(p.authorName || 'PSA Cavite')}</div>
         <div class="ad-card-text">${escapeHtml(preview)}</div>
