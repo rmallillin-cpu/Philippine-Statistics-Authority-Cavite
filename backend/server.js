@@ -8,6 +8,8 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const lookupRoutes = require('./routes/lookups');
 const dashboardRoutes = require('./routes/dashboard');
+const accomplishmentRoutes = require('./routes/accomplishments');
+const messageRoutes = require('./routes/messages');
 
 const app = express();
 app.use(cors());
@@ -17,6 +19,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', lookupRoutes); // -> /api/departments, /api/positions
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/accomplishments', accomplishmentRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Serve the frontend
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));

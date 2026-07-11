@@ -168,6 +168,7 @@
   .dropdown-divider{height:1px; background:var(--line); margin:5px 4px;}
 
   .hamburger{display:none; background:none; border:none; color:#fff; font-size:20px; cursor:pointer; padding:6px;}
+  #mobileMenuPanel{display:none;}
 
   .main{flex:1; padding:36px 28px 60px; max-width:1360px; margin:0 auto; width:100%;}
   .page-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:26px; flex-wrap:wrap; gap:10px;}
@@ -209,6 +210,42 @@
   .avatar-lg{width:84px; height:84px; border-radius:50%; background:var(--gold); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:28px; overflow:hidden; flex-shrink:0;}
   .avatar-lg img{width:100%; height:100%; object-fit:cover;}
 
+  .badge{display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px; padding:0 5px; margin-left:6px; border-radius:20px; background:var(--red); color:#fff; font-size:10.5px; font-weight:700; line-height:17px;}
+
+  /* ---------- Accomplishments ---------- */
+  .accomp-item{border:1px solid var(--line); border-radius:13px; padding:14px 16px; margin-bottom:10px; position:relative; padding-left:20px;}
+  .accomp-item::before{content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--gold); border-radius:4px 0 0 4px;}
+  .accomp-item .a-title{font-weight:600; color:var(--navy); font-size:14.5px;}
+  .accomp-item .a-date{font-size:11.5px; color:var(--ink-faint); font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-top:2px;}
+  .accomp-item .a-desc{font-size:13.5px; color:var(--ink-soft); margin-top:6px; line-height:1.5;}
+  .accomp-item .a-actions{position:absolute; top:14px; right:14px; display:flex; gap:10px;}
+  .accomp-item .a-meta{font-size:11.5px; color:var(--ink-faint); margin-top:4px;}
+  .report-filters{display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;}
+  .report-filters select, .report-filters input{padding:9px 12px; border:1.5px solid var(--line); border-radius:9px; font-size:13px; font-family:inherit;}
+
+  /* ---------- Messenger ---------- */
+  .msg-shell{display:grid; grid-template-columns:280px 1fr; gap:0; background:var(--surface); border-radius:var(--radius); border:1px solid var(--line); box-shadow:var(--shadow-sm); overflow:hidden; height:calc(100vh - 220px); min-height:420px;}
+  .conv-list{border-right:1px solid var(--line); overflow-y:auto;}
+  .conv-item{display:flex; gap:10px; align-items:center; padding:12px 14px; cursor:pointer; border-bottom:1px solid var(--line); transition:background .12s;}
+  .conv-item:hover, .conv-item.active{background:var(--surface-2);}
+  .conv-item .c-info{flex:1; min-width:0;}
+  .conv-item .c-name{font-size:13.5px; font-weight:600; color:var(--ink);}
+  .conv-item .c-last{font-size:12px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .conv-empty{padding:20px 16px; font-size:13px; color:var(--ink-faint);}
+  .thread-pane{display:flex; flex-direction:column; min-width:0;}
+  .thread-head{padding:14px 18px; border-bottom:1px solid var(--line); font-weight:600; color:var(--navy); font-size:14.5px; display:flex; align-items:center; gap:10px;}
+  .thread-body{flex:1; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:8px;}
+  .thread-placeholder{margin:auto; color:var(--ink-faint); font-size:13.5px; text-align:center;}
+  .bubble{max-width:64%; padding:9px 13px; border-radius:14px; font-size:13.5px; line-height:1.45;}
+  .bubble.theirs{background:var(--surface-2); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
+  .bubble.mine{background:var(--navy); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
+  .bubble .b-time{display:block; font-size:10px; opacity:.65; margin-top:4px;}
+  .thread-input{display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--line);}
+  .thread-input input{flex:1; padding:10px 13px; border:1.5px solid var(--line); border-radius:20px; font-size:13.5px; font-family:inherit;}
+  .new-conv-picker{padding:10px 14px; border-bottom:1px solid var(--line);}
+  .new-conv-picker select{width:100%; padding:9px 10px; border:1.5px solid var(--line); border-radius:9px; font-size:13px;}
+  @media (max-width:700px){ .msg-shell{grid-template-columns:1fr; height:auto;} .conv-list{max-height:220px;} }
+
   @media (max-width: 900px){
     .menu, .tb-brand small{display:none;}
     .hamburger{display:block;}
@@ -233,7 +270,7 @@
 <div id="authScreen">
   <div class="auth-card">
     <div class="auth-brand">
-      <svg class="tri-arrow" viewBox="0 0 40 40"><path d="M4 30 C10 14, 20 6, 34 4 L30 12 L20 15 C14 20, 10 26, 8 34 Z" fill="#12274E"/><path d="M8 32 C13 19, 21 12, 32 9 L29 15 L20 18 C15 22, 12 27, 11 34 Z" fill="#F5B301" opacity="0.9"/><path d="M11 33 C15 23, 22 17, 30 14 L28 19 L20 21 C16 24, 13 28, 13 34 Z" fill="#CE1126" opacity="0.9"/></svg>
+      <svg class="tri-arrow" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#F5B301"/><rect x="13" y="9" width="5" height="22" rx="2.5" fill="#122A52"/><path d="M18 9 h4.5 a7 7 0 0 1 0 14 h-4.5 z" fill="#122A52"/><circle cx="29.5" cy="29.5" r="3" fill="#CE1126"/></svg>
       <div>
         <div class="eyebrow">Philippine Statistics Authority — Cavite</div>
         <h1>Administrative System</h1>
@@ -282,7 +319,7 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="tb-brand" onclick="goPage('dashboard')">
-        <svg class="tri-arrow" viewBox="0 0 40 40" width="26" height="26"><path d="M4 30 C10 14, 20 6, 34 4 L30 12 L20 15 C14 20, 10 26, 8 34 Z" fill="#F5B301"/><path d="M8 32 C13 19, 21 12, 32 9 L29 15 L20 18 C15 22, 12 27, 11 34 Z" fill="#CE1126" opacity="0.9"/><path d="M11 33 C15 23, 22 17, 30 14 L28 19 L20 21 C16 24, 13 28, 13 34 Z" fill="#fff" opacity="0.85"/></svg>
+        <svg class="tri-arrow" viewBox="0 0 40 40" width="26" height="26"><rect width="40" height="40" rx="11" fill="#F5B301"/><rect x="13" y="9" width="5" height="22" rx="2.5" fill="#122A52"/><path d="M18 9 h4.5 a7 7 0 0 1 0 14 h-4.5 z" fill="#122A52"/><circle cx="29.5" cy="29.5" r="3" fill="#CE1126"/></svg>
         <div><span>PSA Cavite</span><small>Administrative System</small></div>
       </div>
 
@@ -290,12 +327,15 @@
       <nav class="menu" id="mainMenu">
         <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
         <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
+        <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')">My Accomplishments</div>
+        <div class="menu-item" data-page="messages" onclick="goPage('messages')">Messages<span class="badge hidden" id="navMsgBadge">0</span></div>
         <div class="menu-item has-sub" id="adminMenuItem">
           <span onclick="toggleSubmenu(event,'adminMenuItem')">Administration <span class="chev">▾</span></span>
           <div class="submenu">
             <div class="submenu-item" data-page="users" onclick="goPage('users')">🧑‍🤝‍🧑 Personnel</div>
             <div class="submenu-item" data-page="deptpos" onclick="goPage('deptpos')">🏷️ Departments &amp; Positions</div>
             <div class="submenu-item" data-page="logs" onclick="goPage('logs')">🕒 Attendance Logs</div>
+            <div class="submenu-item" data-page="accomplishment-report" onclick="goPage('accomplishment-report')">📋 Accomplishment Report</div>
           </div>
         </div>
       </nav>
@@ -322,12 +362,15 @@
     <nav id="mobileMenuPanel">
       <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
       <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
+      <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')">My Accomplishments</div>
+      <div class="menu-item" data-page="messages" onclick="goPage('messages')">Messages<span class="badge hidden" id="navMsgBadgeMobile">0</span></div>
       <div class="menu-item has-sub" id="adminMenuItemMobile">
         <span onclick="toggleSubmenu(event,'adminMenuItemMobile')" style="width:100%; display:flex; justify-content:space-between;">Administration <span class="chev">▾</span></span>
         <div class="submenu">
           <div class="submenu-item" data-page="users" onclick="goPage('users')">🧑‍🤝‍🧑 Personnel</div>
           <div class="submenu-item" data-page="deptpos" onclick="goPage('deptpos')">🏷️ Departments &amp; Positions</div>
           <div class="submenu-item" data-page="logs" onclick="goPage('logs')">🕒 Attendance Logs</div>
+          <div class="submenu-item" data-page="accomplishment-report" onclick="goPage('accomplishment-report')">📋 Accomplishment Report</div>
         </div>
       </div>
       <div class="menu-item" onclick="handleLogout()">🚪 Sign out</div>
@@ -424,6 +467,67 @@
       <div class="page-head"><div><div class="eyebrow">Administration</div><h2>Attendance &amp; Activity Logs</h2></div></div>
       <div class="panel">
         <table><thead><tr><th>Personnel</th><th>Action</th><th>Timestamp</th></tr></thead><tbody id="allLogsBody"></tbody></table>
+      </div>
+    </section>
+
+    <!-- MY ACCOMPLISHMENTS -->
+    <section id="page-accomplishments" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Personal</div><h2>My Accomplishments</h2></div></div>
+      <div class="panel">
+        <h3 id="accompFormTitle">Log a new accomplishment</h3>
+        <input type="hidden" id="accompEditId">
+        <div class="field"><label>Title</label><input type="text" id="accompTitle" placeholder="e.g. Completed Q2 CBMS validation"></div>
+        <div class="row2">
+          <div class="field"><label>Date</label><input type="date" id="accompDate"></div>
+          <div class="field"><label>Description (optional)</label><input type="text" id="accompDesc" placeholder="Short details"></div>
+        </div>
+        <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="saveAccomplishment()" id="accompSaveBtn">Add Accomplishment</button>
+        <button class="btn btn-outline" style="width:auto; padding:11px 20px; margin-left:8px;" id="accompCancelBtn" onclick="cancelAccompEdit()">Cancel</button>
+      </div>
+      <div class="panel">
+        <h3>My Log</h3>
+        <div id="accompList"></div>
+      </div>
+    </section>
+
+    <!-- ACCOMPLISHMENT REPORT (admin) -->
+    <section id="page-accomplishment-report" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Administration</div><h2>Accomplishment Report</h2></div></div>
+      <div class="panel">
+        <div class="report-filters">
+          <select id="reportDeptFilter" onchange="renderAccompReport()"><option value="">All departments</option></select>
+          <select id="reportUserFilter" onchange="renderAccompReport()"><option value="">All personnel</option></select>
+          <input type="date" id="reportFrom" onchange="renderAccompReport()">
+          <input type="date" id="reportTo" onchange="renderAccompReport()">
+        </div>
+        <div class="cards" id="reportSummaryCards"></div>
+        <table>
+          <thead><tr><th>Personnel</th><th>Department</th><th>Title</th><th>Description</th><th>Date</th></tr></thead>
+          <tbody id="reportBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MESSAGES -->
+    <section id="page-messages" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Personal</div><h2>Messages</h2></div></div>
+      <div class="msg-shell">
+        <div class="conv-list">
+          <div class="new-conv-picker">
+            <select id="newConvSelect" onchange="startConversationFromPicker()">
+              <option value="">Start new conversation...</option>
+            </select>
+          </div>
+          <div id="convListBody"></div>
+        </div>
+        <div class="thread-pane">
+          <div class="thread-head" id="threadHead"><span class="thread-placeholder" style="margin:0;">Select a conversation</span></div>
+          <div class="thread-body" id="threadBody"><div class="thread-placeholder">Pick someone from the left, or start a new conversation.</div></div>
+          <div class="thread-input hidden" id="threadInputRow">
+            <input type="text" id="threadInputText" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendThreadMessage();">
+            <button class="btn btn-gold btn-sm" onclick="sendThreadMessage()">Send</button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -533,6 +637,12 @@ function handleLogout(){
 
 function initials(u){ return ((u.firstName||u.FirstName||'')[0]||'')+((u.lastName||u.LastName||'')[0]||''); }
 
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
 async function enterApp(){
   document.getElementById('authScreen').style.display='none';
   document.getElementById('app').classList.add('shown');
@@ -546,6 +656,19 @@ async function enterApp(){
   document.getElementById('adminMenuItemMobile').classList.toggle('hidden', !isAdmin);
 
   await goPage('dashboard');
+  refreshUnreadBadge();
+  setInterval(refreshUnreadBadge, 20000);
+}
+
+async function refreshUnreadBadge(){
+  try{
+    const {count} = await api('/api/messages/unread-count');
+    ['navMsgBadge','navMsgBadgeMobile'].forEach(id=>{
+      const el = document.getElementById(id);
+      el.textContent = count > 9 ? '9+' : count;
+      el.classList.toggle('hidden', count===0);
+    });
+  }catch(e){ /* not logged in yet or offline, ignore */ }
 }
 
 async function goPage(page){
@@ -562,6 +685,9 @@ async function goPage(page){
   if(page==='users') await loadUsers();
   if(page==='deptpos') await loadDeptPos();
   if(page==='logs') await loadAllLogs();
+  if(page==='accomplishments') await loadAccomplishments();
+  if(page==='accomplishment-report') await loadAccompReport();
+  if(page==='messages') await loadMessagesPage();
 }
 
 async function loadDashboard(){
@@ -691,6 +817,206 @@ async function deleteLookup(kind, id){
 async function loadAllLogs(){
   const logs = await api('/api/dashboard/logs');
   document.getElementById('allLogsBody').innerHTML = logs.map(logRow).join('');
+}
+
+/* ---------- My Accomplishments ---------- */
+let MY_ACCOMPLISHMENTS = [];
+async function loadAccomplishments(){
+  cancelAccompEdit();
+  MY_ACCOMPLISHMENTS = await api('/api/accomplishments/me');
+  const body = document.getElementById('accompList');
+  if(!MY_ACCOMPLISHMENTS.length){ body.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">No accomplishments logged yet.</div>`; return; }
+  body.innerHTML = MY_ACCOMPLISHMENTS.map(a=>`
+    <div class="accomp-item">
+      <div class="a-actions">
+        <button class="icon-btn" onclick="editAccomplishment('${a.ID}')">Edit</button>
+        <button class="icon-btn del" onclick="deleteAccomplishment('${a.ID}')">Delete</button>
+      </div>
+      <div class="a-title">${escapeHtml(a.Title)}</div>
+      <div class="a-date">${new Date(a.Date).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</div>
+      ${a.Description ? `<div class="a-desc">${escapeHtml(a.Description)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function editAccomplishment(id){
+  const a = MY_ACCOMPLISHMENTS.find(x=>x.ID===id);
+  if(!a) return;
+  document.getElementById('accompEditId').value = a.ID;
+  document.getElementById('accompTitle').value = a.Title;
+  document.getElementById('accompDate').value = a.Date;
+  document.getElementById('accompDesc').value = a.Description || '';
+  document.getElementById('accompFormTitle').textContent = 'Edit accomplishment';
+  document.getElementById('accompSaveBtn').textContent = 'Save Changes';
+  document.getElementById('accompCancelBtn').classList.remove('hidden');
+  document.getElementById('accompTitle').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function cancelAccompEdit(){
+  document.getElementById('accompEditId').value = '';
+  document.getElementById('accompTitle').value = '';
+  document.getElementById('accompDate').value = '';
+  document.getElementById('accompDesc').value = '';
+  document.getElementById('accompFormTitle').textContent = 'Log a new accomplishment';
+  document.getElementById('accompSaveBtn').textContent = 'Add Accomplishment';
+  document.getElementById('accompCancelBtn').classList.add('hidden');
+}
+
+async function saveAccomplishment(){
+  const id = document.getElementById('accompEditId').value;
+  const title = document.getElementById('accompTitle').value.trim();
+  const date = document.getElementById('accompDate').value;
+  const description = document.getElementById('accompDesc').value.trim();
+  if(!title || !date){ alert('Title and date are required.'); return; }
+  try{
+    if(id){
+      await api('/api/accomplishments/'+id, {method:'PUT', body: JSON.stringify({title, date, description})});
+    }else{
+      await api('/api/accomplishments', {method:'POST', body: JSON.stringify({title, date, description})});
+    }
+    loadAccomplishments();
+  }catch(err){ alert(err.message); }
+}
+
+async function deleteAccomplishment(id){
+  if(!confirm('Delete this accomplishment?')) return;
+  await api('/api/accomplishments/'+id, {method:'DELETE'});
+  loadAccomplishments();
+}
+
+/* ---------- Accomplishment Report (admin) ---------- */
+let ACCOMP_REPORT_DATA = [];
+async function loadAccompReport(){
+  ACCOMP_REPORT_DATA = await api('/api/accomplishments');
+  const deptSel = document.getElementById('reportDeptFilter');
+  const userSel = document.getElementById('reportUserFilter');
+  const depts = [...new Set(ACCOMP_REPORT_DATA.map(a=>a.department))].sort();
+  const users = [...new Map(ACCOMP_REPORT_DATA.map(a=>[a.UserID, a.userName])).entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+  deptSel.innerHTML = '<option value="">All departments</option>' + depts.map(d=>`<option value="${d}">${d}</option>`).join('');
+  userSel.innerHTML = '<option value="">All personnel</option>' + users.map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
+  renderAccompReport();
+}
+
+function renderAccompReport(){
+  const dept = document.getElementById('reportDeptFilter').value;
+  const userId = document.getElementById('reportUserFilter').value;
+  const from = document.getElementById('reportFrom').value;
+  const to = document.getElementById('reportTo').value;
+
+  const filtered = ACCOMP_REPORT_DATA.filter(a=>{
+    if(dept && a.department !== dept) return false;
+    if(userId && a.UserID !== userId) return false;
+    if(from && a.Date < from) return false;
+    if(to && a.Date > to) return false;
+    return true;
+  });
+
+  const byUser = new Set(filtered.map(a=>a.UserID));
+  document.getElementById('reportSummaryCards').innerHTML = `
+    <div class="card blue"><div class="num">${filtered.length}</div><div class="lbl">Total Entries</div></div>
+    <div class="card"><div class="num">${byUser.size}</div><div class="lbl">Personnel with Entries</div></div>
+  `;
+
+  document.getElementById('reportBody').innerHTML = filtered.map(a=>`
+    <tr>
+      <td>${escapeHtml(a.userName)}</td>
+      <td>${escapeHtml(a.department)}</td>
+      <td>${escapeHtml(a.Title)}</td>
+      <td>${escapeHtml(a.Description) || '—'}</td>
+      <td class="mono">${new Date(a.Date).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" style="text-align:center; color:var(--ink-faint);">No entries match these filters.</td></tr>`;
+}
+
+/* ---------- Messenger ---------- */
+let ACTIVE_THREAD_USER_ID = null;
+let MSG_DIRECTORY = [];
+
+async function loadMessagesPage(){
+  ACTIVE_THREAD_USER_ID = null;
+  document.getElementById('threadHead').innerHTML = `<span class="thread-placeholder" style="margin:0;">Select a conversation</span>`;
+  document.getElementById('threadBody').innerHTML = `<div class="thread-placeholder">Pick someone from the left, or start a new conversation.</div>`;
+  document.getElementById('threadInputRow').classList.add('hidden');
+
+  const [conversations, directory] = await Promise.all([
+    api('/api/messages/conversations'),
+    api('/api/messages/directory'),
+  ]);
+  MSG_DIRECTORY = directory;
+
+  const picker = document.getElementById('newConvSelect');
+  picker.innerHTML = '<option value="">Start new conversation...</option>' +
+    directory.map(u=>`<option value="${u.id}">${escapeHtml(u.name)}${u.department ? ' — '+escapeHtml(u.department) : ''}</option>`).join('');
+
+  renderConversationList(conversations);
+}
+
+function renderConversationList(conversations){
+  const body = document.getElementById('convListBody');
+  if(!conversations.length){
+    body.innerHTML = `<div class="conv-empty">No conversations yet. Use the dropdown above to message someone.</div>`;
+    return;
+  }
+  body.innerHTML = conversations.map(c=>`
+    <div class="conv-item ${c.partner.id===ACTIVE_THREAD_USER_ID?'active':''}" onclick="openThread('${c.partner.id}')">
+      <div class="avatar" style="width:36px;height:36px;">${c.partner.profilePicUrl ? `<img src="${c.partner.profilePicUrl}">` : initials({FirstName:c.partner.name.split(' ')[0], LastName:c.partner.name.split(' ').slice(1).join(' ')})}</div>
+      <div class="c-info">
+        <div class="c-name">${escapeHtml(c.partner.name)}</div>
+        <div class="c-last">${c.lastMessageMine ? 'You: ' : ''}${escapeHtml(c.lastMessage)}</div>
+      </div>
+      ${c.unread ? `<span class="badge">${c.unread>9?'9+':c.unread}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+function startConversationFromPicker(){
+  const id = document.getElementById('newConvSelect').value;
+  if(id) openThread(id);
+  document.getElementById('newConvSelect').value = '';
+}
+
+async function openThread(userId){
+  ACTIVE_THREAD_USER_ID = userId;
+  const partner = MSG_DIRECTORY.find(u=>u.id===userId) || {name:'Conversation'};
+  document.getElementById('threadHead').textContent = partner.name;
+  document.getElementById('threadInputRow').classList.remove('hidden');
+  document.getElementById('threadBody').innerHTML = `<div class="thread-placeholder">Loading...</div>`;
+
+  const thread = await api('/api/messages/thread/'+userId);
+  renderThread(thread);
+
+  const conversations = await api('/api/messages/conversations');
+  renderConversationList(conversations);
+  refreshUnreadBadge();
+}
+
+function renderThread(thread){
+  const body = document.getElementById('threadBody');
+  if(!thread.length){
+    body.innerHTML = `<div class="thread-placeholder">No messages yet — say hello!</div>`;
+    return;
+  }
+  body.innerHTML = thread.map(m=>`
+    <div class="bubble ${m.mine?'mine':'theirs'}">
+      ${escapeHtml(m.Content)}
+      <span class="b-time">${new Date(m.CreatedAt).toLocaleString()}</span>
+    </div>
+  `).join('');
+  body.scrollTop = body.scrollHeight;
+}
+
+async function sendThreadMessage(){
+  const input = document.getElementById('threadInputText');
+  const content = input.value.trim();
+  if(!content || !ACTIVE_THREAD_USER_ID) return;
+  input.value = '';
+  try{
+    await api('/api/messages', {method:'POST', body: JSON.stringify({toId: ACTIVE_THREAD_USER_ID, content})});
+    const thread = await api('/api/messages/thread/'+ACTIVE_THREAD_USER_ID);
+    renderThread(thread);
+    const conversations = await api('/api/messages/conversations');
+    renderConversationList(conversations);
+  }catch(err){ alert(err.message); }
 }
 
 // Auto sign-in if a token is already stored
