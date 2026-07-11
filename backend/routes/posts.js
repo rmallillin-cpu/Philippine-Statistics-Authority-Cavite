@@ -35,8 +35,8 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, 
 
     let imageUrl = '';
     if (req.file) {
-      const { viewUrl } = await driveService.uploadFile(req.file.buffer, req.file.originalname, req.file.mimetype);
-      imageUrl = viewUrl;
+      const { embedUrl } = await driveService.uploadFile(req.file.buffer, req.file.originalname, req.file.mimetype);
+      imageUrl = embedUrl;
     }
 
     const record = await sheetsService.insert('Posts', {

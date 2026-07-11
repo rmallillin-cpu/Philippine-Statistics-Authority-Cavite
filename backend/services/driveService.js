@@ -37,6 +37,10 @@ async function uploadFile(buffer, filename, mimeType, subfolderId = null) {
     fileId,
     viewUrl: `https://drive.google.com/file/d/${fileId}/view`,
     downloadUrl: `https://drive.google.com/uc?export=download&id=${fileId}`,
+    // Use this one for <img src="..."> tags — the viewUrl above is an HTML viewer
+    // page and will never render as an image. sz=w1000 caps width at 1000px;
+    // bump it if you need larger images.
+    embedUrl: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
   };
 }
 

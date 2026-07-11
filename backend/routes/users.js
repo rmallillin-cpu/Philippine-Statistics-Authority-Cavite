@@ -29,8 +29,8 @@ router.put('/me', requireAuth, upload.single('profilePic'), async (req, res) => 
     });
 
     if (req.file) {
-      const { viewUrl } = await driveService.uploadFile(req.file.buffer, req.file.originalname, req.file.mimetype);
-      updates.ProfilePicUrl = viewUrl;
+      const { embedUrl } = await driveService.uploadFile(req.file.buffer, req.file.originalname, req.file.mimetype);
+      updates.ProfilePicUrl = embedUrl;
     }
 
     const updated = await sheetsService.update('Users', req.user.id, updates);
