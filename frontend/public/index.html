@@ -246,6 +246,31 @@
   .new-conv-picker select{width:100%; padding:9px 10px; border:1.5px solid var(--line); border-radius:9px; font-size:13px;}
   @media (max-width:700px){ .msg-shell{grid-template-columns:1fr; height:auto;} .conv-list{max-height:220px;} }
 
+  .field textarea{width:100%; padding:11px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:14px; font-family:inherit; background:#fff; color:var(--ink); resize:vertical;}
+  .field textarea:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(18,42,82,.10);}
+  .field select[multiple]{height:auto;}
+
+  /* ---------- Announcements ---------- */
+  .post-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:16px; box-shadow:var(--shadow-sm);}
+  .post-head{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .post-head .p-name{font-weight:600; color:var(--navy); font-size:13.5px;}
+  .post-head .p-time{font-size:11.5px; color:var(--ink-faint);}
+  .post-content{font-size:14px; color:var(--ink); line-height:1.6; white-space:pre-wrap;}
+  .post-image{max-width:100%; border-radius:12px; margin-top:12px; display:block;}
+  .post-delete{margin-left:auto;}
+
+  /* ---------- Schedule ---------- */
+  .sched-item{display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); border-radius:13px; padding:14px 16px; margin-bottom:10px; position:relative;}
+  .sched-item.mine{border-color:var(--gold); background:#FFFBF0;}
+  .sched-date-box{flex-shrink:0; width:56px; text-align:center; background:var(--navy); color:#fff; border-radius:10px; padding:8px 4px;}
+  .sched-date-box .d-num{font-family:'Fraunces',serif; font-size:20px; font-weight:600; line-height:1;}
+  .sched-date-box .d-mon{font-size:10px; text-transform:uppercase; letter-spacing:.05em; opacity:.85;}
+  .sched-info{flex:1; padding-right:70px;}
+  .sched-info .s-title{font-weight:600; color:var(--navy); font-size:14.5px;}
+  .sched-info .s-time{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+  .sched-info .s-assigned{font-size:12px; color:var(--ink-faint); margin-top:4px;}
+  .sched-actions{position:absolute; top:14px; right:14px; display:flex; gap:10px;}
+
   @media (max-width: 900px){
     .menu, .tb-brand small{display:none;}
     .hamburger{display:block;}
@@ -326,6 +351,8 @@
       <!-- Desktop menu (upper right) -->
       <nav class="menu" id="mainMenu">
         <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
+        <div class="menu-item" data-page="posts" onclick="goPage('posts')">Announcements</div>
+        <div class="menu-item" data-page="schedule" onclick="goPage('schedule')">Schedule</div>
         <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
         <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')">My Accomplishments</div>
         <div class="menu-item" data-page="messages" onclick="goPage('messages')">Messages<span class="badge hidden" id="navMsgBadge">0</span></div>
@@ -361,6 +388,8 @@
     <!-- Mobile menu panel -->
     <nav id="mobileMenuPanel">
       <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
+      <div class="menu-item" data-page="posts" onclick="goPage('posts')">Announcements</div>
+      <div class="menu-item" data-page="schedule" onclick="goPage('schedule')">Schedule</div>
       <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
       <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')">My Accomplishments</div>
       <div class="menu-item" data-page="messages" onclick="goPage('messages')">Messages<span class="badge hidden" id="navMsgBadgeMobile">0</span></div>
@@ -530,6 +559,43 @@
         </div>
       </div>
     </section>
+    <!-- ANNOUNCEMENTS -->
+    <section id="page-posts" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Community</div><h2>Announcements</h2></div></div>
+      <div class="panel hidden" id="newPostPanel">
+        <h3>Post an announcement</h3>
+        <div class="field"><label>Message</label><textarea id="postContent" rows="3" placeholder="What's happening?"></textarea></div>
+        <div class="field"><label>Image (optional)</label><input type="file" id="postImageInput" accept="image/*"></div>
+        <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="publishPost()">Publish</button>
+      </div>
+      <div id="postsFeed"></div>
+    </section>
+
+    <!-- SCHEDULE -->
+    <section id="page-schedule" class="hidden">
+      <div class="page-head"><div><div class="eyebrow">Team</div><h2>Schedule</h2></div></div>
+      <div class="panel hidden" id="newSchedulePanel">
+        <h3 id="scheduleFormTitle">New schedule entry</h3>
+        <input type="hidden" id="scheduleEditId">
+        <div class="field"><label>Title</label><input type="text" id="scheduleTitle" placeholder="e.g. Monthly Staff Meeting"></div>
+        <div class="row3">
+          <div class="field"><label>Date</label><input type="date" id="scheduleDate"></div>
+          <div class="field"><label>Start time</label><input type="time" id="scheduleTimeStart"></div>
+          <div class="field"><label>End time</label><input type="time" id="scheduleTimeEnd"></div>
+        </div>
+        <div class="field"><label><input type="checkbox" id="scheduleAssignAll" checked onchange="toggleScheduleAssignAll()"> Everyone</label></div>
+        <div class="field hidden" id="scheduleAssigneeWrap">
+          <label>Assign specific personnel (ctrl/cmd-click for multiple)</label>
+          <select id="scheduleAssignees" multiple size="6"></select>
+        </div>
+        <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="saveScheduleEntry()" id="scheduleSaveBtn">Add to Schedule</button>
+        <button class="btn btn-outline hidden" style="width:auto; padding:11px 20px; margin-left:8px;" id="scheduleCancelBtn" onclick="cancelScheduleEdit()">Cancel</button>
+      </div>
+      <div class="panel">
+        <h3>Upcoming &amp; Past</h3>
+        <div id="scheduleList"></div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -688,6 +754,8 @@ async function goPage(page){
   if(page==='accomplishments') await loadAccomplishments();
   if(page==='accomplishment-report') await loadAccompReport();
   if(page==='messages') await loadMessagesPage();
+  if(page==='posts') await loadPosts();
+  if(page==='schedule') await loadSchedule();
 }
 
 async function loadDashboard(){
@@ -1017,6 +1085,154 @@ async function sendThreadMessage(){
     const conversations = await api('/api/messages/conversations');
     renderConversationList(conversations);
   }catch(err){ alert(err.message); }
+}
+
+/* ---------- Announcements ---------- */
+async function loadPosts(){
+  const isAdmin = CURRENT_USER.role === 'Admin';
+  document.getElementById('newPostPanel').classList.toggle('hidden', !isAdmin);
+  const posts = await api('/api/posts');
+  const feed = document.getElementById('postsFeed');
+  if(!posts.length){ feed.innerHTML = `<div class="panel" style="text-align:center; color:var(--ink-faint);">No announcements yet.</div>`; return; }
+  feed.innerHTML = posts.map(p=>`
+    <div class="post-card">
+      <div class="post-head">
+        <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
+        <div>
+          <div class="p-name">${escapeHtml(p.authorName)}</div>
+          <div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div>
+        </div>
+        ${isAdmin ? `<button class="icon-btn del post-delete" onclick="deletePost('${p.ID}')">Delete</button>` : ''}
+      </div>
+      <div class="post-content">${escapeHtml(p.Content)}</div>
+      ${p.ImageUrl ? `<img class="post-image" src="${p.ImageUrl}">` : ''}
+    </div>
+  `).join('');
+}
+
+async function publishPost(){
+  const content = document.getElementById('postContent').value.trim();
+  if(!content){ alert('Write something first.'); return; }
+  const fd = new FormData();
+  fd.append('content', content);
+  const file = document.getElementById('postImageInput').files[0];
+  if(file) fd.append('image', file);
+  try{
+    await api('/api/posts', {method:'POST', body: fd});
+    document.getElementById('postContent').value = '';
+    document.getElementById('postImageInput').value = '';
+    loadPosts();
+  }catch(err){ alert(err.message); }
+}
+
+async function deletePost(id){
+  if(!confirm('Delete this announcement?')) return;
+  await api('/api/posts/'+id, {method:'DELETE'});
+  loadPosts();
+}
+
+/* ---------- Schedule ---------- */
+let SCHEDULE_ENTRIES = [];
+let SCHEDULE_PERSONNEL = [];
+
+async function loadSchedule(){
+  const isAdmin = CURRENT_USER.role === 'Admin';
+  cancelScheduleEdit();
+  document.getElementById('newSchedulePanel').classList.toggle('hidden', !isAdmin);
+
+  if(isAdmin && !SCHEDULE_PERSONNEL.length){
+    SCHEDULE_PERSONNEL = await api('/api/users');
+    document.getElementById('scheduleAssignees').innerHTML = SCHEDULE_PERSONNEL
+      .map(u=>`<option value="${u.ID}">${escapeHtml(u.FirstName+' '+u.LastName)} — ${escapeHtml(u.Department||'—')}</option>`).join('');
+  }
+
+  SCHEDULE_ENTRIES = await api('/api/schedule');
+  const list = document.getElementById('scheduleList');
+  if(!SCHEDULE_ENTRIES.length){ list.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">Nothing scheduled yet.</div>`; return; }
+
+  list.innerHTML = SCHEDULE_ENTRIES.map(e=>{
+    const d = new Date(e.Date+'T00:00:00');
+    const timeRange = e.TimeStart ? `${e.TimeStart}${e.TimeEnd?' – '+e.TimeEnd:''}` : 'All day';
+    return `
+    <div class="sched-item ${e.isMine?'mine':''}">
+      <div class="sched-date-box">
+        <div class="d-num">${d.getDate()}</div>
+        <div class="d-mon">${d.toLocaleDateString('en-US',{month:'short'})}</div>
+      </div>
+      <div class="sched-info">
+        <div class="s-title">${escapeHtml(e.Title)}</div>
+        <div class="s-time">${timeRange}</div>
+        <div class="s-assigned">Assigned: ${escapeHtml(e.assignedNames)}</div>
+      </div>
+      ${isAdmin ? `
+      <div class="sched-actions">
+        <button class="icon-btn" onclick="editScheduleEntry('${e.ID}')">Edit</button>
+        <button class="icon-btn del" onclick="deleteScheduleEntry('${e.ID}')">Delete</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleScheduleAssignAll(){
+  document.getElementById('scheduleAssigneeWrap').classList.toggle('hidden', document.getElementById('scheduleAssignAll').checked);
+}
+
+function editScheduleEntry(id){
+  const e = SCHEDULE_ENTRIES.find(x=>x.ID===id);
+  if(!e) return;
+  document.getElementById('scheduleEditId').value = e.ID;
+  document.getElementById('scheduleTitle').value = e.Title;
+  document.getElementById('scheduleDate').value = e.Date;
+  document.getElementById('scheduleTimeStart').value = e.TimeStart || '';
+  document.getElementById('scheduleTimeEnd').value = e.TimeEnd || '';
+  const isAll = e.AssignedTo === 'all';
+  document.getElementById('scheduleAssignAll').checked = isAll;
+  document.getElementById('scheduleAssigneeWrap').classList.toggle('hidden', isAll);
+  const ids = isAll ? [] : (e.AssignedTo||'').split(',');
+  [...document.getElementById('scheduleAssignees').options].forEach(o=>{ o.selected = ids.includes(o.value); });
+  document.getElementById('scheduleFormTitle').textContent = 'Edit schedule entry';
+  document.getElementById('scheduleSaveBtn').textContent = 'Save Changes';
+  document.getElementById('scheduleCancelBtn').classList.remove('hidden');
+  document.getElementById('scheduleTitle').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function cancelScheduleEdit(){
+  document.getElementById('scheduleEditId').value = '';
+  document.getElementById('scheduleTitle').value = '';
+  document.getElementById('scheduleDate').value = '';
+  document.getElementById('scheduleTimeStart').value = '';
+  document.getElementById('scheduleTimeEnd').value = '';
+  document.getElementById('scheduleAssignAll').checked = true;
+  document.getElementById('scheduleAssigneeWrap').classList.add('hidden');
+  document.getElementById('scheduleFormTitle').textContent = 'New schedule entry';
+  document.getElementById('scheduleSaveBtn').textContent = 'Add to Schedule';
+  document.getElementById('scheduleCancelBtn').classList.add('hidden');
+}
+
+async function saveScheduleEntry(){
+  const id = document.getElementById('scheduleEditId').value;
+  const title = document.getElementById('scheduleTitle').value.trim();
+  const date = document.getElementById('scheduleDate').value;
+  const timeStart = document.getElementById('scheduleTimeStart').value;
+  const timeEnd = document.getElementById('scheduleTimeEnd').value;
+  const assignAll = document.getElementById('scheduleAssignAll').checked;
+  const assignedTo = assignAll ? 'all' : [...document.getElementById('scheduleAssignees').selectedOptions].map(o=>o.value);
+  if(!title || !date){ alert('Title and date are required.'); return; }
+  try{
+    const body = JSON.stringify({title, date, timeStart, timeEnd, assignedTo});
+    if(id){
+      await api('/api/schedule/'+id, {method:'PUT', body});
+    }else{
+      await api('/api/schedule', {method:'POST', body});
+    }
+    loadSchedule();
+  }catch(err){ alert(err.message); }
+}
+
+async function deleteScheduleEntry(id){
+  if(!confirm('Delete this schedule entry?')) return;
+  await api('/api/schedule/'+id, {method:'DELETE'});
+  loadSchedule();
 }
 
 // Auto sign-in if a token is already stored
