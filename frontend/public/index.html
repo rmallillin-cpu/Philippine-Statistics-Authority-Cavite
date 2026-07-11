@@ -353,8 +353,23 @@
   .comment-del:hover{color:var(--red);}
   .comment-add{display:flex; gap:8px; margin-top:6px;}
   .comment-add input{flex:1; padding:9px 13px; border:1.5px solid var(--line); border-radius:20px; font-size:13px; font-family:inherit; background:rgba(255,255,255,.9);}
-  .comment-toggle{background:none; border:none; color:var(--ink-soft); font-size:12.5px; font-weight:600; cursor:pointer; padding:0;}
+  .comment-toggle{background:none; border:none; color:var(--ink-soft); font-size:12.5px; font-weight:600; cursor:pointer; padding:0; margin-bottom:10px; display:inline-block;}
   .comment-toggle:hover{color:var(--navy);}
+  .replies-toggle{margin:2px 0 10px 34px; font-size:12px;}
+  .comments-list.hidden{display:none;}
+
+  .post-edit{margin-left:auto;}
+  .post-head .post-delete{margin-left:8px;}
+  .post-edit-box{margin-top:8px;}
+  .post-edit-box textarea{width:100%; padding:11px 13px; border:1.5px solid var(--line); border-radius:12px; font-size:14px; font-family:inherit; background:rgba(255,255,255,.9); color:var(--ink); resize:vertical;}
+  .post-content.hidden{display:none;}
+
+  .emoji-btn{background:none; border:1.5px solid var(--line); border-radius:50%; width:34px; height:34px; flex-shrink:0; font-size:16px; cursor:pointer; line-height:1; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.9);}
+  .emoji-btn:hover{border-color:var(--glow);}
+  .emoji-picker{position:fixed; z-index:1200; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow-md); padding:8px; display:grid; grid-template-columns:repeat(6,1fr); gap:2px; backdrop-filter:blur(16px);}
+  .emoji-picker.hidden{display:none;}
+  .emoji-picker button{background:none; border:none; font-size:19px; cursor:pointer; padding:5px; border-radius:8px; line-height:1;}
+  .emoji-picker button:hover{background:rgba(18,42,82,.08);}
 
   /* ---------- Schedule ---------- */
   .sched-item{display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); background:var(--surface-2); border-radius:15px; padding:14px 16px; margin-bottom:10px; position:relative; transition:box-shadow .18s;}
@@ -690,11 +705,11 @@
     <!-- ANNOUNCEMENTS -->
     <section id="page-posts" class="hidden">
       <div class="page-head"><div><div class="eyebrow">Community</div><h2>Announcements</h2></div></div>
-      <div class="panel hidden" id="newPostPanel">
+      <div class="panel" id="newPostPanel">
         <h3>Post an announcement</h3>
         <div class="field"><label>Message</label><textarea id="postContent" rows="3" placeholder="What's happening?"></textarea></div>
         <div class="field"><label>Photo or video (optional)</label><input type="file" id="postImageInput" accept="image/*,video/*"></div>
-        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; cursor:pointer;">
+        <label class="hidden" id="postFeaturedWrap" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; cursor:pointer;">
           <input type="checkbox" id="postFeatured" style="width:auto;">
           Feature this announcement in the sidebar (visible to everyone, on every page)
         </label>
@@ -768,6 +783,8 @@
       </div>
     </div>
   </div>
+
+  <div class="emoji-picker hidden" id="emojiPicker" onclick="event.stopPropagation()"></div>
 </div>
 
 <script>
@@ -1297,10 +1314,14 @@ async function sendThreadMessage(){
 let ALL_COMMENTS = [];
 let ALL_POSTS = [];
 let LIGHTBOX_POST_ID = null;
+// Tracks which comment threads/reply lists are currently expanded (keyed "ctx-id"),
+// so they stay open across the re-renders that happen after posting/deleting.
+const EXPANDED_COMMENT_SECTIONS = new Set();
+const EXPANDED_REPLIES = new Set();
 
 async function loadPosts(){
   const isAdmin = CURRENT_USER.role === 'Admin';
-  document.getElementById('newPostPanel').classList.toggle('hidden', !isAdmin);
+  document.getElementById('postFeaturedWrap').classList.toggle('hidden', !isAdmin);
   const [posts, comments] = await Promise.all([api('/api/posts'), api('/api/comments')]);
   ALL_POSTS = posts;
   ALL_COMMENTS = comments;
@@ -1321,6 +1342,7 @@ function mediaHtml(p, forLightbox=false){
 function postCardHtml(p, isAdmin){
   const postComments = ALL_COMMENTS.filter(c=>c.PostID===p.ID);
   const topLevel = postComments.filter(c=>!c.ParentCommentID);
+  const canManage = isAdmin || p.AuthorID===String(CURRENT_USER.id);
   return `
     <div class="post-card">
       <div class="post-head">
@@ -1329,30 +1351,62 @@ function postCardHtml(p, isAdmin){
           <div class="p-name">${escapeHtml(p.authorName)}</div>
           <div class="p-time">${new Date(p.CreatedAt).toLocaleString()} ${p.Featured==='true' ? '· 📌 Featured' : ''}</div>
         </div>
-        ${isAdmin ? `<button class="icon-btn del post-delete" onclick="deletePost('${p.ID}')">Delete</button>` : ''}
+        ${canManage ? `<button class="icon-btn post-edit" onclick="startEditPost('${p.ID}')">✏️ Edit</button>` : ''}
+        ${canManage ? `<button class="icon-btn del post-delete" onclick="deletePost('${p.ID}')">Delete</button>` : ''}
       </div>
-      <div class="post-content">${escapeHtml(p.Content)}</div>
+      <div class="post-content" id="postContent-${p.ID}">${escapeHtml(p.Content)}</div>
+      <div class="post-edit-box hidden" id="postEditBox-${p.ID}">
+        <textarea id="postEditInput-${p.ID}" rows="3">${escapeHtml(p.Content)}</textarea>
+        <div style="margin-top:8px; display:flex; gap:8px;">
+          <button class="btn btn-gold btn-sm" onclick="savePostEdit('${p.ID}')">Save</button>
+          <button class="btn btn-outline btn-sm" onclick="cancelEditPost('${p.ID}')">Cancel</button>
+        </div>
+      </div>
       ${p.ImageUrl ? `
         <div class="post-media-wrap" onclick="openLightbox('${p.ID}')">
           ${mediaHtml(p)}
           ${p.MediaType==='video' ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
         </div>
       ` : ''}
-      <div class="comment-section">
-        ${topLevel.map(c=>commentItemHtml(c, postComments, p.ID)).join('')}
-        <div class="comment-add">
-          <input type="text" id="commentInput-${p.ID}" placeholder="Write a comment..." onkeydown="if(event.key==='Enter') addComment('${p.ID}');">
-          <button class="btn btn-outline btn-sm" onclick="addComment('${p.ID}')">Post</button>
-        </div>
-      </div>
+      ${commentSectionHtml(postComments, topLevel, p.ID, 'feed')}
     </div>
   `;
 }
 
-function commentItemHtml(c, allPostComments, postId, depth=0){
+/* Renders: "View N comments" toggle + collapsible comment list.
+   ctx keeps element IDs unique between the main feed and the lightbox, which can both
+   be showing the same post's comments in the DOM at once. */
+function commentsListHtml(postComments, topLevel, postId, ctx){
+  const total = postComments.length;
+  const expanded = EXPANDED_COMMENT_SECTIONS.has(ctx+'-'+postId);
+  return `
+    ${total>0 ? `<button class="comment-toggle" id="viewCommentsBtn-${ctx}-${postId}" onclick="toggleCommentsList('${postId}','${ctx}')">💬 ${expanded?'Hide comments':'View '+total+' comment'+(total===1?'':'s')}</button>` : ''}
+    <div class="comments-list ${expanded?'':'hidden'}" id="commentsList-${ctx}-${postId}">
+      ${topLevel.map(c=>commentItemHtml(c, postComments, postId, 0, ctx)).join('')}
+    </div>
+  `;
+}
+
+function commentAddHtml(postId, ctx){
+  return `
+    <div class="comment-add">
+      <input type="text" id="commentInput-${ctx}-${postId}" placeholder="Write a comment..." onkeydown="if(event.key==='Enter') addComment('${postId}', null, '${ctx}');">
+      <button type="button" class="emoji-btn" onclick="toggleEmojiPicker(event,'commentInput-${ctx}-${postId}')">😀</button>
+      <button class="btn btn-outline btn-sm" onclick="addComment('${postId}', null, '${ctx}')">Post</button>
+    </div>
+  `;
+}
+
+function commentSectionHtml(postComments, topLevel, postId, ctx){
+  return `<div class="comment-section">${commentsListHtml(postComments, topLevel, postId, ctx)}${commentAddHtml(postId, ctx)}</div>`;
+}
+
+function commentItemHtml(c, allPostComments, postId, depth, ctx){
   const myId = String(CURRENT_USER.id);
   const canDelete = c.AuthorID===myId || CURRENT_USER.role==='Admin';
   const replies = allPostComments.filter(r=>r.ParentCommentID===c.ID);
+  const repliesKey = ctx+'-'+c.ID;
+  const repliesOpen = EXPANDED_REPLIES.has(repliesKey);
   return `
     <div class="comment-item" style="${depth>0 ? 'margin-left:34px;' : ''}">
       <div class="avatar" style="width:26px;height:26px;font-size:10px;">${c.authorProfilePic ? `<img src="${c.authorProfilePic}">` : initials({FirstName:c.authorName.split(' ')[0], LastName:c.authorName.split(' ').slice(1).join(' ')})}</div>
@@ -1361,34 +1415,58 @@ function commentItemHtml(c, allPostComments, postId, depth=0){
         <div class="c-text">${escapeHtml(c.Content)}</div>
         <div class="c-time">
           ${new Date(c.CreatedAt).toLocaleString()}
-          <button class="comment-del" style="color:var(--ink-soft);" onclick="toggleReplyBox('${c.ID}')">Reply</button>
+          <button class="comment-del" style="color:var(--ink-soft);" onclick="toggleReplyBox('${c.ID}','${ctx}')">Reply</button>
           ${canDelete?`<button class="comment-del" onclick="deleteComment('${c.ID}')">Delete</button>`:''}
         </div>
-        <div class="comment-add hidden" id="replyBox-${c.ID}" style="margin-top:8px;">
-          <input type="text" id="replyInput-${c.ID}" placeholder="Write a reply..." onkeydown="if(event.key==='Enter') addComment('${postId}', '${c.ID}');">
-          <button class="btn btn-outline btn-sm" onclick="addComment('${postId}', '${c.ID}')">Reply</button>
+        <div class="comment-add hidden" id="replyBox-${ctx}-${c.ID}" style="margin-top:8px;">
+          <input type="text" id="replyInput-${ctx}-${c.ID}" placeholder="Write a reply..." onkeydown="if(event.key==='Enter') addComment('${postId}', '${c.ID}', '${ctx}');">
+          <button type="button" class="emoji-btn" onclick="toggleEmojiPicker(event,'replyInput-${ctx}-${c.ID}')">😀</button>
+          <button class="btn btn-outline btn-sm" onclick="addComment('${postId}', '${c.ID}', '${ctx}')">Reply</button>
         </div>
       </div>
     </div>
-    ${replies.map(r=>commentItemHtml(r, allPostComments, postId, depth+1)).join('')}
+    ${replies.length ? `
+      <button class="comment-toggle replies-toggle" onclick="toggleRepliesList('${c.ID}','${ctx}')">↳ ${repliesOpen?'Hide':'View'} ${replies.length} repl${replies.length===1?'y':'ies'}</button>
+      <div class="${repliesOpen?'':'hidden'}" id="repliesList-${ctx}-${c.ID}">
+        ${replies.map(r=>commentItemHtml(r, allPostComments, postId, depth+1, ctx)).join('')}
+      </div>
+    ` : ''}
   `;
 }
 
-function toggleReplyBox(commentId){
-  const box = document.getElementById('replyBox-'+commentId);
-  box.classList.toggle('hidden');
-  if(!box.classList.contains('hidden')) document.getElementById('replyInput-'+commentId).focus();
+function toggleCommentsList(postId, ctx){
+  const key = ctx+'-'+postId;
+  if(EXPANDED_COMMENT_SECTIONS.has(key)) EXPANDED_COMMENT_SECTIONS.delete(key);
+  else EXPANDED_COMMENT_SECTIONS.add(key);
+  if(ctx==='lightbox') renderLightbox(); else loadPosts();
 }
 
-async function addComment(postId, parentCommentId=null){
+function toggleRepliesList(commentId, ctx){
+  const key = ctx+'-'+commentId;
+  if(EXPANDED_REPLIES.has(key)) EXPANDED_REPLIES.delete(key);
+  else EXPANDED_REPLIES.add(key);
+  if(ctx==='lightbox') renderLightbox(); else loadPosts();
+}
+
+function toggleReplyBox(commentId, ctx){
+  const box = document.getElementById('replyBox-'+ctx+'-'+commentId);
+  box.classList.toggle('hidden');
+  if(!box.classList.contains('hidden')) document.getElementById('replyInput-'+ctx+'-'+commentId).focus();
+}
+
+async function addComment(postId, parentCommentId=null, ctx='feed'){
   const input = parentCommentId
-    ? document.getElementById('replyInput-'+parentCommentId)
-    : (document.getElementById('commentInput-'+postId) || document.getElementById('lightboxCommentInput'));
+    ? document.getElementById('replyInput-'+ctx+'-'+parentCommentId)
+    : document.getElementById('commentInput-'+ctx+'-'+postId);
+  if(!input) return;
   const content = input.value.trim();
   if(!content) return;
   input.value = '';
   try{
     await api('/api/comments', {method:'POST', body: JSON.stringify({postId, content, parentCommentId})});
+    // Make sure whatever the person just posted into is left open/visible after refresh.
+    EXPANDED_COMMENT_SECTIONS.add(ctx+'-'+postId);
+    if(parentCommentId) EXPANDED_REPLIES.add(ctx+'-'+parentCommentId);
     await loadPosts();
     if(LIGHTBOX_POST_ID === postId) renderLightbox();
   }catch(err){ alert(err.message); }
@@ -1402,6 +1480,62 @@ async function deleteComment(id){
     if(LIGHTBOX_POST_ID) renderLightbox();
   }catch(err){ alert(err.message); }
 }
+
+/* ---------- Editing your own announcement ---------- */
+function startEditPost(postId){
+  document.getElementById('postContent-'+postId).classList.add('hidden');
+  document.getElementById('postEditBox-'+postId).classList.remove('hidden');
+  const ta = document.getElementById('postEditInput-'+postId);
+  ta.focus();
+  ta.selectionStart = ta.value.length;
+}
+
+function cancelEditPost(postId){
+  document.getElementById('postContent-'+postId).classList.remove('hidden');
+  document.getElementById('postEditBox-'+postId).classList.add('hidden');
+}
+
+async function savePostEdit(postId){
+  const content = document.getElementById('postEditInput-'+postId).value.trim();
+  if(!content){ alert("Announcement text can't be empty."); return; }
+  try{
+    await api('/api/posts/'+postId, {method:'PUT', body: JSON.stringify({content})});
+    await loadPosts();
+    if(LIGHTBOX_POST_ID === postId) renderLightbox();
+  }catch(err){ alert(err.message); }
+}
+
+/* ---------- Emoji picker (shared popup, reused by every comment/reply box) ---------- */
+const EMOJI_LIST = ['😀','😂','🥰','😍','👍','🙏','🎉','🔥','❤️','😢','😮','👏','😡','🤔','✅','💯'];
+let EMOJI_TARGET_INPUT = null;
+function toggleEmojiPicker(evt, inputId){
+  evt.stopPropagation();
+  const picker = document.getElementById('emojiPicker');
+  if(EMOJI_TARGET_INPUT===inputId && !picker.classList.contains('hidden')){
+    picker.classList.add('hidden');
+    EMOJI_TARGET_INPUT = null;
+    return;
+  }
+  if(!picker.innerHTML){
+    picker.innerHTML = EMOJI_LIST.map(e=>`<button type="button" onclick="insertEmoji('${e}')">${e}</button>`).join('');
+  }
+  EMOJI_TARGET_INPUT = inputId;
+  const rect = evt.currentTarget.getBoundingClientRect();
+  picker.style.left = Math.max(8, rect.left - 180) + 'px';
+  picker.style.top = (rect.bottom + 6) + 'px';
+  picker.classList.remove('hidden');
+}
+function insertEmoji(emoji){
+  if(!EMOJI_TARGET_INPUT) return;
+  const input = document.getElementById(EMOJI_TARGET_INPUT);
+  if(input){ input.value += emoji; input.focus(); }
+  document.getElementById('emojiPicker').classList.add('hidden');
+}
+document.addEventListener('click', ()=>{
+  const picker = document.getElementById('emojiPicker');
+  if(picker) picker.classList.add('hidden');
+  EMOJI_TARGET_INPUT = null;
+});
 
 /* ---------- Lightbox (Facebook-style media viewer with comments alongside) ---------- */
 function openLightbox(postId){
@@ -1419,7 +1553,6 @@ function closeLightbox(){
 function renderLightbox(){
   const p = ALL_POSTS.find(x=>x.ID===LIGHTBOX_POST_ID);
   if(!p){ closeLightbox(); return; }
-  const isAdmin = CURRENT_USER.role === 'Admin';
 
   document.getElementById('lightboxMedia').innerHTML = mediaHtml(p, true);
 
@@ -1434,15 +1567,9 @@ function renderLightbox(){
   const postComments = ALL_COMMENTS.filter(c=>c.PostID===p.ID);
   const topLevel = postComments.filter(c=>!c.ParentCommentID);
   document.getElementById('lightboxCommentsList').innerHTML = topLevel.length
-    ? topLevel.map(c=>commentItemHtml(c, postComments, p.ID)).join('')
+    ? commentsListHtml(postComments, topLevel, p.ID, 'lightbox')
     : `<div style="color:var(--ink-faint); font-size:13px;">No comments yet — be the first to say something.</div>`;
-
-  document.getElementById('lightboxCommentAdd').innerHTML = `
-    <div class="comment-add">
-      <input type="text" id="lightboxCommentInput" placeholder="Write a comment..." onkeydown="if(event.key==='Enter') addComment('${p.ID}');">
-      <button class="btn btn-outline btn-sm" onclick="addComment('${p.ID}')">Post</button>
-    </div>
-  `;
+  document.getElementById('lightboxCommentAdd').innerHTML = commentAddHtml(p.ID, 'lightbox');
 }
 
 /* ---------- Sitewide featured-announcements sidebar ---------- */

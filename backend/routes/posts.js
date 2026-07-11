@@ -28,8 +28,9 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(enriched);
 });
 
-// POST /api/posts - admin only: publish an announcement, optional image or video to Drive
-router.post('/', requireAuth, requireAdmin, upload.single('media'), async (req, res) => {
+// POST /api/posts - any signed-in user can publish an announcement, optional image or video to Drive
+// Only admins can mark a post "Featured" (sitewide sidebar), even if the flag is sent by a non-admin.
+router.post('/', requireAuth, upload.single('media'), async (req, res) => {
   try {
     const { content, featured } = req.body;
     if (!content || !content.trim()) return res.status(400).json({ error: 'Announcement content is required' });
@@ -44,16 +45,34 @@ router.post('/', requireAuth, requireAdmin, upload.single('media'), async (req, 
       mediaUrl = isVideo ? previewUrl : embedUrl;
     }
 
+    const isFeaturedRequested = featured === 'true' || featured === true;
     const record = await sheetsService.insert('Posts', {
       AuthorID: req.user.id,
       Content: content.trim(),
       ImageUrl: mediaUrl,
       MediaType: mediaType,
-      Featured: featured === 'true' || featured === true ? 'true' : '',
+      Featured: isFeaturedRequested && req.user.role === 'Admin' ? 'true' : '',
     });
     res.json(record);
   } catch (err) {
     res.status(500).json({ error: 'Could not publish announcement', detail: err.message });
+  }
+});
+
+// PUT /api/posts/:id - the post's author, or an admin, can edit the text content
+router.put('/:id', requireAuth, async (req, res) => {
+  try {
+    const existing = await sheetsService.getById('Posts', req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    if (existing.AuthorID !== String(req.user.id) && req.user.role !== 'Admin') {
+      return res.status(403).json({ error: 'Only the post author (or an admin) can edit this' });
+    }
+    const { content } = req.body;
+    if (!content || !content.trim()) return res.status(400).json({ error: 'Announcement content is required' });
+    const updated = await sheetsService.update('Posts', req.params.id, { Content: content.trim() });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'Could not update announcement', detail: err.message });
   }
 });
 
@@ -68,8 +87,13 @@ router.put('/:id/featured', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// DELETE /api/posts/:id - admin only
-router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
+// DELETE /api/posts/:id - the post's author, or an admin
+router.delete('/:id', requireAuth, async (req, res) => {
+  const existing = await sheetsService.getById('Posts', req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+  if (existing.AuthorID !== String(req.user.id) && req.user.role !== 'Admin') {
+    return res.status(403).json({ error: 'Only the post author (or an admin) can delete this' });
+  }
   await sheetsService.remove('Posts', req.params.id);
   res.json({ message: 'Deleted' });
 });
