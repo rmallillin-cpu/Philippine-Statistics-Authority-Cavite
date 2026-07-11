@@ -501,10 +501,6 @@
       </div>
       <div id="dashboardAdminSection" class="hidden">
         <div class="cards" id="statCards"></div>
-        <div class="panel">
-          <h3>Recent Activity</h3>
-          <table><thead><tr><th>Personnel</th><th>Action</th><th>Timestamp</th></tr></thead><tbody id="recentLogsBody"></tbody></table>
-        </div>
       </div>
       <div class="panel">
         <h3>Recent Announcements</h3>
@@ -896,8 +892,6 @@ async function loadDashboard(){
         <div class="card"><div class="num">${stats.totalPositions}</div><div class="lbl">Positions</div></div>
         <div class="card red"><div class="num">${stats.totalRetiredResigned}</div><div class="lbl">Retired / Resigned</div></div>
       `;
-      const logs = await api('/api/dashboard/logs');
-      document.getElementById('recentLogsBody').innerHTML = logs.slice(0,8).map(logRow).join('');
     }catch(err){ console.error(err); }
   }
 
@@ -1247,6 +1241,7 @@ async function loadPosts(){
 
 function postCardHtml(p, isAdmin){
   const postComments = ALL_COMMENTS.filter(c=>c.PostID===p.ID);
+  const topLevel = postComments.filter(c=>!c.ParentCommentID);
   return `
     <div class="post-card">
       <div class="post-head">
@@ -1260,7 +1255,7 @@ function postCardHtml(p, isAdmin){
       <div class="post-content">${escapeHtml(p.Content)}</div>
       ${p.ImageUrl ? `<img class="post-image" src="${p.ImageUrl}">` : ''}
       <div class="comment-section">
-        ${postComments.map(c=>commentItemHtml(c)).join('')}
+        ${topLevel.map(c=>commentItemHtml(c, postComments, p.ID)).join('')}
         <div class="comment-add">
           <input type="text" id="commentInput-${p.ID}" placeholder="Write a comment..." onkeydown="if(event.key==='Enter') addComment('${p.ID}');">
           <button class="btn btn-outline btn-sm" onclick="addComment('${p.ID}')">Post</button>
@@ -1270,28 +1265,46 @@ function postCardHtml(p, isAdmin){
   `;
 }
 
-function commentItemHtml(c){
+function commentItemHtml(c, allPostComments, postId, depth=0){
   const myId = String(CURRENT_USER.id);
   const canDelete = c.AuthorID===myId || CURRENT_USER.role==='Admin';
+  const replies = allPostComments.filter(r=>r.ParentCommentID===c.ID);
   return `
-    <div class="comment-item">
+    <div class="comment-item" style="${depth>0 ? 'margin-left:34px;' : ''}">
       <div class="avatar" style="width:26px;height:26px;font-size:10px;">${c.authorProfilePic ? `<img src="${c.authorProfilePic}">` : initials({FirstName:c.authorName.split(' ')[0], LastName:c.authorName.split(' ').slice(1).join(' ')})}</div>
       <div class="c-bubble">
         <div class="c-name">${escapeHtml(c.authorName)}</div>
         <div class="c-text">${escapeHtml(c.Content)}</div>
-        <div class="c-time">${new Date(c.CreatedAt).toLocaleString()} ${canDelete?`<button class="comment-del" onclick="deleteComment('${c.ID}')">Delete</button>`:''}</div>
+        <div class="c-time">
+          ${new Date(c.CreatedAt).toLocaleString()}
+          <button class="comment-del" style="color:var(--ink-soft);" onclick="toggleReplyBox('${c.ID}')">Reply</button>
+          ${canDelete?`<button class="comment-del" onclick="deleteComment('${c.ID}')">Delete</button>`:''}
+        </div>
+        <div class="comment-add hidden" id="replyBox-${c.ID}" style="margin-top:8px;">
+          <input type="text" id="replyInput-${c.ID}" placeholder="Write a reply..." onkeydown="if(event.key==='Enter') addComment('${postId}', '${c.ID}');">
+          <button class="btn btn-outline btn-sm" onclick="addComment('${postId}', '${c.ID}')">Reply</button>
+        </div>
       </div>
     </div>
+    ${replies.map(r=>commentItemHtml(r, allPostComments, postId, depth+1)).join('')}
   `;
 }
 
-async function addComment(postId){
-  const input = document.getElementById('commentInput-'+postId);
+function toggleReplyBox(commentId){
+  const box = document.getElementById('replyBox-'+commentId);
+  box.classList.toggle('hidden');
+  if(!box.classList.contains('hidden')) document.getElementById('replyInput-'+commentId).focus();
+}
+
+async function addComment(postId, parentCommentId=null){
+  const input = parentCommentId
+    ? document.getElementById('replyInput-'+parentCommentId)
+    : document.getElementById('commentInput-'+postId);
   const content = input.value.trim();
   if(!content) return;
   input.value = '';
   try{
-    await api('/api/comments', {method:'POST', body: JSON.stringify({postId, content})});
+    await api('/api/comments', {method:'POST', body: JSON.stringify({postId, content, parentCommentId})});
     loadPosts();
   }catch(err){ alert(err.message); }
 }
