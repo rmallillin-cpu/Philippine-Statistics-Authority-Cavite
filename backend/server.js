@@ -28,6 +28,7 @@ const PORT = process.env.PORT || 4000;
 async function start() {
   console.log('Checking Google Sheet structure...');
   await sheetsService.ensureTabsExist();
+  await sheetsService.ensureDefaultAdmin();
   app.listen(PORT, () => console.log(`PSA Cavite Admin System running at http://localhost:${PORT}`));
 }
 

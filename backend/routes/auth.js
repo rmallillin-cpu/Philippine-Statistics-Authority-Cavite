@@ -20,7 +20,8 @@ router.post('/register', async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const isFirstUser = users.length === 0; // first registered account becomes Admin automatically
+    // A default Admin account is auto-created on first server startup (see sheetsService.ensureDefaultAdmin),
+    // so every self-registered account is a regular User. Promote via Personnel > "Make admin".
 
     const newUser = await sheetsService.insert('Users', {
       FirstName: firstName,
@@ -33,7 +34,7 @@ router.post('/register', async (req, res) => {
       ProfilePicUrl: '',
       DateHired: req.body.dateHired || '',
       DateRetiredResigned: '',
-      Role: isFirstUser ? 'Admin' : 'User',
+      Role: 'User',
     });
 
     res.json({ message: 'Registered successfully', userId: newUser.ID, role: newUser.Role });

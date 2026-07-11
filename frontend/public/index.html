@@ -8,142 +8,222 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --navy:#12274E;
-    --navy-deep:#0B1930;
+    --navy:#122A52;
+    --navy-deep:#081428;
+    --navy-mid:#1B3970;
     --gold:#F5B301;
+    --gold-soft:#FFD666;
     --red:#CE1126;
-    --bg:#F5F6F9;
+    --bg:#F3F5FA;
     --surface:#FFFFFF;
-    --ink:#1F2430;
-    --ink-soft:#5B6270;
-    --line:#E4E7EE;
+    --surface-2:#FAFBFD;
+    --ink:#151B2B;
+    --ink-soft:#5B6478;
+    --ink-faint:#8890A3;
+    --line:#E6E9F1;
     --ok:#1E8E5A;
-    --radius:14px;
+    --radius:18px;
+    --radius-sm:12px;
+    --shadow-sm:0 1px 2px rgba(15,34,82,.06);
+    --shadow-md:0 16px 36px -16px rgba(15,34,82,.28);
+    --tricolor:linear-gradient(90deg, var(--navy) 0%, var(--red) 50%, var(--gold) 100%);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
     font-family:'Inter',sans-serif;
-    background:var(--bg);
+    background:
+      radial-gradient(circle at 100% 0%, rgba(18,42,82,0.05), transparent 45%),
+      radial-gradient(circle at 0% 100%, rgba(245,179,1,0.06), transparent 40%),
+      var(--bg);
     color:var(--ink);
     min-height:100vh;
   }
   h1,h2,h3,.display{font-family:'Fraunces',serif;}
   .mono{font-family:'IBM Plex Mono',monospace;}
+  ::selection{background:var(--gold-soft); color:var(--navy-deep);}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
 
   /* ---------- Auth screen ---------- */
   #authScreen{
     min-height:100vh; display:flex; align-items:center; justify-content:center;
     background:
-      radial-gradient(circle at 15% 20%, rgba(245,179,1,0.10), transparent 40%),
-      radial-gradient(circle at 85% 80%, rgba(206,17,38,0.08), transparent 40%),
+      radial-gradient(circle at 15% 20%, rgba(245,179,1,0.12), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(206,17,38,0.10), transparent 40%),
       var(--navy-deep);
-    padding:24px;
+    padding:24px; position:relative; overflow:hidden;
+  }
+  #authScreen::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--tricolor);
   }
   .auth-card{
-    background:var(--surface); border-radius:20px; width:100%; max-width:420px;
-    padding:40px 36px; box-shadow:0 30px 60px rgba(0,0,0,0.35);
+    background:var(--surface); border-radius:22px; width:100%; max-width:430px;
+    padding:40px 36px; box-shadow:0 40px 80px rgba(0,0,0,0.40); position:relative;
+    animation:cardIn .5s cubic-bezier(.2,.8,.2,1);
   }
+  @keyframes cardIn{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
   .auth-brand{display:flex; align-items:center; gap:12px; margin-bottom:8px;}
   .tri-arrow{width:34px; height:34px; flex-shrink:0;}
   .auth-brand .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:600;}
   .auth-brand h1{font-size:22px; color:var(--navy); line-height:1.15;}
   .auth-sub{color:var(--ink-soft); font-size:13.5px; margin:6px 0 26px;}
-  .tabs{display:flex; gap:4px; background:var(--bg); padding:4px; border-radius:10px; margin-bottom:22px;}
-  .tab-btn{flex:1; border:none; background:transparent; padding:9px 0; border-radius:8px; font-weight:600; font-size:13.5px; color:var(--ink-soft); cursor:pointer;}
+  .default-hint{
+    font-size:12px; background:var(--surface-2); border:1px dashed var(--line); border-radius:10px;
+    padding:9px 12px; color:var(--ink-soft); margin-bottom:20px; line-height:1.5;
+  }
+  .default-hint b{color:var(--navy);}
+  .tabs{display:flex; gap:4px; background:var(--bg); padding:4px; border-radius:11px; margin-bottom:22px;}
+  .tab-btn{flex:1; border:none; background:transparent; padding:9px 0; border-radius:8px; font-weight:600; font-size:13.5px; color:var(--ink-soft); cursor:pointer; transition:background .18s,color .18s;}
   .tab-btn.active{background:var(--navy); color:#fff;}
   .field{margin-bottom:14px;}
   .field label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:5px;}
   .field input, .field select{
-    width:100%; padding:11px 12px; border:1.5px solid var(--line); border-radius:9px;
-    font-size:14px; font-family:inherit; background:#fff; color:var(--ink);
+    width:100%; padding:11px 12px; border:1.5px solid var(--line); border-radius:10px;
+    font-size:14px; font-family:inherit; background:#fff; color:var(--ink); transition:border-color .15s, box-shadow .15s;
   }
-  .field input:focus, .field select:focus{outline:none; border-color:var(--navy);}
+  .field input:focus, .field select:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(18,42,82,.10);}
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
   .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
   .btn{
-    width:100%; padding:12px; border:none; border-radius:9px; background:var(--navy); color:#fff;
-    font-weight:600; font-size:14.5px; cursor:pointer; margin-top:6px;
+    width:100%; padding:12px; border:none; border-radius:10px; background:var(--navy); color:#fff;
+    font-weight:600; font-size:14.5px; cursor:pointer; margin-top:6px; transition:background .18s, transform .1s;
   }
   .btn:hover{background:var(--navy-deep);}
+  .btn:active{transform:scale(.98);}
   .btn-gold{background:var(--gold); color:var(--navy-deep);}
+  .btn-gold:hover{background:var(--gold-soft);}
   .btn-outline{background:transparent; border:1.5px solid var(--line); color:var(--ink);}
   .btn-danger{background:var(--red); color:#fff;}
-  .btn-sm{width:auto; padding:7px 14px; font-size:13px;}
-  .msg{font-size:13px; padding:10px 12px; border-radius:8px; margin-bottom:14px;}
+  .btn-sm{width:auto; padding:8px 14px; font-size:13px; margin-top:0;}
+  .msg{font-size:13px; padding:10px 12px; border-radius:9px; margin-bottom:14px;}
   .msg.error{background:#FDECEC; color:var(--red);}
   .msg.ok{background:#E9F7EF; color:var(--ok);}
   .hidden{display:none !important;}
 
-  /* ---------- App shell ---------- */
-  #app{display:none; min-height:100vh; grid-template-columns:240px 1fr;}
-  #app.shown{display:grid;}
-  .sidebar{
-    background:var(--navy-deep); color:#fff; padding:24px 18px; display:flex; flex-direction:column;
+  /* ---------- Top navbar with menu + submenu (upper right) ---------- */
+  #app{display:none; min-height:100vh; flex-direction:column;}
+  #app.shown{display:flex;}
+  .topbar{
+    position:sticky; top:0; z-index:100; background:linear-gradient(180deg, var(--navy-deep), #0A1830);
+    border-bottom:1px solid rgba(255,255,255,.06); position:relative;
   }
-  .sb-brand{display:flex; align-items:center; gap:10px; margin-bottom:30px; padding:0 6px;}
-  .sb-brand span{font-family:'Fraunces',serif; font-size:16px; font-weight:600; line-height:1.2;}
-  .nav-item{
-    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:9px; color:#C7CEDC;
-    font-size:14px; font-weight:500; cursor:pointer; margin-bottom:2px;
+  .topbar::before{content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--tricolor);}
+  .topbar-inner{
+    max-width:1360px; margin:0 auto; padding:0 28px; height:64px;
+    display:flex; align-items:center; gap:24px;
   }
-  .nav-item:hover{background:rgba(255,255,255,0.06); color:#fff;}
-  .nav-item.active{background:var(--gold); color:var(--navy-deep); font-weight:700;}
-  .nav-section-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.12em; color:#6C7690; margin:18px 6px 8px;}
-  .sb-spacer{flex:1;}
-  .sb-user{display:flex; align-items:center; gap:10px; padding:12px 6px; border-top:1px solid rgba(255,255,255,0.08); margin-top:10px;}
-  .avatar{width:34px; height:34px; border-radius:50%; background:var(--gold); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; overflow:hidden;}
-  .avatar img{width:100%; height:100%; object-fit:cover;}
-  .sb-user .name{font-size:13px; font-weight:600; color:#fff;}
-  .sb-user .role{font-size:11px; color:#8891A6;}
-  .logout-link{font-size:12px; color:#8891A6; cursor:pointer; margin-top:8px; display:block;}
+  .tb-brand{display:flex; align-items:center; gap:10px; flex-shrink:0; cursor:pointer;}
+  .tb-brand span{font-family:'Fraunces',serif; font-size:15px; font-weight:600; line-height:1.2; color:#fff;}
+  .tb-brand small{display:block; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:#8891A6; font-weight:600;}
 
-  .main{padding:32px 40px; overflow-y:auto; max-height:100vh;}
-  .page-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:10px;}
-  .page-head h2{font-size:26px; color:var(--navy);}
-  .page-head .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:600;}
+  .menu{display:flex; align-items:center; gap:2px; margin-left:8px;}
+  .menu-item{
+    position:relative; display:flex; align-items:center; gap:5px; padding:10px 14px; border-radius:9px;
+    color:#C7CEDC; font-size:13.5px; font-weight:500; cursor:pointer; white-space:nowrap;
+    transition:background .15s, color .15s;
+  }
+  .menu-item:hover{background:rgba(255,255,255,.07); color:#fff;}
+  .menu-item.active{color:var(--gold);}
+  .menu-item.active::after{content:''; position:absolute; left:14px; right:14px; bottom:3px; height:2px; background:var(--gold); border-radius:2px;}
+  .menu-item .chev{font-size:9px; opacity:.7; transition:transform .18s;}
+  .menu-item.has-sub.open .chev{transform:rotate(180deg);}
+
+  .submenu{
+    position:absolute; top:calc(100% + 8px); left:0; min-width:230px; background:var(--surface);
+    border-radius:13px; box-shadow:var(--shadow-md); border:1px solid var(--line); padding:6px;
+    opacity:0; visibility:hidden; transform:translateY(-6px); transition:opacity .16s, transform .16s, visibility .16s;
+  }
+  .menu-item.has-sub.open .submenu{opacity:1; visibility:visible; transform:translateY(0);}
+  .submenu-item{
+    padding:10px 12px; border-radius:8px; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer;
+    display:flex; align-items:center; gap:9px; transition:background .12s;
+  }
+  .submenu-item:hover{background:var(--surface-2);}
+  .submenu-item.active{background:#FFF4D9; color:#8A6300; font-weight:600;}
+
+  .tb-spacer{flex:1;}
+
+  .account{position:relative;}
+  .account-trigger{
+    display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+    padding:6px 12px 6px 6px; border-radius:30px; cursor:pointer; transition:background .15s;
+  }
+  .account-trigger:hover{background:rgba(255,255,255,.10);}
+  .avatar{width:32px; height:32px; border-radius:50%; background:var(--gold); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.5px; flex-shrink:0; overflow:hidden;}
+  .avatar img{width:100%; height:100%; object-fit:cover;}
+  .account-text{text-align:left; line-height:1.25;}
+  .account-text .name{font-size:12.5px; font-weight:600; color:#fff;}
+  .account-text .role{font-size:10.5px; color:#8891A6;}
+  .account .chev{font-size:9px; color:#8891A6; transition:transform .18s;}
+  .account.open .chev{transform:rotate(180deg);}
+
+  .account-dropdown{
+    position:absolute; top:calc(100% + 8px); right:0; min-width:200px; background:var(--surface);
+    border-radius:13px; box-shadow:var(--shadow-md); border:1px solid var(--line); padding:6px;
+    opacity:0; visibility:hidden; transform:translateY(-6px); transition:opacity .16s, transform .16s, visibility .16s; z-index:50;
+  }
+  .account.open .account-dropdown{opacity:1; visibility:visible; transform:translateY(0);}
+  .dropdown-item{padding:10px 12px; border-radius:8px; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:9px;}
+  .dropdown-item:hover{background:var(--surface-2);}
+  .dropdown-item.danger{color:var(--red);}
+  .dropdown-divider{height:1px; background:var(--line); margin:5px 4px;}
+
+  .hamburger{display:none; background:none; border:none; color:#fff; font-size:20px; cursor:pointer; padding:6px;}
+
+  .main{flex:1; padding:36px 28px 60px; max-width:1360px; margin:0 auto; width:100%;}
+  .page-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:26px; flex-wrap:wrap; gap:10px;}
+  .page-head h2{font-size:27px; color:var(--navy); position:relative; display:inline-block;}
+  .page-head .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:600; display:flex; align-items:center; gap:8px;}
+  .page-head .eyebrow::before{content:''; width:16px; height:3px; border-radius:2px; background:var(--tricolor);}
 
   .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:16px; margin-bottom:30px;}
-  .card{background:var(--surface); border-radius:var(--radius); padding:20px; border:1px solid var(--line); position:relative; overflow:hidden;}
-  .card .num{font-family:'Fraunces',serif; font-size:32px; color:var(--navy); font-weight:600;}
+  .card{background:var(--surface); border-radius:var(--radius); padding:20px; border:1px solid var(--line); position:relative; overflow:hidden; box-shadow:var(--shadow-sm); transition:transform .18s, box-shadow .18s;}
+  .card:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
+  .card .num{font-family:'Fraunces',serif; font-size:33px; color:var(--navy); font-weight:600;}
   .card .lbl{font-size:12.5px; color:var(--ink-soft); font-weight:600; margin-top:2px;}
   .card::before{content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--gold);}
   .card.blue::before{background:var(--navy);}
   .card.red::before{background:var(--red);}
 
-  .panel{background:var(--surface); border-radius:var(--radius); border:1px solid var(--line); padding:22px; margin-bottom:24px;}
+  .panel{background:var(--surface); border-radius:var(--radius); border:1px solid var(--line); padding:22px; margin-bottom:24px; box-shadow:var(--shadow-sm);}
   .panel h3{font-size:15px; color:var(--navy); margin-bottom:16px;}
   table{width:100%; border-collapse:collapse; font-size:13.5px;}
   th{text-align:left; padding:10px 8px; color:var(--ink-soft); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; border-bottom:1.5px solid var(--line);}
   td{padding:11px 8px; border-bottom:1px solid var(--line);}
   tr:last-child td{border-bottom:none;}
+  tr{transition:background .12s;}
+  tbody tr:hover{background:var(--surface-2);}
   .pill{display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:600;}
   .pill.in{background:#E9F7EF; color:var(--ok);}
   .pill.out{background:#FDECEC; color:var(--red);}
   .pill.admin{background:#FFF4D9; color:#8A6300;}
   .pill.user{background:#EEF1F8; color:var(--navy);}
-  .icon-btn{border:none; background:transparent; cursor:pointer; color:var(--ink-soft); font-size:13px; margin-right:8px;}
+  .icon-btn{border:none; background:transparent; cursor:pointer; color:var(--ink-soft); font-size:13px; margin-right:8px; font-weight:600;}
   .icon-btn:hover{color:var(--navy);}
   .icon-btn.del:hover{color:var(--red);}
+  .icon-btn.gold:hover{color:#8A6300;}
 
   .inline-form{display:flex; gap:8px; margin-bottom:16px;}
-  .inline-form input{flex:1; padding:9px 12px; border:1.5px solid var(--line); border-radius:8px; font-size:13.5px;}
-
-  .stepper{display:flex; align-items:center; gap:0; margin:6px 0;}
-  .step{display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; color:var(--ink-soft); padding:4px 10px 4px 4px;}
-  .step .dot{width:10px; height:10px; border-radius:50%; background:var(--line);}
-  .step.done .dot{background:var(--navy);}
-  .step.active .dot{background:var(--gold);}
-  .step.done, .step.active{color:var(--ink);}
-  .step-line{width:26px; height:2px; background:var(--line);}
+  .inline-form input{flex:1; padding:9px 12px; border:1.5px solid var(--line); border-radius:9px; font-size:13.5px;}
 
   .profile-head{display:flex; gap:20px; align-items:center; margin-bottom:24px;}
   .avatar-lg{width:84px; height:84px; border-radius:50%; background:var(--gold); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:28px; overflow:hidden; flex-shrink:0;}
   .avatar-lg img{width:100%; height:100%; object-fit:cover;}
 
-  @media (max-width: 800px){
-    #app.shown{grid-template-columns:1fr;}
-    .sidebar{display:none;}
-    .main{padding:20px;}
+  @media (max-width: 900px){
+    .menu, .tb-brand small{display:none;}
+    .hamburger{display:block;}
+    .account-text{display:none;}
+    #mobileMenuPanel{
+      display:none; flex-direction:column; gap:2px; background:var(--navy-deep); padding:10px 14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    #mobileMenuPanel.shown{display:flex;}
+    #mobileMenuPanel .menu-item{width:100%; justify-content:space-between;}
+    #mobileMenuPanel .submenu{position:static; opacity:1; visibility:visible; transform:none; box-shadow:none; border:none; background:transparent; padding:0 0 0 10px; display:none;}
+    #mobileMenuPanel .menu-item.has-sub.open .submenu{display:block;}
+    #mobileMenuPanel .submenu-item{color:#C7CEDC;}
+    #mobileMenuPanel .submenu-item:hover, #mobileMenuPanel .submenu-item.active{background:rgba(255,255,255,.08); color:#fff;}
+    .main{padding:24px 18px 50px;}
   }
 </style>
 </head>
@@ -170,8 +250,9 @@
 
     <!-- LOGIN -->
     <form id="loginForm" onsubmit="return handleLogin(event)">
-      <div class="field"><label>Username</label><input type="text" id="loginUsername" required></div>
-      <div class="field"><label>Password</label><input type="password" id="loginPassword" required></div>
+      <div class="default-hint">First time signing in? Use the <b>default Admin account</b> created for you on first deploy — see the README for the username &amp; password (change it right after logging in).</div>
+      <div class="field"><label>Username</label><input type="text" id="loginUsername" required autocomplete="username"></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPassword" required autocomplete="current-password"></div>
       <button class="btn btn-gold" type="submit">Sign In</button>
     </form>
 
@@ -198,30 +279,60 @@
 
 <!-- ================= APP SHELL ================= -->
 <div id="app">
-  <aside class="sidebar">
-    <div class="sb-brand">
-      <svg class="tri-arrow" viewBox="0 0 40 40" width="28" height="28"><path d="M4 30 C10 14, 20 6, 34 4 L30 12 L20 15 C14 20, 10 26, 8 34 Z" fill="#F5B301"/><path d="M8 32 C13 19, 21 12, 32 9 L29 15 L20 18 C15 22, 12 27, 11 34 Z" fill="#CE1126" opacity="0.9"/><path d="M11 33 C15 23, 22 17, 30 14 L28 19 L20 21 C16 24, 13 28, 13 34 Z" fill="#fff" opacity="0.8"/></svg>
-      <span>PSA Cavite<br>Admin System</span>
-    </div>
-
-    <div class="nav-item active" data-page="dashboard" onclick="goPage('dashboard')">📊 Dashboard</div>
-    <div class="nav-item" data-page="profile" onclick="goPage('profile')">👤 My Profile</div>
-
-    <div class="nav-section-label" id="adminSectionLabel">Administration</div>
-    <div class="nav-item" data-page="users" onclick="goPage('users')">🧑‍🤝‍🧑 Personnel</div>
-    <div class="nav-item" data-page="deptpos" onclick="goPage('deptpos')">🏷️ Departments &amp; Positions</div>
-    <div class="nav-item" data-page="logs" onclick="goPage('logs')">🕒 Attendance Logs</div>
-
-    <div class="sb-spacer"></div>
-    <div class="sb-user">
-      <div class="avatar" id="sbAvatar">--</div>
-      <div>
-        <div class="name" id="sbName">—</div>
-        <div class="role" id="sbRole">—</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="tb-brand" onclick="goPage('dashboard')">
+        <svg class="tri-arrow" viewBox="0 0 40 40" width="26" height="26"><path d="M4 30 C10 14, 20 6, 34 4 L30 12 L20 15 C14 20, 10 26, 8 34 Z" fill="#F5B301"/><path d="M8 32 C13 19, 21 12, 32 9 L29 15 L20 18 C15 22, 12 27, 11 34 Z" fill="#CE1126" opacity="0.9"/><path d="M11 33 C15 23, 22 17, 30 14 L28 19 L20 21 C16 24, 13 28, 13 34 Z" fill="#fff" opacity="0.85"/></svg>
+        <div><span>PSA Cavite</span><small>Administrative System</small></div>
       </div>
+
+      <!-- Desktop menu (upper right) -->
+      <nav class="menu" id="mainMenu">
+        <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
+        <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
+        <div class="menu-item has-sub" id="adminMenuItem">
+          <span onclick="toggleSubmenu(event,'adminMenuItem')">Administration <span class="chev">▾</span></span>
+          <div class="submenu">
+            <div class="submenu-item" data-page="users" onclick="goPage('users')">🧑‍🤝‍🧑 Personnel</div>
+            <div class="submenu-item" data-page="deptpos" onclick="goPage('deptpos')">🏷️ Departments &amp; Positions</div>
+            <div class="submenu-item" data-page="logs" onclick="goPage('logs')">🕒 Attendance Logs</div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="tb-spacer"></div>
+
+      <div class="account" id="accountMenu">
+        <div class="account-trigger" onclick="toggleAccountMenu(event)">
+          <div class="avatar" id="sbAvatar">--</div>
+          <div class="account-text"><div class="name" id="sbName">—</div><div class="role" id="sbRole">—</div></div>
+          <span class="chev">▾</span>
+        </div>
+        <div class="account-dropdown">
+          <div class="dropdown-item" onclick="goPage('profile')">👤 My Profile</div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item danger" onclick="handleLogout()">🚪 Sign out</div>
+        </div>
+      </div>
+
+      <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()">☰</button>
     </div>
-    <span class="logout-link" onclick="handleLogout()">Sign out</span>
-  </aside>
+
+    <!-- Mobile menu panel -->
+    <nav id="mobileMenuPanel">
+      <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
+      <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
+      <div class="menu-item has-sub" id="adminMenuItemMobile">
+        <span onclick="toggleSubmenu(event,'adminMenuItemMobile')" style="width:100%; display:flex; justify-content:space-between;">Administration <span class="chev">▾</span></span>
+        <div class="submenu">
+          <div class="submenu-item" data-page="users" onclick="goPage('users')">🧑‍🤝‍🧑 Personnel</div>
+          <div class="submenu-item" data-page="deptpos" onclick="goPage('deptpos')">🏷️ Departments &amp; Positions</div>
+          <div class="submenu-item" data-page="logs" onclick="goPage('logs')">🕒 Attendance Logs</div>
+        </div>
+      </div>
+      <div class="menu-item" onclick="handleLogout()">🚪 Sign out</div>
+    </nav>
+  </header>
 
   <main class="main">
     <!-- DASHBOARD -->
@@ -261,6 +372,16 @@
           <div class="field"><label>Role</label><input type="text" id="profRoleField" disabled></div>
         </div>
         <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="saveProfile()">Save Changes</button>
+      </div>
+
+      <div class="panel">
+        <h3>Change Password</h3>
+        <div id="pwMsg"></div>
+        <div class="row2">
+          <div class="field"><label>Current password</label><input type="password" id="pwCurrent" autocomplete="current-password"></div>
+          <div class="field"><label>New password</label><input type="password" id="pwNew" autocomplete="new-password"></div>
+        </div>
+        <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="changePassword()">Update Password</button>
       </div>
     </section>
 
@@ -312,6 +433,26 @@
 const API = ''; // same-origin: backend also serves this page. Change to e.g. 'http://localhost:4000' if hosted separately.
 let TOKEN = localStorage.getItem('psa_token') || null; // per-browser session token only, not app data
 let CURRENT_USER = null;
+
+/* ---------- Dropdown / menu interactions ---------- */
+function toggleSubmenu(e, itemId){
+  e.stopPropagation();
+  const item = document.getElementById(itemId);
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.menu-item.has-sub').forEach(el=>el.classList.remove('open'));
+  if(!wasOpen) item.classList.add('open');
+}
+function toggleAccountMenu(e){
+  e.stopPropagation();
+  document.getElementById('accountMenu').classList.toggle('open');
+}
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('.menu-item.has-sub').forEach(el=>el.classList.remove('open'));
+  document.getElementById('accountMenu').classList.remove('open');
+});
+function toggleMobileMenu(){
+  document.getElementById('mobileMenuPanel').classList.toggle('shown');
+}
 
 function switchAuthTab(tab){
   document.getElementById('tabLoginBtn').classList.toggle('active', tab==='login');
@@ -401,16 +542,18 @@ async function enterApp(){
   if(CURRENT_USER.profilePicUrl){ document.getElementById('sbAvatar').innerHTML = `<img src="${CURRENT_USER.profilePicUrl}">`; }
 
   const isAdmin = CURRENT_USER.role === 'Admin';
-  document.getElementById('adminSectionLabel').classList.toggle('hidden', !isAdmin);
-  ['users','deptpos','logs'].forEach(p=>{
-    document.querySelector(`.nav-item[data-page="${p}"]`).classList.toggle('hidden', !isAdmin);
-  });
+  document.getElementById('adminMenuItem').classList.toggle('hidden', !isAdmin);
+  document.getElementById('adminMenuItemMobile').classList.toggle('hidden', !isAdmin);
 
   await goPage('dashboard');
 }
 
 async function goPage(page){
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
+  document.querySelectorAll('.menu-item.has-sub').forEach(el=>el.classList.remove('open'));
+  document.getElementById('accountMenu').classList.remove('open');
+  document.getElementById('mobileMenuPanel').classList.remove('shown');
+
+  document.querySelectorAll('.menu-item[data-page], .submenu-item[data-page]').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
   document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
   document.getElementById('page-'+page).classList.remove('hidden');
 
@@ -469,6 +612,25 @@ async function saveProfile(){
   }catch(err){ alert(err.message); }
 }
 
+async function changePassword(){
+  const currentPassword = document.getElementById('pwCurrent').value;
+  const newPassword = document.getElementById('pwNew').value;
+  const msgEl = document.getElementById('pwMsg');
+  msgEl.innerHTML = '';
+  if(!currentPassword || !newPassword){
+    msgEl.innerHTML = `<div class="msg error">Please fill in both fields.</div>`;
+    return;
+  }
+  try{
+    await api('/api/users/me/password', {method:'PUT', body: JSON.stringify({currentPassword, newPassword})});
+    msgEl.innerHTML = `<div class="msg ok">Password updated successfully.</div>`;
+    document.getElementById('pwCurrent').value = '';
+    document.getElementById('pwNew').value = '';
+  }catch(err){
+    msgEl.innerHTML = `<div class="msg error">${err.message}</div>`;
+  }
+}
+
 async function loadUsers(){
   const users = await api('/api/users');
   document.getElementById('usersBody').innerHTML = users.map(u=>`
@@ -479,6 +641,7 @@ async function loadUsers(){
       <td><span class="pill ${u.Role==='Admin'?'admin':'user'}">${u.Role}</span></td>
       <td>${u.DateRetiredResigned ? `<span class="pill out">Inactive</span>` : `<span class="pill in">Active</span>`}</td>
       <td>
+        <button class="icon-btn gold" onclick="toggleAdminRole('${u.ID}','${u.Role==='Admin'?'User':'Admin'}')">${u.Role==='Admin'?'Remove admin':'Make admin'}</button>
         <button class="icon-btn" onclick="promptRetire('${u.ID}')">Set retire/resign date</button>
         <button class="icon-btn del" onclick="deleteUser('${u.ID}')">Delete</button>
       </td>
@@ -486,6 +649,11 @@ async function loadUsers(){
   `).join('');
 }
 
+async function toggleAdminRole(id, newRole){
+  if(!confirm(`Set this person's role to "${newRole}"?`)) return;
+  await api('/api/users/'+id, {method:'PUT', body: JSON.stringify({Role: newRole})});
+  loadUsers();
+}
 async function promptRetire(id){
   const date = prompt('Enter retirement/resignation date (YYYY-MM-DD), or leave blank to reactivate:');
   if(date===null) return;

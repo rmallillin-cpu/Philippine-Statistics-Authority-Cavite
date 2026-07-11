@@ -114,14 +114,28 @@ contain credentials.
 
 ---
 
-## 5. First login
+## 5. First login — default Admin account
 
-- The **first account you register becomes Admin automatically.** Register yourself first.
-- As Admin, go to **Departments & Positions** and add your real PSA Cavite departments
-  and positions — new registrants will then be able to pick from that list.
-- Everyone who registers after the first account is a regular **User**; promote someone
-  to Admin by editing their row's `Role` column directly in the `Users` tab of the Sheet
-  (a proper "promote to admin" button can be added in the next phase if you'd like).
+The very first time the server starts up against an empty `Users` tab, it **automatically
+creates a default Admin account** so you can log in immediately without registering:
+
+- **Username:** `admin`
+- **Password:** `Admin@12345`
+
+(You can override these before first deploy by setting `DEFAULT_ADMIN_USERNAME` and
+`DEFAULT_ADMIN_PASSWORD` as environment variables — see `.env.example` / `render.yaml`.
+This only ever runs once, the first time the Sheet has zero users — it won't touch
+anything after that.)
+
+**Right after logging in, go to My Profile > Change Password and set a real password.**
+
+From there, as Admin:
+- Go to **Administration > Departments & Positions** (top-right menu) and add your real
+  PSA Cavite departments and positions — new registrants will then be able to pick from
+  that list.
+- Everyone who self-registers afterward is a regular **User** by default. Promote or
+  demote someone from **Administration > Personnel** using the "Make admin" / "Remove
+  admin" button next to their name — no need to edit the Sheet by hand.
 
 ---
 

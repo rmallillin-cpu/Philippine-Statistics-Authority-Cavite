@@ -15,3 +15,7 @@ services:
         value: 1VUDFzcIw3H-Tmf8bwQuTkWA-3yGU2CXn
       - key: JWT_SECRET
         generateValue: true
+      - key: DEFAULT_ADMIN_USERNAME
+        value: admin
+      - key: DEFAULT_ADMIN_PASSWORD
+        value: Admin@12345

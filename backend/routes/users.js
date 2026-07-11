@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require('multer');
+const bcrypt = require('bcryptjs');
 const sheetsService = require('../services/sheetsService');
 const driveService = require('../services/driveService');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
@@ -37,6 +38,32 @@ router.put('/me', requireAuth, upload.single('profilePic'), async (req, res) => 
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not update profile', detail: err.message });
+  }
+});
+
+// PUT /api/users/me/password - change own password
+router.put('/me/password', requireAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+
+    const user = await sheetsService.getById('Users', req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const valid = await bcrypt.compare(currentPassword, user.PasswordHash);
+    if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await sheetsService.update('Users', req.user.id, { PasswordHash: passwordHash });
+    res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Could not change password', detail: err.message });
   }
 });
 

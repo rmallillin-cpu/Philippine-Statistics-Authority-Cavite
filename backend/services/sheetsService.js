@@ -1,7 +1,13 @@
+const bcrypt = require('bcryptjs');
 const { getSheetsClient } = require('../config/googleAuth');
 require('dotenv').config();
 
 const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
+// Default Admin account, auto-created on first run if the Users tab is empty.
+// Override with env vars if you want different defaults; change the password after first login either way.
+const DEFAULT_ADMIN_USERNAME = process.env.DEFAULT_ADMIN_USERNAME || 'admin';
+const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@12345';
 
 // Tab layouts. Column A is always "ID".
 const SCHEMAS = {
@@ -141,4 +147,38 @@ async function remove(tabName, id) {
   return true;
 }
 
-module.exports = { SCHEMAS, ensureTabsExist, getAll, getById, insert, update, remove };
+/**
+ * Creates a default Admin account if the Users tab is completely empty (e.g. brand-new
+ * deployment). Safe to call every startup — it only ever acts once, the very first time.
+ * Returns true if it created the account, false if users already exist.
+ */
+async function ensureDefaultAdmin() {
+  const users = await getAll('Users');
+  if (users.length > 0) return false;
+
+  const passwordHash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 10);
+  await insert('Users', {
+    FirstName: 'System',
+    MiddleName: '',
+    LastName: 'Administrator',
+    Position: 'Administrator',
+    Department: 'Office of the Administrator',
+    Username: DEFAULT_ADMIN_USERNAME,
+    PasswordHash: passwordHash,
+    ProfilePicUrl: '',
+    DateHired: new Date().toISOString().slice(0, 10),
+    DateRetiredResigned: '',
+    Role: 'Admin',
+  });
+
+  console.log('================================================================');
+  console.log('  No users found — created a default Admin account:');
+  console.log(`    Username: ${DEFAULT_ADMIN_USERNAME}`);
+  console.log(`    Password: ${DEFAULT_ADMIN_PASSWORD}`);
+  console.log('  Sign in with these, then change the password immediately from');
+  console.log('  My Profile > Change Password.');
+  console.log('================================================================');
+  return true;
+}
+
+module.exports = { SCHEMAS, ensureTabsExist, ensureDefaultAdmin, getAll, getById, insert, update, remove };
