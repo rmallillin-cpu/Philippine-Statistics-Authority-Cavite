@@ -48,7 +48,7 @@
     letter-spacing:.005em;
     background:
       radial-gradient(circle at 12% 8%, rgba(47,211,232,.09), transparent 38%),
-      radial-gradient(circle at 88% 4%, rgba(245,179,1,.10), transparent 40%),
+      radial-gradient(circle at 88% 4%, rgba(18,42,82,.08), transparent 40%),
       radial-gradient(circle at 100% 90%, rgba(18,42,82,.08), transparent 45%),
       radial-gradient(circle at 6% 96%, rgba(206,17,38,.06), transparent 40%),
       var(--bg);
@@ -91,7 +91,7 @@
   #authScreen{
     min-height:100vh; display:flex; align-items:center; justify-content:center;
     background:
-      radial-gradient(circle at 15% 20%, rgba(245,179,1,0.14), transparent 40%),
+      radial-gradient(circle at 15% 20%, rgba(47,211,232,0.12), transparent 40%),
       radial-gradient(circle at 85% 15%, rgba(47,211,232,0.10), transparent 38%),
       radial-gradient(circle at 85% 85%, rgba(206,17,38,0.12), transparent 40%),
       var(--navy-deep);
@@ -103,22 +103,45 @@
   #authScreen::after{
     content:''; position:absolute; inset:-20%; z-index:0; pointer-events:none;
     background:
-      radial-gradient(circle at 20% 30%, rgba(245,179,1,.08), transparent 30%),
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.06), transparent 30%),
       radial-gradient(circle at 80% 70%, rgba(47,211,232,.08), transparent 30%);
     animation:floatGlow 14s ease-in-out infinite;
   }
   .auth-card{
+    display:flex; align-items:stretch;
     background:rgba(255,255,255,.94); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-    border-radius:26px; width:100%; max-width:430px; border:1px solid rgba(255,255,255,.5);
-    padding:40px 36px; box-shadow:0 40px 90px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,.06) inset;
-    position:relative; z-index:1; animation:cardIn .55s cubic-bezier(.2,.8,.2,1);
+    border-radius:26px; width:100%; max-width:840px; border:1px solid rgba(255,255,255,.5);
+    box-shadow:0 40px 90px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,.06) inset;
+    position:relative; z-index:1; animation:cardIn .55s cubic-bezier(.2,.8,.2,1); overflow:hidden;
   }
   @keyframes cardIn{ from{opacity:0; transform:translateY(16px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);} }
-  .auth-brand{display:flex; align-items:center; gap:12px; margin-bottom:8px;}
-  .tri-arrow{width:34px; height:34px; flex-shrink:0; border-radius:9px;}
-  .auth-brand .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); font-weight:600;}
-  .auth-brand h1{font-size:22px; color:var(--navy); line-height:1.15;}
-  .auth-sub{color:var(--ink-soft); font-size:13.5px; margin:6px 0 26px;}
+
+  .auth-left{
+    flex:0 0 40%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    padding:44px 32px; position:relative; overflow:hidden;
+    background:linear-gradient(160deg, rgba(8,17,38,.98), rgba(6,12,28,1));
+  }
+  .auth-left::before{
+    content:''; position:absolute; inset:-30%; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 25% 20%, rgba(47,211,232,.16), transparent 34%),
+      radial-gradient(circle at 80% 80%, rgba(206,17,38,.14), transparent 36%);
+    animation:floatGlow 14s ease-in-out infinite;
+  }
+  .auth-logo-badge{
+    width:118px; height:118px; flex-shrink:0; border-radius:50%; padding:11px; margin-bottom:20px;
+    background:rgba(255,255,255,.94); border:1.5px solid rgba(255,255,255,.5);
+    display:flex; align-items:center; justify-content:center; position:relative; z-index:1;
+    box-shadow:0 14px 32px -8px rgba(0,0,0,.55);
+  }
+  .auth-logo-badge img{width:100%; height:100%; object-fit:contain; display:block;}
+  .auth-left .eyebrow{position:relative; z-index:1; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#9BA4BC; font-weight:600;}
+  .auth-left h1{
+    position:relative; z-index:1; font-size:23px; color:#fff; line-height:1.2; margin-top:6px;
+  }
+  .auth-left .auth-sub{position:relative; z-index:1; color:#9BA4BC; font-size:13px; margin:10px 0 0;}
+
+  .auth-right{flex:1 1 60%; padding:44px 40px; display:flex; flex-direction:column; justify-content:center; min-width:0;}
   .default-hint{
     font-size:12px; background:var(--surface-2); border:1px dashed rgba(18,42,82,.22); border-radius:12px;
     padding:9px 12px; color:var(--ink-soft); margin-bottom:20px; line-height:1.5;
@@ -424,7 +447,7 @@
   /* ---------- Schedule ---------- */
   .sched-item{display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); background:var(--surface-2); border-radius:15px; padding:14px 16px; margin-bottom:10px; position:relative; transition:box-shadow .18s;}
   .sched-item:hover{box-shadow:var(--shadow-sm);}
-  .sched-item.mine{border-color:rgba(245,179,1,.5); background:linear-gradient(135deg, rgba(255,251,240,.9), rgba(255,244,217,.55)); box-shadow:0 0 0 1px rgba(245,179,1,.15);}
+  .sched-item.mine{border-color:rgba(18,42,82,.35); background:linear-gradient(135deg, rgba(240,244,252,.9), rgba(230,238,250,.6)); box-shadow:0 0 0 1px rgba(18,42,82,.12);}
   .sched-date-box{flex-shrink:0; width:56px; text-align:center; background:linear-gradient(160deg, var(--navy), var(--navy-mid)); color:#fff; border-radius:12px; padding:8px 4px; box-shadow:0 8px 18px -8px rgba(18,42,82,.5);}
   .sched-date-box .d-num{font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:600; line-height:1;}
   .sched-date-box .d-mon{font-size:10px; text-transform:uppercase; letter-spacing:.05em; opacity:.85;}
@@ -532,6 +555,13 @@
   .file-comment{font-size:12.5px; color:var(--ink-soft); background:rgba(18,42,82,.05); border-radius:11px; padding:8px 10px; margin-top:6px;}
   .file-actions{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
 
+  @media (max-width:600px){
+    .auth-card{flex-direction:column; max-width:420px;}
+    .auth-left{padding:34px 28px 26px;}
+    .auth-logo-badge{width:88px; height:88px; margin-bottom:14px;}
+    .auth-right{padding:32px 28px 36px;}
+  }
+
   @media (max-width: 900px){
     .topbar{
       position:fixed; top:0; left:0; right:0; bottom:auto; width:100%; height:auto;
@@ -569,14 +599,13 @@
 <!-- ================= AUTH SCREEN ================= -->
 <div id="authScreen">
   <div class="auth-card">
-    <div class="auth-brand">
-      <img class="tri-arrow" src="/psa-logo.png" alt="PSA Seal" style="object-fit:contain;">
-      <div>
-        <div class="eyebrow">Philippine Statistics Authority — Cavite</div>
-        <h1>Administrative System</h1>
-      </div>
+    <div class="auth-left">
+      <div class="auth-logo-badge"><img src="/psa-logo.png" alt="PSA Seal"></div>
+      <div class="eyebrow">Philippine Statistics Authority — Cavite</div>
+      <h1>Administrative System</h1>
+      <p class="auth-sub">Solid · Responsive · World-class</p>
     </div>
-    <p class="auth-sub">Solid · Responsive · World-class</p>
+    <div class="auth-right">
 
     <div class="tabs">
       <button class="tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Sign In</button>
@@ -610,6 +639,7 @@
       </div>
       <button class="btn btn-gold" type="submit">Create Account</button>
     </form>
+    </div>
   </div>
 </div>
 
