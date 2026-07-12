@@ -172,12 +172,11 @@
   .topbar-brand-row{display:flex; align-items:center; justify-content:center; flex-direction:column; padding:30px 16px 22px; gap:10px; text-align:center;}
   .tb-center-brand{display:flex; align-items:center; flex-direction:column; gap:10px; cursor:pointer;}
   .tb-logo-badge{
-    width:68px; height:68px; flex-shrink:0; border-radius:50%; padding:8px;
-    background:rgba(255,255,255,.16);
-    border:1.5px solid rgba(255,255,255,.4);
-    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    width:140px; height:140px; flex-shrink:0; border-radius:50%; padding:12px;
+    background:rgba(255,255,255,.94);
+    border:1.5px solid rgba(255,255,255,.5);
     display:flex; align-items:center; justify-content:center; position:relative;
-    box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 10px 26px -8px rgba(0,0,0,.6);
+    box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 14px 32px -8px rgba(0,0,0,.55);
   }
   .tb-logo-badge img{width:100%; height:100%; object-fit:contain; display:block;}
   .tb-logo-badge.logo-fallback{background:linear-gradient(135deg, rgba(255,255,255,.32), rgba(255,255,255,.14));}
@@ -541,7 +540,7 @@
     .topbar::before{ top:0; left:0; right:0; bottom:auto; width:100%; height:3px; background:var(--tricolor-soft); background-size:200% 100%; animation:sweep 9s linear infinite; }
     .topbar-brand-row{flex-direction:row; padding:10px 14px; gap:10px; height:var(--mobile-header-h); box-sizing:border-box;}
     .tb-center-brand{flex-direction:row; gap:10px;}
-    .tb-logo-badge{width:40px; height:40px; padding:5px;}
+    .tb-logo-badge{width:48px; height:48px; padding:6px;}
     .tb-center-text{align-items:flex-start;}
     .tb-center-text span{font-size:14.5px;}
     .topbar-inner{border-top:none; padding:0; height:auto; min-height:0;}
@@ -588,7 +587,6 @@
 
     <!-- LOGIN -->
     <form id="loginForm" onsubmit="return handleLogin(event)">
-      <div class="default-hint">First time signing in? Use the <b>default Admin account</b> created for you on first deploy — see the README for the username &amp; password (change it right after logging in).</div>
       <div class="field"><label>Username</label><input type="text" id="loginUsername" required autocomplete="username"></div>
       <div class="field"><label>Password</label><input type="password" id="loginPassword" required autocomplete="current-password"></div>
       <button class="btn btn-gold" type="submit">Sign In</button>
