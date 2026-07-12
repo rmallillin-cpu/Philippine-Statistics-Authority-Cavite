@@ -32,11 +32,18 @@
     --shadow-glow:0 0 0 1px rgba(245,179,1,.16), 0 12px 32px -12px rgba(245,179,1,.30);
     --tricolor:linear-gradient(90deg, var(--navy) 0%, var(--red) 50%, var(--gold) 100%);
     --tricolor-soft:linear-gradient(90deg, rgba(18,42,82,.9), rgba(206,17,38,.9), rgba(245,179,1,.9));
+    --header-h:148px;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
   body{
     font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    font-size:15px;
+    line-height:1.55;
+    letter-spacing:.005em;
     background:
       radial-gradient(circle at 12% 8%, rgba(47,211,232,.09), transparent 38%),
       radial-gradient(circle at 88% 4%, rgba(245,179,1,.10), transparent 40%),
@@ -47,7 +54,7 @@
     color:var(--ink);
     min-height:100vh;
   }
-  h1,h2,h3,.display{font-family:'Fraunces',serif;}
+  h1,h2,h3,.display{font-family:'Fraunces',serif; letter-spacing:-.01em; line-height:1.2;}
   .mono{font-family:'IBM Plex Mono',monospace;}
   ::selection{background:var(--gold-soft); color:var(--navy-deep);}
   @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
@@ -134,22 +141,35 @@
   #app{display:none; min-height:100vh; flex-direction:column;}
   #app.shown{display:flex;}
   .topbar{
-    position:sticky; top:0; z-index:100;
-    background:linear-gradient(180deg, rgba(8,17,38,.92), rgba(6,12,28,.96));
+    position:fixed; top:0; left:0; right:0; width:100%; z-index:100;
+    background:linear-gradient(180deg, rgba(8,17,38,.94), rgba(6,12,28,.97));
     backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-    border-bottom:1px solid rgba(255,255,255,.06); position:relative;
+    border-bottom:1px solid rgba(255,255,255,.06);
   }
   .topbar::before{
     content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--tricolor-soft);
-    background-size:200% 100%; animation:sweep 9s linear infinite;
+    background-size:200% 100%; animation:sweep 9s linear infinite; z-index:1;
   }
+  .topbar-brand-row{display:flex; align-items:center; justify-content:center; padding:12px 0 10px;}
+  .tb-center-brand{display:flex; align-items:center; gap:12px; cursor:pointer;}
+  .tb-logo-badge{
+    width:64px; height:64px; flex-shrink:0; border-radius:50%; padding:8px;
+    background:rgba(255,255,255,.16);
+    border:1.5px solid rgba(255,255,255,.4);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    display:flex; align-items:center; justify-content:center; position:relative;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 10px 26px -8px rgba(0,0,0,.6);
+  }
+  .tb-logo-badge img{width:100%; height:100%; object-fit:contain; display:block;}
+  .tb-logo-badge.logo-fallback{background:linear-gradient(135deg, rgba(245,179,1,.35), rgba(255,255,255,.14));}
+  .tb-logo-badge.logo-fallback::after{content:'PSA'; font-family:'Fraunces',serif; font-weight:700; font-size:16px; color:#fff; letter-spacing:.02em;}
+  .tb-center-text{display:flex; flex-direction:column; line-height:1.22;}
+  .tb-center-text span{font-family:'Fraunces',serif; font-size:17px; font-weight:600; color:#fff; letter-spacing:-.01em;}
+  .tb-center-text small{display:block; font-size:10px; letter-spacing:.11em; text-transform:uppercase; color:#9BA4BC; font-weight:600; margin-top:1px;}
   .topbar-inner{
-    max-width:1360px; margin:0 auto; padding:0 28px; height:66px;
-    display:flex; align-items:center; gap:24px;
+    max-width:1360px; margin:0 auto; padding:0 28px; height:60px;
+    display:flex; align-items:center; gap:24px; border-top:1px solid rgba(255,255,255,.06);
   }
-  .tb-brand{display:flex; align-items:center; gap:10px; flex-shrink:0; cursor:pointer;}
-  .tb-brand span{font-family:'Fraunces',serif; font-size:15px; font-weight:600; line-height:1.2; color:#fff;}
-  .tb-brand small{display:block; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:#8891A6; font-weight:600;}
 
   .menu{display:flex; align-items:center; gap:2px; margin-left:8px;}
   .menu-item{
@@ -271,7 +291,7 @@
   .report-filters select, .report-filters input{padding:9px 12px; border:1.5px solid var(--line); border-radius:11px; font-size:13px; font-family:inherit; background:rgba(255,255,255,.85);}
 
   /* ---------- Messenger ---------- */
-  .msg-shell{display:grid; grid-template-columns:280px 1fr; gap:0; background:var(--surface); backdrop-filter:blur(16px); border-radius:var(--radius); border:1px solid rgba(255,255,255,.5); box-shadow:var(--shadow-sm); overflow:hidden; height:calc(100vh - 220px); min-height:420px;}
+  .msg-shell{display:grid; grid-template-columns:280px 1fr; gap:0; background:var(--surface); backdrop-filter:blur(16px); border-radius:var(--radius); border:1px solid rgba(255,255,255,.5); box-shadow:var(--shadow-sm); overflow:hidden; height:calc(100vh - var(--header-h) - 150px); min-height:420px;}
   .conv-list{border-right:1px solid var(--line); overflow-y:auto;}
   .conv-item{display:flex; gap:10px; align-items:center; padding:12px 14px; cursor:pointer; border-bottom:1px solid var(--line); transition:background .12s;}
   .conv-item:hover, .conv-item.active{background:rgba(18,42,82,.05);}
@@ -331,8 +351,8 @@
     .lightbox-media{height:60%;}
   }
 
-  .app-shell{display:flex; align-items:flex-start; gap:24px; max-width:1360px; margin:0 auto; width:100%; padding:0 28px;}
-  .ad-sidebar{width:296px; flex-shrink:0; position:sticky; top:24px; display:flex; flex-direction:column; gap:14px; padding-top:36px; max-height:calc(100vh - 48px); overflow-y:auto;}
+  .app-shell{display:flex; align-items:flex-start; gap:24px; max-width:1360px; margin:0 auto; width:100%; padding:var(--header-h) 28px 0;}
+  .ad-sidebar{width:296px; flex-shrink:0; position:sticky; top:calc(var(--header-h) + 24px); display:flex; flex-direction:column; gap:14px; padding-top:36px; max-height:calc(100vh - var(--header-h) - 48px); overflow-y:auto;}
   .ad-sidebar:empty{display:none;}
   .ad-sidebar-title{font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); padding:0 4px;}
   .ad-card{background:var(--surface); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.5); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); cursor:pointer; transition:box-shadow .18s;}
@@ -428,14 +448,14 @@
   .sched-check input{width:18px; height:18px; cursor:pointer; accent-color:var(--navy);}
   .sched-item.done{opacity:.65;}
   .sched-item.done .s-title{text-decoration:line-through; color:var(--ink-faint);}
-  #scheduleToastWrap{position:fixed; top:78px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:320px;}
+  #scheduleToastWrap{position:fixed; top:calc(var(--header-h) + 12px); right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:320px;}
   .sched-toast{display:flex; gap:10px; align-items:flex-start; background:linear-gradient(160deg, var(--navy), var(--navy-mid)); color:#fff; border-radius:14px; padding:12px 14px; box-shadow:0 14px 30px -10px rgba(18,42,82,.55); cursor:pointer; animation:toastIn .25s ease-out;}
   .sched-toast-icon{font-size:18px; line-height:1;}
   .sched-toast-title{font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--gold);}
   .sched-toast-text{font-size:13px; margin-top:2px; line-height:1.35;}
   .sched-toast-close{background:none; border:none; color:rgba(255,255,255,.7); font-size:16px; cursor:pointer; line-height:1; padding:0 0 0 6px; margin-left:auto;}
   @keyframes toastIn{from{opacity:0; transform:translateX(20px);} to{opacity:1; transform:translateX(0);}}
-  @media (max-width:640px){ #scheduleToastWrap{left:12px; right:12px; max-width:none; top:66px;} }
+  @media (max-width:640px){ #scheduleToastWrap{left:12px; right:12px; max-width:none; top:calc(var(--header-h) + 6px);} }
 
   /* ---------- Rich text: linkified URLs + inline link previews ---------- */
   .rich-link{color:#1D5FD1; text-decoration:underline; word-break:break-all; font-weight:600;}
@@ -485,21 +505,22 @@
   .file-actions{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
 
   @media (max-width: 900px){
-    .menu, .tb-brand small{display:none;}
+    .menu{display:none;}
     .hamburger{display:block;}
     .account-text{display:none;}
+    .tb-center-text small{display:none;}
     #mobileMenuPanel{
       display:none; flex-direction:column; gap:2px; background:rgba(6,12,28,.97); backdrop-filter:blur(14px); padding:10px 14px 16px;
       border-bottom:1px solid rgba(255,255,255,.08);
     }
-    #mobileMenuPanel.shown{display:flex;}
+    #mobileMenuPanel.shown{display:flex; max-height:calc(100vh - var(--header-h)); overflow-y:auto;}
     #mobileMenuPanel .menu-item{width:100%; justify-content:space-between;}
     #mobileMenuPanel .submenu{position:static; opacity:1; visibility:visible; transform:none; box-shadow:none; border:none; background:transparent; padding:0 0 0 10px; display:none;}
     #mobileMenuPanel .menu-item.has-sub.open .submenu{display:block;}
     #mobileMenuPanel .submenu-item{color:#C7CEDC;}
     #mobileMenuPanel .submenu-item:hover, #mobileMenuPanel .submenu-item.active{background:rgba(255,255,255,.08); color:#fff;}
     .main{padding:24px 0 50px;}
-    .app-shell{padding:0 18px;}
+    .app-shell{padding:var(--header-h) 18px 0;}
   }
 </style>
 </head>
@@ -556,15 +577,17 @@
 <!-- ================= APP SHELL ================= -->
 <div id="app">
   <header class="topbar">
-    <div class="topbar-inner">
-      <div class="tb-brand" onclick="goPage('dashboard')">
-        <img class="tri-arrow" src="/psa-logo.png" alt="PSA Seal" width="32" height="32" style="object-fit:contain;">
-        <div><span>Philippine Statistics Authority</span><small>Cavite &middot; Administrative System</small></div>
+    <div class="topbar-brand-row">
+      <div class="tb-center-brand" onclick="goPage('posts')">
+        <div class="tb-logo-badge" id="tbLogoBadge">
+          <img src="/psa-logo.png" alt="PSA Seal" width="64" height="64" onerror="this.style.display='none'; document.getElementById('tbLogoBadge').classList.add('logo-fallback');">
+        </div>
+        <div class="tb-center-text"><span>Philippine Statistics Authority</span><small>Cavite &middot; Administrative System</small></div>
       </div>
-
+    </div>
+    <div class="topbar-inner">
       <!-- Desktop menu (upper right) -->
       <nav class="menu" id="mainMenu">
-        <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
         <div class="menu-item" data-page="posts" onclick="goPage('posts')">Announcements</div>
         <div class="menu-item" data-page="schedule" onclick="goPage('schedule')">Schedule</div>
         <div class="menu-item" data-page="files" onclick="goPage('files')">Files</div>
@@ -602,7 +625,6 @@
 
     <!-- Mobile menu panel -->
     <nav id="mobileMenuPanel">
-      <div class="menu-item" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</div>
       <div class="menu-item" data-page="posts" onclick="goPage('posts')">Announcements</div>
       <div class="menu-item" data-page="schedule" onclick="goPage('schedule')">Schedule</div>
       <div class="menu-item" data-page="files" onclick="goPage('files')">Files</div>
@@ -624,20 +646,6 @@
 
   <div class="app-shell">
   <main class="main">
-    <!-- DASHBOARD -->
-    <section id="page-dashboard">
-      <div class="page-head">
-        <div><div class="eyebrow">Overview</div><h2>Administrative Dashboard</h2></div>
-      </div>
-      <div id="dashboardAdminSection" class="hidden">
-        <div class="cards" id="statCards"></div>
-      </div>
-      <div class="panel">
-        <h3>Recent Announcements</h3>
-        <div id="dashboardPostsFeed"></div>
-      </div>
-    </section>
-
     <!-- PROFILE -->
     <section id="page-profile" class="hidden">
       <div class="page-head"><div><div class="eyebrow">Account</div><h2>My Profile</h2></div></div>
@@ -673,6 +681,11 @@
           <div class="field"><label>New password</label><input type="password" id="pwNew" autocomplete="new-password"></div>
         </div>
         <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="changePassword()">Update Password</button>
+      </div>
+
+      <div class="panel">
+        <h3>My Announcements</h3>
+        <div id="myAnnouncementsFeed"></div>
       </div>
     </section>
 
@@ -1087,7 +1100,7 @@ async function enterApp(){
   document.getElementById('adminMenuItem').classList.toggle('hidden', !isAdmin);
   document.getElementById('adminMenuItemMobile').classList.toggle('hidden', !isAdmin);
 
-  await goPage('dashboard');
+  await goPage('posts');
   refreshUnreadBadge();
   refreshFeaturedSidebar();
   pollScheduleNotifications();
@@ -1163,7 +1176,6 @@ async function goPage(page){
   document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
   document.getElementById('page-'+page).classList.remove('hidden');
 
-  if(page==='dashboard') await loadDashboard();
   if(page==='profile') await loadProfile();
   if(page==='users') await loadUsers();
   if(page==='deptpos') await loadDeptPos();
@@ -1176,44 +1188,19 @@ async function goPage(page){
   if(page==='files') await loadFilesPage();
 }
 
-async function loadDashboard(){
-  const isAdmin = CURRENT_USER.role === 'Admin';
-  document.getElementById('dashboardAdminSection').classList.toggle('hidden', !isAdmin);
-
-  if(isAdmin){
-    try{
-      const stats = await api('/api/dashboard/stats');
-      document.getElementById('statCards').innerHTML = `
-        <div class="card blue"><div class="num">${stats.totalActiveUsers}</div><div class="lbl">Active Personnel</div></div>
-        <div class="card"><div class="num">${stats.signedInToday}</div><div class="lbl">Signed In Today</div></div>
-        <div class="card"><div class="num">${stats.totalDepartments}</div><div class="lbl">Departments</div></div>
-        <div class="card"><div class="num">${stats.totalPositions}</div><div class="lbl">Positions</div></div>
-        <div class="card red"><div class="num">${stats.totalRetiredResigned}</div><div class="lbl">Retired / Resigned</div></div>
-      `;
-    }catch(err){ console.error(err); }
-  }
-
+/* Shows the signed-in user's own announcements on their Profile page. */
+async function loadMyAnnouncements(){
   try{
-    const posts = await api('/api/posts');
+    const [posts, comments] = await Promise.all([api('/api/posts'), api('/api/comments')]);
     ALL_POSTS = posts;
+    ALL_COMMENTS = comments;
     renderFeaturedSidebar();
-    const feed = document.getElementById('dashboardPostsFeed');
-    if(!posts.length){ feed.innerHTML = `<div style="color:var(--ink-faint); font-size:13.5px;">No announcements yet.</div>`; return; }
-    feed.innerHTML = posts.slice(0,5).map(p=>`
-      <div class="post-card" style="box-shadow:none; margin-bottom:12px;">
-        <div class="post-head">
-          <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
-          <div><div class="p-name">${escapeHtml(p.authorName)}</div><div class="p-time">${new Date(p.CreatedAt).toLocaleString()}</div></div>
-        </div>
-        <div class="post-content">${renderRichText(p.Content, !postHasVisual(p))}</div>
-        ${postHasVisual(p) ? `
-          <div class="post-media-wrap" style="height:220px;" onclick="goToPostAndOpen('${p.ID}')">
-            ${mediaHtml(p)}
-            ${postIsVideoVisual(p) ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
-          </div>
-        ` : ''}
-      </div>
-    `).join('');
+    const mine = posts.filter(p => String(p.AuthorID) === String(CURRENT_USER.id));
+    const isAdmin = CURRENT_USER.role === 'Admin';
+    const wrap = document.getElementById('myAnnouncementsFeed');
+    wrap.innerHTML = mine.length
+      ? mine.map(p=>postCardHtml(p, isAdmin)).join('')
+      : `<div style="color:var(--ink-faint); font-size:13.5px;">You haven't posted any announcements yet.</div>`;
   }catch(err){ console.error(err); }
 }
 
@@ -1332,6 +1319,7 @@ async function loadProfile(){
   document.getElementById('profRoleField').value = u.Role || '';
   const av = document.getElementById('profAvatar');
   av.innerHTML = u.ProfilePicUrl ? `<img src="${u.ProfilePicUrl}">` : initials({firstName:u.FirstName,lastName:u.LastName});
+  loadMyAnnouncements();
 }
 
 async function saveProfile(){
