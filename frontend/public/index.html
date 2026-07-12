@@ -183,9 +183,9 @@
   #app.shown{display:flex;}
   .topbar{
     position:fixed; top:var(--fb-header-h); left:0; bottom:0; width:var(--sidebar-w); z-index:100;
-    background:linear-gradient(180deg, rgba(10,20,45,.32), rgba(6,12,28,.42));
+    background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.58));
     backdrop-filter:blur(26px) saturate(140%); -webkit-backdrop-filter:blur(26px) saturate(140%);
-    border-right:1px solid rgba(255,255,255,.08);
+    border-right:1px solid rgba(18,42,82,.08);
     display:flex; flex-direction:column; overflow-y:auto;
   }
   .topbar::before{
@@ -197,22 +197,22 @@
   .tb-center-brand{display:flex; align-items:center; flex-direction:column; gap:10px; cursor:pointer;}
   .tb-logo-badge{
     width:96px; height:96px; flex-shrink:0; border-radius:50%; padding:6px;
-    background:rgba(255,255,255,.94);
-    border:1.5px solid rgba(255,255,255,.5);
+    background:#fff;
+    border:1.5px solid rgba(18,42,82,.12);
     display:flex; align-items:center; justify-content:center; position:relative;
-    box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 14px 32px -8px rgba(0,0,0,.55);
+    box-shadow:0 8px 22px -8px rgba(18,42,82,.28);
   }
   .tb-logo-badge img{width:88%; height:88%; object-fit:contain; display:block;}
-  .tb-logo-badge.logo-fallback{background:linear-gradient(135deg, rgba(255,255,255,.32), rgba(255,255,255,.14));}
+  .tb-logo-badge.logo-fallback{background:linear-gradient(135deg, var(--navy), var(--navy-mid));}
   .tb-logo-badge.logo-fallback::after{content:'PSA'; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; letter-spacing:.02em;}
   .tb-center-text{display:flex; flex-direction:column; align-items:center; line-height:1.28;}
   .tb-center-text span{
     font-family:'Space Grotesk',sans-serif; font-size:16.5px; font-weight:700; letter-spacing:-.01em;
-    background:linear-gradient(90deg, #FFFFFF 0%, var(--glow) 55%, #FFFFFF 100%);
+    background:linear-gradient(90deg, var(--navy) 0%, #0891A8 55%, var(--navy) 100%);
     background-size:250% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
     animation:gradShift 8s ease-in-out infinite;
   }
-  .tb-center-text small{display:block; font-size:10px; letter-spacing:.11em; text-transform:uppercase; color:#9BA4BC; font-weight:600; margin-top:2px;}
+  .tb-center-text small{display:block; font-size:10px; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; margin-top:2px;}
   .topbar-inner{
     position:relative; z-index:2;
     flex:1; width:100%; padding:14px 14px 18px; margin:0;
@@ -223,12 +223,12 @@
   .menu{display:flex; flex-direction:column; align-items:stretch; gap:2px; margin-left:0; width:100%;}
   .menu-item{
     position:relative; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 14px; border-radius:10px;
-    color:#C7CEDC; font-size:13.5px; font-weight:500; cursor:pointer; white-space:nowrap; width:100%;
+    color:var(--ink-soft); font-size:13.5px; font-weight:500; cursor:pointer; white-space:nowrap; width:100%;
     transition:background .15s, color .15s;
   }
-  .menu-item:hover{background:rgba(255,255,255,.08); color:#fff;}
-  .menu-item.active{color:#fff; background:rgba(255,255,255,.12);}
-  .menu-item.active::after{content:''; position:absolute; left:0; top:8px; bottom:8px; width:3px; background:#fff; border-radius:0 3px 3px 0; box-shadow:0 0 8px rgba(255,255,255,.5);}
+  .menu-item:hover{background:rgba(18,42,82,.06); color:var(--navy);}
+  .menu-item.active{color:var(--navy); background:rgba(18,42,82,.09); font-weight:600;}
+  .menu-item.active::after{content:''; position:absolute; left:0; top:8px; bottom:8px; width:3px; background:var(--red); border-radius:0 3px 3px 0; box-shadow:0 0 8px rgba(206,17,38,.4);}
   .mi-left{display:flex; align-items:center; gap:10px; min-width:0; overflow:hidden;}
   .mi-left span{overflow:hidden; text-overflow:ellipsis;}
   .mi-icon{width:17px; height:17px; flex-shrink:0; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; opacity:.8;}
@@ -255,8 +255,8 @@
     display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 14px; border-radius:10px;
     cursor:pointer; width:100%; color:inherit; transition:background .15s, color .15s;
   }
-  .menu-trigger:hover{background:rgba(255,255,255,.08); color:#fff;}
-  .menu-item.has-sub.open .menu-trigger{color:#fff; background:rgba(255,255,255,.07);}
+  .menu-trigger:hover{background:rgba(18,42,82,.06); color:var(--navy);}
+  .menu-item.has-sub.open .menu-trigger{color:var(--navy); background:rgba(18,42,82,.05);}
   .menu-item.has-sub.open .chev-icon{transform:rotate(180deg);}
 
   .submenu{
@@ -266,11 +266,11 @@
   }
   .menu-item.has-sub.open .submenu{opacity:1; max-height:300px; margin-top:2px;}
   .submenu-item{
-    padding:6px 12px; border-radius:9px; font-size:13px; font-weight:500; color:#C7CEDC; cursor:pointer;
+    padding:6px 12px; border-radius:9px; font-size:13px; font-weight:500; color:var(--ink-soft); cursor:pointer;
     display:flex; align-items:center; gap:9px; transition:background .12s;
   }
-  .submenu-item:hover{background:rgba(255,255,255,.08); color:#fff;}
-  .submenu-item.active{background:rgba(255,255,255,.14); color:#fff; font-weight:600;}
+  .submenu-item:hover{background:rgba(18,42,82,.06); color:var(--navy);}
+  .submenu-item.active{background:rgba(18,42,82,.09); color:var(--navy); font-weight:600;}
   .smi-icon{width:15px; height:15px; flex-shrink:0; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; opacity:.8;}
 
   .tb-spacer{flex:1;}
@@ -323,6 +323,30 @@
   .fb-popover-foot:hover{background:var(--surface-2);}
   .fb-account-popover{width:220px; padding:6px;}
   @media (max-width:900px){ .fb-topbar{display:none;} }
+
+  /* ---------- Floating mini chat windows (Facebook Messenger style) ---------- */
+  .mini-chat-dock{position:fixed; right:16px; bottom:0; z-index:400; display:flex; flex-direction:row-reverse; gap:10px; align-items:flex-end; pointer-events:none;}
+  .mini-chat-window{
+    pointer-events:auto; width:280px; background:#fff; border-radius:12px 12px 0 0; overflow:hidden;
+    box-shadow:0 -8px 28px -6px rgba(15,34,82,.35); border:1px solid var(--line); border-bottom:none;
+    display:flex; flex-direction:column;
+  }
+  .mini-chat-header{
+    display:flex; align-items:center; gap:8px; padding:9px 10px; background:linear-gradient(135deg, var(--navy), var(--navy-mid));
+    color:#fff; cursor:pointer; flex-shrink:0;
+  }
+  .mini-chat-header .avatar{width:26px; height:26px; font-size:10px; box-shadow:none;}
+  .mini-chat-header .mc-name{flex:1; font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .mini-chat-header button{background:rgba(255,255,255,.14); border:none; color:#fff; cursor:pointer; font-size:13px; width:22px; height:22px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:background .12s;}
+  .mini-chat-header button:hover{background:rgba(255,255,255,.28);}
+  .mini-chat-window.minimized .mini-chat-body, .mini-chat-window.minimized .mini-chat-input{display:none;}
+  .mini-chat-body{height:300px; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:6px; background:var(--surface-2);}
+  .mini-chat-input{display:flex; gap:6px; padding:8px; border-top:1px solid var(--line); background:#fff;}
+  .mini-chat-input input{flex:1; padding:8px 12px; border:1.5px solid var(--line); border-radius:18px; font-size:13px; font-family:inherit;}
+  .mini-bubble{max-width:78%; padding:7px 12px; border-radius:14px; font-size:13px; line-height:1.4; word-wrap:break-word;}
+  .mini-bubble.theirs{background:#fff; border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
+  .mini-bubble.mine{background:linear-gradient(135deg, var(--navy), var(--navy-mid)); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
+  @media (max-width:900px){ .mini-chat-dock{display:none;} }
   .account-trigger{
     display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10);
     padding:6px 12px 6px 6px; border-radius:30px; cursor:pointer; transition:background .15s; width:100%;
@@ -731,15 +755,15 @@
     .account{display:none;}
     .tb-center-text small{display:none;}
     #mobileMenuPanel{
-      display:none; flex-direction:column; gap:2px; background:rgba(6,12,28,.97); backdrop-filter:blur(14px); padding:10px 14px 16px;
-      border-bottom:1px solid rgba(255,255,255,.08); position:fixed; top:var(--mobile-header-h); left:0; right:0; z-index:99;
+      display:none; flex-direction:column; gap:2px; background:rgba(255,255,255,.94); backdrop-filter:blur(18px); padding:10px 14px 16px;
+      border-bottom:1px solid var(--line); position:fixed; top:var(--mobile-header-h); left:0; right:0; z-index:99;
     }
     #mobileMenuPanel.shown{display:flex; max-height:calc(100vh - var(--mobile-header-h)); overflow-y:auto;}
     #mobileMenuPanel .menu-item{width:100%; justify-content:space-between;}
     #mobileMenuPanel .submenu{position:static; opacity:1; visibility:visible; transform:none; box-shadow:none; border:none; background:transparent; padding:0 0 0 10px; display:none;}
     #mobileMenuPanel .menu-item.has-sub.open .submenu{display:block;}
-    #mobileMenuPanel .submenu-item{color:#C7CEDC;}
-    #mobileMenuPanel .submenu-item:hover, #mobileMenuPanel .submenu-item.active{background:rgba(255,255,255,.08); color:#fff;}
+    #mobileMenuPanel .submenu-item{color:var(--ink-soft);}
+    #mobileMenuPanel .submenu-item:hover, #mobileMenuPanel .submenu-item.active{background:rgba(18,42,82,.07); color:var(--navy);}
     .main{padding:24px 0 50px;}
     .app-shell{padding:calc(var(--mobile-header-h) + 14px) 18px 0;}
     .msg-shell{height:calc(100vh - var(--mobile-header-h) - 150px);}
@@ -1207,6 +1231,9 @@
   <div class="emoji-picker hidden" id="emojiPicker" onclick="event.stopPropagation()"></div>
 </div>
 
+<!-- Floating mini chat windows, Facebook-Messenger style -->
+<div class="mini-chat-dock" id="miniChatDock"></div>
+
 <script>
 const API = ''; // same-origin: backend also serves this page. Change to e.g. 'http://localhost:4000' if hosted separately.
 let TOKEN = localStorage.getItem('psa_token') || null; // per-browser session token only, not app data
@@ -1241,7 +1268,7 @@ async function loadMessengerPopover(){
     const conversations = await api('/api/messages/conversations');
     if(!conversations.length){ body.innerHTML = `<div class="fb-popover-empty">No conversations yet.</div>`; return; }
     body.innerHTML = conversations.slice(0,8).map(c=>`
-      <div class="fb-popover-item" onclick="goPage('messages'); setTimeout(()=>openThread('${c.partner.id}'),0);">
+      <div class="fb-popover-item" data-uid="${c.partner.id}" data-name="${escapeHtml(c.partner.name)}" data-pic="${c.partner.profilePicUrl||''}" onclick="openMiniChatFromEl(this)">
         <div class="avatar" style="width:36px;height:36px;">${c.partner.profilePicUrl ? `<img src="${c.partner.profilePicUrl}">` : initials({FirstName:c.partner.name.split(' ')[0], LastName:c.partner.name.split(' ').slice(1).join(' ')})}</div>
         <div class="c-info">
           <div class="c-name">${escapeHtml(c.partner.name)}</div>
@@ -1984,6 +2011,76 @@ async function sendThreadMessage(){
     renderThread(thread);
     const conversations = await api('/api/messages/conversations');
     renderConversationList(conversations);
+  }catch(err){ alert(err.message); }
+}
+
+/* ---------- Floating mini chat windows (Facebook Messenger style) ---------- */
+let OPEN_MINI_CHATS = {}; // userId -> {name, pic, minimized}
+
+function openMiniChatFromEl(el){
+  document.querySelectorAll('.fb-popover.open').forEach(p=>p.classList.remove('open'));
+  openMiniChat(el.dataset.uid, el.dataset.name, el.dataset.pic);
+}
+
+function openMiniChat(userId, name, pic){
+  if(!OPEN_MINI_CHATS[userId]) OPEN_MINI_CHATS[userId] = {name, pic, minimized:false};
+  else OPEN_MINI_CHATS[userId].minimized = false;
+  renderMiniChats();
+  loadMiniChatThread(userId);
+}
+
+function closeMiniChat(userId, evt){
+  if(evt) evt.stopPropagation();
+  delete OPEN_MINI_CHATS[userId];
+  renderMiniChats();
+}
+
+function toggleMiniChatMinimize(userId, evt){
+  if(evt) evt.stopPropagation();
+  if(OPEN_MINI_CHATS[userId]) OPEN_MINI_CHATS[userId].minimized = !OPEN_MINI_CHATS[userId].minimized;
+  renderMiniChats();
+}
+
+function renderMiniChats(){
+  const dock = document.getElementById('miniChatDock');
+  dock.innerHTML = Object.entries(OPEN_MINI_CHATS).map(([id,c])=>`
+    <div class="mini-chat-window ${c.minimized?'minimized':''}" data-uid="${id}">
+      <div class="mini-chat-header" onclick="toggleMiniChatMinimize('${id}', event)">
+        <div class="avatar">${c.pic ? `<img src="${c.pic}">` : initials({FirstName:c.name.split(' ')[0], LastName:c.name.split(' ').slice(1).join(' ')})}</div>
+        <span class="mc-name">${escapeHtml(c.name)}</span>
+        <button onclick="closeMiniChat('${id}', event)" title="Close">✕</button>
+      </div>
+      <div class="mini-chat-body" id="miniBody-${id}"></div>
+      <div class="mini-chat-input">
+        <input type="text" id="miniInput-${id}" placeholder="Aa" onkeydown="if(event.key==='Enter') sendMiniChatMessage('${id}');">
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadMiniChatThread(userId){
+  try{
+    const thread = await api('/api/messages/thread/'+userId);
+    const body = document.getElementById('miniBody-'+userId);
+    if(!body) return;
+    body.innerHTML = thread.length
+      ? thread.map(m=>`<div class="mini-bubble ${m.mine?'mine':'theirs'}">${escapeHtml(m.Content)}</div>`).join('')
+      : `<div style="text-align:center; color:var(--ink-faint); font-size:12px; margin:auto;">Say hello!</div>`;
+    body.scrollTop = body.scrollHeight;
+    refreshUnreadBadge();
+    if(!document.getElementById('page-messages').classList.contains('hidden')) loadMessagesPage();
+  }catch(e){ /* ignore */ }
+}
+
+async function sendMiniChatMessage(userId){
+  const input = document.getElementById('miniInput-'+userId);
+  if(!input) return;
+  const content = input.value.trim();
+  if(!content) return;
+  input.value = '';
+  try{
+    await api('/api/messages', {method:'POST', body: JSON.stringify({toId:userId, content})});
+    loadMiniChatThread(userId);
   }catch(err){ alert(err.message); }
 }
 
