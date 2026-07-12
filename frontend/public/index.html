@@ -191,10 +191,6 @@
     content:''; position:absolute; top:0; right:0; bottom:0; width:3px; background:var(--tricolor-soft);
     background-size:100% 200%; animation:sweepY 9s linear infinite; z-index:1;
   }
-  .topbar::after{
-    content:''; position:absolute; left:50%; bottom:64px; width:200px; height:200px; transform:translateX(-50%);
-    background:url(/psa-logo.png) center/contain no-repeat; opacity:.05; pointer-events:none; z-index:0;
-  }
   @keyframes sweepY{ 0%{background-position:0 0%;} 100%{background-position:0 200%;} }
   .topbar-brand-row{position:relative; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; padding:22px 16px 16px; gap:8px; text-align:center;}
   .tb-center-brand{display:flex; align-items:center; flex-direction:column; gap:10px; cursor:pointer;}
@@ -225,19 +221,32 @@
 
   .menu{display:flex; flex-direction:column; align-items:stretch; gap:2px; margin-left:0; width:100%;}
   .menu-item{
-    position:relative; display:flex; align-items:center; justify-content:space-between; gap:5px; padding:7px 14px; border-radius:10px;
+    position:relative; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 14px; border-radius:10px;
     color:#C7CEDC; font-size:13.5px; font-weight:500; cursor:pointer; white-space:nowrap; width:100%;
     transition:background .15s, color .15s;
   }
   .menu-item:hover{background:rgba(255,255,255,.08); color:#fff;}
   .menu-item.active{color:#fff; background:rgba(255,255,255,.12);}
   .menu-item.active::after{content:''; position:absolute; left:0; top:8px; bottom:8px; width:3px; background:#fff; border-radius:0 3px 3px 0; box-shadow:0 0 8px rgba(255,255,255,.5);}
-  .menu-item .chev{font-size:9px; opacity:.7; transition:transform .18s;}
-  .menu-item.has-sub.open .chev{transform:rotate(180deg);}
+  .mi-left{display:flex; align-items:center; gap:10px; min-width:0; overflow:hidden;}
+  .mi-left span{overflow:hidden; text-overflow:ellipsis;}
+  .mi-icon{width:17px; height:17px; flex-shrink:0; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; opacity:.8;}
+  .chev-icon{width:14px; height:14px; flex-shrink:0; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.7; transition:transform .18s;}
+
+  /* has-sub items stack their trigger row above the submenu instead of side-by-side */
+  .menu-item.has-sub{flex-direction:column; align-items:stretch; padding:0; cursor:default; background:transparent !important;}
+  .menu-item.has-sub.active::after{display:none;}
+  .menu-trigger{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 14px; border-radius:10px;
+    cursor:pointer; width:100%; color:inherit; transition:background .15s, color .15s;
+  }
+  .menu-trigger:hover{background:rgba(255,255,255,.08); color:#fff;}
+  .menu-item.has-sub.open .menu-trigger{color:#fff; background:rgba(255,255,255,.07);}
+  .menu-item.has-sub.open .chev-icon{transform:rotate(180deg);}
 
   .submenu{
     max-height:0; overflow:hidden; min-width:0; width:100%;
-    background:transparent; border-radius:9px; border:none; padding:0 0 0 12px;
+    background:transparent; border-radius:9px; border:none; padding:0 0 0 14px;
     opacity:0; transition:max-height .2s ease, opacity .2s ease, margin .2s ease; margin-top:0;
   }
   .menu-item.has-sub.open .submenu{opacity:1; max-height:300px; margin-top:2px;}
@@ -247,6 +256,7 @@
   }
   .submenu-item:hover{background:rgba(255,255,255,.08); color:#fff;}
   .submenu-item.active{background:rgba(255,255,255,.14); color:#fff; font-weight:600;}
+  .smi-icon{width:15px; height:15px; flex-shrink:0; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; opacity:.8;}
 
   .tb-spacer{flex:1;}
 
@@ -261,8 +271,8 @@
   .account-text{text-align:left; line-height:1.25; flex:1; min-width:0;}
   .account-text .name{font-size:12.5px; font-weight:600; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .account-text .role{font-size:10.5px; color:#8891A6;}
-  .account .chev{font-size:9px; color:#8891A6; transition:transform .18s;}
-  .account.open .chev{transform:rotate(180deg);}
+  .account .chev-icon{color:#8891A6;}
+  .account.open .chev-icon{transform:rotate(180deg);}
 
   .account-dropdown{
     position:absolute; bottom:calc(100% + 8px); top:auto; left:14px; right:14px; min-width:0;
@@ -274,6 +284,7 @@
   .dropdown-item{padding:10px 12px; border-radius:9px; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:9px;}
   .dropdown-item:hover{background:var(--surface-2);}
   .dropdown-item.danger{color:var(--red);}
+  .dropdown-item .smi-icon{opacity:.75;}
   .dropdown-divider{height:1px; background:var(--line); margin:5px 4px;}
 
   .hamburger{display:none; background:none; border:none; color:#fff; font-size:20px; cursor:pointer; padding:6px;}
@@ -662,19 +673,22 @@
     <div class="topbar-inner">
       <!-- Desktop menu (upper right) -->
       <nav class="menu" id="mainMenu">
-        <div class="menu-item" data-page="posts" onclick="goPage('posts')">Announcements</div>
-        <div class="menu-item" data-page="schedule" onclick="goPage('schedule')">Schedule</div>
-        <div class="menu-item" data-page="files" onclick="goPage('files')">Files</div>
-        <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
-        <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')">My Accomplishments</div>
-        <div class="menu-item" data-page="messages" onclick="goPage('messages')">Messages<span class="badge hidden" id="navMsgBadge">0</span></div>
+        <div class="menu-item" data-page="posts" onclick="goPage('posts')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Announcements</span></span></div>
+        <div class="menu-item" data-page="schedule" onclick="goPage('schedule')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Schedule</span></span></div>
+        <div class="menu-item" data-page="files" onclick="goPage('files')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>Files</span></span></div>
+        <div class="menu-item" data-page="profile" onclick="goPage('profile')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>My Profile</span></span></div>
+        <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><polyline points="8.21 13.89 7 22.5 12 19.5 17 22.5 15.79 13.88"/></svg><span>My Accomplishments</span></span></div>
+        <div class="menu-item" data-page="messages" onclick="goPage('messages')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Messages</span></span><span class="badge hidden" id="navMsgBadge">0</span></div>
         <div class="menu-item has-sub" id="adminMenuItem">
-          <span onclick="toggleSubmenu(event,'adminMenuItem')">Administration <span class="chev">▾</span></span>
+          <div class="menu-trigger" onclick="toggleSubmenu(event,'adminMenuItem')">
+            <span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>Administration</span></span>
+            <svg class="chev-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
           <div class="submenu">
-            <div class="submenu-item" data-page="users" onclick="goPage('users')">🧑‍🤝‍🧑 Personnel</div>
-            <div class="submenu-item" data-page="deptpos" onclick="goPage('deptpos')">🏷️ Departments &amp; Positions</div>
-            <div class="submenu-item" data-page="logs" onclick="goPage('logs')">🕒 Attendance Logs</div>
-            <div class="submenu-item" data-page="accomplishment-report" onclick="goPage('accomplishment-report')">📋 Accomplishment Report</div>
+            <div class="submenu-item" data-page="users" onclick="goPage('users')"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Personnel</div>
+            <div class="submenu-item" data-page="deptpos" onclick="goPage('deptpos')"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.2"/></svg>Departments &amp; Positions</div>
+            <div class="submenu-item" data-page="logs" onclick="goPage('logs')"><svg class="smi-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>Attendance Logs</div>
+            <div class="submenu-item" data-page="accomplishment-report" onclick="goPage('accomplishment-report')"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>Accomplishment Report</div>
           </div>
         </div>
       </nav>
@@ -685,12 +699,12 @@
         <div class="account-trigger" onclick="toggleAccountMenu(event)">
           <div class="avatar" id="sbAvatar">--</div>
           <div class="account-text"><div class="name" id="sbName">—</div><div class="role" id="sbRole">—</div></div>
-          <span class="chev">▾</span>
+          <svg class="chev-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="account-dropdown">
-          <div class="dropdown-item" onclick="goPage('profile')">👤 My Profile</div>
+          <div class="dropdown-item" onclick="goPage('profile')"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
           <div class="dropdown-divider"></div>
-          <div class="dropdown-item danger" onclick="handleLogout()">🚪 Sign out</div>
+          <div class="dropdown-item danger" onclick="handleLogout()"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</div>
         </div>
       </div>
 
@@ -699,22 +713,25 @@
 
     <!-- Mobile menu panel -->
     <nav id="mobileMenuPanel">
-      <div class="menu-item" data-page="posts" onclick="goPage('posts')">Announcements</div>
-      <div class="menu-item" data-page="schedule" onclick="goPage('schedule')">Schedule</div>
-      <div class="menu-item" data-page="files" onclick="goPage('files')">Files</div>
-      <div class="menu-item" data-page="profile" onclick="goPage('profile')">My Profile</div>
-      <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')">My Accomplishments</div>
-      <div class="menu-item" data-page="messages" onclick="goPage('messages')">Messages<span class="badge hidden" id="navMsgBadgeMobile">0</span></div>
+      <div class="menu-item" data-page="posts" onclick="goPage('posts')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Announcements</span></span></div>
+      <div class="menu-item" data-page="schedule" onclick="goPage('schedule')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Schedule</span></span></div>
+      <div class="menu-item" data-page="files" onclick="goPage('files')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>Files</span></span></div>
+      <div class="menu-item" data-page="profile" onclick="goPage('profile')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>My Profile</span></span></div>
+      <div class="menu-item" data-page="accomplishments" onclick="goPage('accomplishments')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><polyline points="8.21 13.89 7 22.5 12 19.5 17 22.5 15.79 13.88"/></svg><span>My Accomplishments</span></span></div>
+      <div class="menu-item" data-page="messages" onclick="goPage('messages')"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Messages</span></span><span class="badge hidden" id="navMsgBadgeMobile">0</span></div>
       <div class="menu-item has-sub" id="adminMenuItemMobile">
-        <span onclick="toggleSubmenu(event,'adminMenuItemMobile')" style="width:100%; display:flex; justify-content:space-between;">Administration <span class="chev">▾</span></span>
+        <div class="menu-trigger" onclick="toggleSubmenu(event,'adminMenuItemMobile')">
+          <span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>Administration</span></span>
+          <svg class="chev-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
         <div class="submenu">
-          <div class="submenu-item" data-page="users" onclick="goPage('users')">🧑‍🤝‍🧑 Personnel</div>
-          <div class="submenu-item" data-page="deptpos" onclick="goPage('deptpos')">🏷️ Departments &amp; Positions</div>
-          <div class="submenu-item" data-page="logs" onclick="goPage('logs')">🕒 Attendance Logs</div>
-          <div class="submenu-item" data-page="accomplishment-report" onclick="goPage('accomplishment-report')">📋 Accomplishment Report</div>
+          <div class="submenu-item" data-page="users" onclick="goPage('users')"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Personnel</div>
+          <div class="submenu-item" data-page="deptpos" onclick="goPage('deptpos')"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.2"/></svg>Departments &amp; Positions</div>
+          <div class="submenu-item" data-page="logs" onclick="goPage('logs')"><svg class="smi-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>Attendance Logs</div>
+          <div class="submenu-item" data-page="accomplishment-report" onclick="goPage('accomplishment-report')"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>Accomplishment Report</div>
         </div>
       </div>
-      <div class="menu-item" onclick="handleLogout()">🚪 Sign out</div>
+      <div class="menu-item" onclick="handleLogout()"><span class="mi-left"><svg class="mi-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Sign out</span></span></div>
     </nav>
   </header>
 
