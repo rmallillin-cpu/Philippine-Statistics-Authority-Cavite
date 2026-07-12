@@ -384,19 +384,59 @@
   .field textarea:focus{outline:none; border-color:var(--glow); box-shadow:0 0 0 4px rgba(47,211,232,.14);}
   .field select[multiple]{height:auto;}
 
-  /* ---------- Announcements ---------- */
-  .post-card{background:var(--surface); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.5); border-radius:var(--radius); padding:20px; margin-bottom:16px; box-shadow:var(--shadow-sm); transition:box-shadow .18s;}
+  /* ---------- Announcements (Facebook-style composer + feed) ---------- */
+  .post-composer{padding:16px 20px 18px;}
+  .composer-top{display:flex; gap:12px; align-items:flex-start;}
+  .composer-top .avatar{width:44px; height:44px; flex-shrink:0; font-size:15px;}
+  .composer-top textarea{
+    flex:1; border:none; background:var(--surface-2); border-radius:20px; padding:12px 16px;
+    font-size:15px; font-family:inherit; resize:none; min-height:44px; max-height:220px;
+    color:var(--ink); line-height:1.4; transition:background .15s, box-shadow .15s;
+  }
+  .composer-top textarea::placeholder{color:var(--ink-faint);}
+  .composer-top textarea:focus{outline:none; background:#fff; box-shadow:0 0 0 3px rgba(47,211,232,.16);}
+  .composer-divider{height:1px; background:var(--line); margin:14px 0 12px;}
+  .composer-actions{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+  .composer-action-btn{
+    display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:20px;
+    background:var(--surface-2); border:1.5px solid transparent; font-size:12.5px; font-weight:600;
+    color:var(--ink-soft); cursor:pointer; transition:background .15s, color .15s, border-color .15s; user-select:none;
+  }
+  .composer-action-btn:hover{background:rgba(18,42,82,.08); color:var(--navy);}
+  .composer-action-btn.checked{background:rgba(47,211,232,.14); border-color:var(--glow); color:var(--navy);}
+  .composer-action-btn input[type=checkbox]{display:none;}
+  .composer-action-btn svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;}
+  .hidden-file-input{display:none;}
+  .composer-filename{display:flex; align-items:center; gap:8px; margin-top:10px; padding:8px 12px; border-radius:10px; background:var(--surface-2); font-size:12.5px; color:var(--ink-soft);}
+  .composer-filename svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;}
+  .composer-filename .cf-remove{margin-left:auto; background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:16px; line-height:1; padding:2px;}
+  .composer-filename .cf-remove:hover{color:var(--red);}
+  .composer-footer{display:flex; justify-content:flex-end; margin-top:14px;}
+
+  .post-card{background:var(--surface); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.5); border-radius:var(--radius); padding:16px 18px 8px; margin-bottom:16px; box-shadow:var(--shadow-sm); transition:box-shadow .18s;}
   .post-card:hover{box-shadow:var(--shadow-md);}
-  .post-head{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .post-head{position:relative; display:flex; align-items:center; gap:10px; margin-bottom:10px; padding-right:64px;}
   .post-head .p-name{font-weight:600; color:var(--navy); font-size:13.5px;}
-  .post-head .p-time{font-size:11.5px; color:var(--ink-faint);}
-  .post-content{font-size:14px; color:var(--ink); line-height:1.6; white-space:pre-wrap;}
+  .post-head .p-time{font-size:11.5px; color:var(--ink-faint); display:flex; align-items:center; gap:4px;}
+  .featured-tag{display:inline-flex; align-items:center; gap:3px; color:#B8860B; font-weight:600;}
+  .featured-tag svg{width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .post-head-actions{position:absolute; top:0; right:0; display:flex; gap:6px; opacity:0; transform:translateY(-2px); transition:opacity .15s, transform .15s;}
+  .post-card:hover .post-head-actions, .post-head-actions:focus-within{opacity:1; transform:translateY(0);}
+  .post-icon-btn{width:30px; height:30px; border-radius:50%; border:none; background:var(--surface-2); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); transition:background .15s, color .15s; flex-shrink:0;}
+  .post-icon-btn:hover{background:rgba(18,42,82,.1); color:var(--navy);}
+  .post-icon-btn.del:hover{background:rgba(206,17,38,.09); color:var(--red);}
+  .post-icon-btn svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .post-content{font-size:14.5px; color:var(--ink); line-height:1.6; white-space:pre-wrap; padding:0 2px;}
   .post-media-wrap{position:relative; width:100%; height:380px; margin-top:12px; border-radius:14px; overflow:hidden; background:#0b1220; cursor:pointer;}
   .post-media-wrap img, .post-media-wrap video{width:100%; height:100%; object-fit:cover; display:block;}
   .post-media-wrap iframe{width:100%; height:100%; border:0; pointer-events:none;}
   .post-media-wrap .play-badge{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; background:rgba(6,13,28,.18);}
   .post-media-wrap .play-badge::after{content:''; width:0; height:0; border-top:14px solid transparent; border-bottom:14px solid transparent; border-left:22px solid #fff; margin-left:4px;}
   .play-circle{width:60px; height:60px; border-radius:50%; background:rgba(6,13,28,.55); display:flex; align-items:center; justify-content:center;}
+  .post-action-bar{display:flex; margin-top:10px; padding-top:4px; border-top:1px solid var(--line);}
+  .post-action-btn{flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:9px 0; margin:4px 0; border-radius:9px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--ink-soft); transition:background .12s, color .12s;}
+  .post-action-btn:hover{background:var(--surface-2); color:var(--navy);}
+  .post-action-btn svg{width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
 
   .lightbox-overlay{position:fixed; inset:0; background:rgba(6,13,28,.92); z-index:999; display:flex; align-items:center; justify-content:center; padding:24px;}
   .lightbox-overlay.hidden{display:none;}
@@ -432,23 +472,29 @@
   .ad-card-text{font-size:12.5px; color:var(--ink-soft); margin-top:3px; line-height:1.45;}
   @media (max-width:1100px){ .ad-sidebar{display:none;} }
   .post-delete{margin-left:auto;}
-  .comment-section{margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
-  .comment-item{display:flex; gap:8px; margin-bottom:10px;}
-  .comment-item .c-bubble{flex:1; background:rgba(18,42,82,.05); border-radius:13px; padding:8px 12px;}
+  .comment-section{margin-top:6px; padding-top:8px;}
+  .comment-item{display:flex; gap:8px; margin-bottom:8px;}
+  .comment-item .avatar{margin-top:2px;}
+  .comment-item .c-bubble{flex:1; background:var(--surface-2); border-radius:16px; padding:8px 13px;}
   .comment-item .c-name{font-size:12.5px; font-weight:600; color:var(--navy);}
   .comment-item .c-text{font-size:13px; color:var(--ink); margin-top:2px; line-height:1.45;}
-  .comment-item .c-time{font-size:10.5px; color:var(--ink-faint); margin-top:3px;}
-  .comment-del{background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:11px; margin-top:4px;}
+  .comment-item .c-time{font-size:10.5px; color:var(--ink-faint); margin-top:4px; padding-left:2px; display:flex; align-items:center; gap:10px;}
+  .comment-del{background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:11px; font-weight:600; padding:0;}
   .comment-del:hover{color:var(--red);}
-  .comment-add{display:flex; gap:8px; margin-top:6px;}
-  .comment-add input{flex:1; padding:9px 13px; border:1.5px solid var(--line); border-radius:20px; font-size:13px; font-family:inherit; background:rgba(255,255,255,.9);}
-  .comment-toggle{background:none; border:none; color:var(--ink-soft); font-size:12.5px; font-weight:600; cursor:pointer; padding:0; margin-bottom:10px; display:inline-block;}
-  .comment-toggle:hover{color:var(--navy);}
+  .comment-add{display:flex; align-items:center; gap:8px; margin-top:8px;}
+  .comment-add .avatar{width:28px; height:28px; font-size:10px; flex-shrink:0;}
+  .comment-add input{flex:1; padding:9px 14px; border:none; border-radius:20px; font-size:13px; font-family:inherit; background:var(--surface-2); color:var(--ink); transition:background .15s, box-shadow .15s;}
+  .comment-add input::placeholder{color:var(--ink-faint);}
+  .comment-add input:focus{outline:none; background:#fff; box-shadow:0 0 0 3px rgba(47,211,232,.16);}
+  .comment-send-btn{width:32px; height:32px; border-radius:50%; border:none; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; padding:0; transition:background .15s;}
+  .comment-send-btn:hover{background:var(--navy-mid);}
+  .comment-send-btn svg{width:14px; height:14px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; margin-left:-1px;}
+  .comment-toggle{display:inline-flex; align-items:center; gap:6px; background:none; border:none; color:var(--ink-soft); font-size:12.5px; font-weight:600; cursor:pointer; padding:6px 8px; margin:0 0 8px -8px; border-radius:8px; transition:background .12s, color .12s;}
+  .comment-toggle:hover{background:var(--surface-2); color:var(--navy);}
+  .comment-toggle svg{width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
   .replies-toggle{margin:2px 0 10px 34px; font-size:12px;}
   .comments-list.hidden{display:none;}
 
-  .post-edit{margin-left:auto;}
-  .post-head .post-delete{margin-left:8px;}
   .post-edit-box{margin-top:8px;}
   .post-edit-box textarea{width:100%; padding:11px 13px; border:1.5px solid var(--line); border-radius:12px; font-size:14px; font-family:inherit; background:rgba(255,255,255,.9); color:var(--ink); resize:vertical;}
   .post-content.hidden{display:none;}
@@ -890,15 +936,28 @@
     <!-- ANNOUNCEMENTS -->
     <section id="page-posts" class="hidden">
       <div class="page-head"><div><div class="eyebrow">Community</div><h2>Announcements</h2></div></div>
-      <div class="panel" id="newPostPanel">
-        <h3>Post an announcement</h3>
-        <div class="field"><label>Message</label><textarea id="postContent" rows="3" placeholder="What's happening?"></textarea></div>
-        <div class="field"><label>Photo or video (optional)</label><input type="file" id="postImageInput" accept="image/*,video/*"></div>
-        <label class="hidden" id="postFeaturedWrap" style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; cursor:pointer;">
-          <input type="checkbox" id="postFeatured" style="width:auto;">
-          Feature this announcement in the sidebar (visible to everyone, on every page)
-        </label>
-        <button class="btn btn-gold" style="width:auto; padding:11px 24px;" onclick="publishPost()">Publish</button>
+      <div class="panel post-composer" id="newPostPanel">
+        <div class="composer-top">
+          <div class="avatar" id="composerAvatar">--</div>
+          <textarea id="postContent" rows="1" placeholder="What's on your mind?" oninput="autoGrowComposer(this)"></textarea>
+        </div>
+        <div class="composer-filename hidden" id="composerFileName"></div>
+        <div class="composer-divider"></div>
+        <div class="composer-actions">
+          <label class="composer-action-btn" for="postImageInput">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            Photo / Video
+          </label>
+          <input type="file" id="postImageInput" accept="image/*,video/*" class="hidden-file-input" onchange="updateComposerFileName()">
+          <label class="composer-action-btn hidden" id="postFeaturedWrap">
+            <input type="checkbox" id="postFeatured" onchange="this.parentElement.classList.toggle('checked', this.checked)">
+            <svg viewBox="0 0 24 24"><path d="M12 2l1.8 5.6H20l-4.6 3.4 1.8 5.6L12 13.2 6.8 16.6l1.8-5.6L4 7.6h6.2z"/></svg>
+            Feature in sidebar
+          </label>
+        </div>
+        <div class="composer-footer">
+          <button class="btn btn-gold" style="width:auto; padding:11px 28px;" onclick="publishPost()">Publish</button>
+        </div>
       </div>
       <div class="panel" style="padding:14px 16px;">
         <div class="field" style="margin:0;">
@@ -1186,6 +1245,8 @@ async function enterApp(){
   document.getElementById('sbRole').textContent = CURRENT_USER.role;
   document.getElementById('sbAvatar').textContent = initials(CURRENT_USER);
   if(CURRENT_USER.profilePicUrl){ document.getElementById('sbAvatar').innerHTML = `<img src="${CURRENT_USER.profilePicUrl}">`; }
+  document.getElementById('composerAvatar').textContent = initials(CURRENT_USER);
+  if(CURRENT_USER.profilePicUrl){ document.getElementById('composerAvatar').innerHTML = `<img src="${CURRENT_USER.profilePicUrl}">`; }
 
   const isAdmin = CURRENT_USER.role === 'Admin';
   document.getElementById('adminMenuItem').classList.toggle('hidden', !isAdmin);
@@ -1810,13 +1871,16 @@ function postCardHtml(p, isAdmin){
   return `
     <div class="post-card">
       <div class="post-head">
-        <div class="avatar" style="width:34px;height:34px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
+        <div class="avatar" style="width:40px;height:40px;">${p.authorProfilePic ? `<img src="${p.authorProfilePic}">` : initials({FirstName:p.authorName.split(' ')[0], LastName:p.authorName.split(' ').slice(1).join(' ')})}</div>
         <div>
           <div class="p-name">${escapeHtml(p.authorName)}</div>
-          <div class="p-time">${new Date(p.CreatedAt).toLocaleString()} ${p.Featured==='true' ? '· 📌 Featured' : ''}</div>
+          <div class="p-time">${new Date(p.CreatedAt).toLocaleString()}${p.Featured==='true' ? ` <span class="featured-tag">· <svg viewBox="0 0 24 24"><path d="M12 2l1.8 5.6H20l-4.6 3.4 1.8 5.6L12 13.2 6.8 16.6l1.8-5.6L4 7.6h6.2z"/></svg> Featured</span>` : ''}</div>
         </div>
-        ${canManage ? `<button class="icon-btn post-edit" onclick="startEditPost('${p.ID}')">✏️ Edit</button>` : ''}
-        ${canManage ? `<button class="icon-btn del post-delete" onclick="deletePost('${p.ID}')">Delete</button>` : ''}
+        ${canManage ? `
+        <div class="post-head-actions">
+          <button class="post-icon-btn" title="Edit" onclick="startEditPost('${p.ID}')"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+          <button class="post-icon-btn del" title="Delete" onclick="deletePost('${p.ID}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+        </div>` : ''}
       </div>
       <div class="post-content" id="postContent-${p.ID}">${renderRichText(p.Content, !postHasVisual(p))}</div>
       <div class="post-edit-box hidden" id="postEditBox-${p.ID}">
@@ -1832,6 +1896,9 @@ function postCardHtml(p, isAdmin){
           ${postIsVideoVisual(p) ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
         </div>
       ` : ''}
+      <div class="post-action-bar">
+        <button class="post-action-btn" onclick="toggleCommentsList('${p.ID}','feed')"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Comment</button>
+      </div>
       ${commentSectionHtml(postComments, topLevel, p.ID, 'feed')}
     </div>
   `;
@@ -1844,7 +1911,7 @@ function commentsListHtml(postComments, topLevel, postId, ctx){
   const total = postComments.length;
   const expanded = EXPANDED_COMMENT_SECTIONS.has(ctx+'-'+postId);
   return `
-    ${total>0 ? `<button class="comment-toggle" id="viewCommentsBtn-${ctx}-${postId}" onclick="toggleCommentsList('${postId}','${ctx}')">💬 ${expanded?'Hide comments':'View '+total+' comment'+(total===1?'':'s')}</button>` : ''}
+    ${total>0 ? `<button class="comment-toggle" id="viewCommentsBtn-${ctx}-${postId}" onclick="toggleCommentsList('${postId}','${ctx}')"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>${expanded?'Hide comments':'View '+total+' comment'+(total===1?'':'s')}</button>` : ''}
     <div class="comments-list ${expanded?'':'hidden'}" id="commentsList-${ctx}-${postId}">
       ${topLevel.map(c=>commentItemHtml(c, postComments, postId, 0, ctx)).join('')}
     </div>
@@ -1852,11 +1919,14 @@ function commentsListHtml(postComments, topLevel, postId, ctx){
 }
 
 function commentAddHtml(postId, ctx){
+  const me = CURRENT_USER;
+  const myAvatar = me && me.profilePicUrl ? `<img src="${me.profilePicUrl}">` : (me ? initials(me) : '');
   return `
     <div class="comment-add">
+      <div class="avatar">${myAvatar}</div>
       <input type="text" id="commentInput-${ctx}-${postId}" placeholder="Write a comment..." onkeydown="if(event.key==='Enter') addComment('${postId}', null, '${ctx}');">
       <button type="button" class="emoji-btn" onclick="toggleEmojiPicker(event,'commentInput-${ctx}-${postId}')">😀</button>
-      <button class="btn btn-outline btn-sm" onclick="addComment('${postId}', null, '${ctx}')">Post</button>
+      <button class="comment-send-btn" title="Post comment" onclick="addComment('${postId}', null, '${ctx}')"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     </div>
   `;
 }
@@ -2089,6 +2159,26 @@ async function goToPostAndOpen(postId){
   openLightbox(postId);
 }
 
+function autoGrowComposer(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight, 220)+'px';
+}
+function updateComposerFileName(){
+  const input = document.getElementById('postImageInput');
+  const wrap = document.getElementById('composerFileName');
+  const file = input.files[0];
+  if(!file){ wrap.classList.add('hidden'); wrap.innerHTML=''; return; }
+  wrap.classList.remove('hidden');
+  wrap.innerHTML = `
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    <span>${escapeHtml(file.name)}</span>
+    <button type="button" class="cf-remove" onclick="clearComposerFile()">&times;</button>
+  `;
+}
+function clearComposerFile(){
+  document.getElementById('postImageInput').value = '';
+  updateComposerFileName();
+}
 async function publishPost(){
   const content = document.getElementById('postContent').value.trim();
   if(!content){ alert('Write something first.'); return; }
@@ -2099,9 +2189,12 @@ async function publishPost(){
   fd.append('featured', document.getElementById('postFeatured').checked ? 'true' : '');
   try{
     await api('/api/posts', {method:'POST', body: fd});
-    document.getElementById('postContent').value = '';
+    const ta = document.getElementById('postContent');
+    ta.value = ''; ta.style.height='auto';
     document.getElementById('postImageInput').value = '';
+    updateComposerFileName();
     document.getElementById('postFeatured').checked = false;
+    document.getElementById('postFeaturedWrap').classList.remove('checked');
     loadPosts();
   }catch(err){ alert(err.message); }
 }
