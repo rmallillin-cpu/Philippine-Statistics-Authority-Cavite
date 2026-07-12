@@ -191,17 +191,21 @@
     content:''; position:absolute; top:0; right:0; bottom:0; width:3px; background:var(--tricolor-soft);
     background-size:100% 200%; animation:sweepY 9s linear infinite; z-index:1;
   }
+  .topbar::after{
+    content:''; position:absolute; left:50%; bottom:64px; width:200px; height:200px; transform:translateX(-50%);
+    background:url(/psa-logo.png) center/contain no-repeat; opacity:.05; pointer-events:none; z-index:0;
+  }
   @keyframes sweepY{ 0%{background-position:0 0%;} 100%{background-position:0 200%;} }
-  .topbar-brand-row{display:flex; align-items:center; justify-content:center; flex-direction:column; padding:30px 16px 22px; gap:10px; text-align:center;}
+  .topbar-brand-row{position:relative; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; padding:22px 16px 16px; gap:8px; text-align:center;}
   .tb-center-brand{display:flex; align-items:center; flex-direction:column; gap:10px; cursor:pointer;}
   .tb-logo-badge{
-    width:140px; height:140px; flex-shrink:0; border-radius:50%; padding:12px;
+    width:96px; height:96px; flex-shrink:0; border-radius:50%; padding:6px;
     background:rgba(255,255,255,.94);
     border:1.5px solid rgba(255,255,255,.5);
     display:flex; align-items:center; justify-content:center; position:relative;
     box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 14px 32px -8px rgba(0,0,0,.55);
   }
-  .tb-logo-badge img{width:100%; height:100%; object-fit:contain; display:block;}
+  .tb-logo-badge img{width:88%; height:88%; object-fit:contain; display:block;}
   .tb-logo-badge.logo-fallback{background:linear-gradient(135deg, rgba(255,255,255,.32), rgba(255,255,255,.14));}
   .tb-logo-badge.logo-fallback::after{content:'PSA'; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; letter-spacing:.02em;}
   .tb-center-text{display:flex; flex-direction:column; align-items:center; line-height:1.28;}
@@ -213,6 +217,7 @@
   }
   .tb-center-text small{display:block; font-size:10px; letter-spacing:.11em; text-transform:uppercase; color:#9BA4BC; font-weight:600; margin-top:2px;}
   .topbar-inner{
+    position:relative; z-index:2;
     flex:1; width:100%; padding:14px 14px 18px; margin:0;
     display:flex; flex-direction:column; align-items:stretch; gap:4px;
     border-top:1px solid rgba(255,255,255,.06); min-height:0;
@@ -220,7 +225,7 @@
 
   .menu{display:flex; flex-direction:column; align-items:stretch; gap:2px; margin-left:0; width:100%;}
   .menu-item{
-    position:relative; display:flex; align-items:center; justify-content:space-between; gap:5px; padding:11px 14px; border-radius:10px;
+    position:relative; display:flex; align-items:center; justify-content:space-between; gap:5px; padding:7px 14px; border-radius:10px;
     color:#C7CEDC; font-size:13.5px; font-weight:500; cursor:pointer; white-space:nowrap; width:100%;
     transition:background .15s, color .15s;
   }
@@ -237,7 +242,7 @@
   }
   .menu-item.has-sub.open .submenu{opacity:1; max-height:300px; margin-top:2px;}
   .submenu-item{
-    padding:9px 12px; border-radius:9px; font-size:13px; font-weight:500; color:#C7CEDC; cursor:pointer;
+    padding:6px 12px; border-radius:9px; font-size:13px; font-weight:500; color:#C7CEDC; cursor:pointer;
     display:flex; align-items:center; gap:9px; transition:background .12s;
   }
   .submenu-item:hover{background:rgba(255,255,255,.08); color:#fff;}
@@ -245,7 +250,7 @@
 
   .tb-spacer{flex:1;}
 
-  .account{position:relative; width:100%; padding:12px 14px 4px; border-top:1px solid rgba(255,255,255,.06); margin-top:6px;}
+  .account{position:relative; z-index:2; width:100%; padding:12px 14px 4px; border-top:1px solid rgba(255,255,255,.06); margin-top:6px;}
   .account-trigger{
     display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10);
     padding:6px 12px 6px 6px; border-radius:30px; cursor:pointer; transition:background .15s; width:100%;
