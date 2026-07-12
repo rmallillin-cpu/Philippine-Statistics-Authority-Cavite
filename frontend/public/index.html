@@ -398,14 +398,18 @@
   .composer-divider{height:1px; background:var(--line); margin:14px 0 12px;}
   .composer-actions{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
   .composer-action-btn{
-    display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:20px;
+    display:inline-flex; align-items:center; gap:8px; padding:7px 14px 7px 7px; border-radius:20px;
     background:var(--surface-2); border:1.5px solid transparent; font-size:12.5px; font-weight:600;
     color:var(--ink-soft); cursor:pointer; transition:background .15s, color .15s, border-color .15s; user-select:none;
   }
   .composer-action-btn:hover{background:rgba(18,42,82,.08); color:var(--navy);}
   .composer-action-btn.checked{background:rgba(47,211,232,.14); border-color:var(--glow); color:var(--navy);}
   .composer-action-btn input[type=checkbox]{display:none;}
-  .composer-action-btn svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;}
+  .composer-action-btn svg{width:16px; height:16px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;}
+  .composer-icon-badge{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .composer-icon-badge.media{background:linear-gradient(135deg,#20BF6B,#0FB9B1);}
+  .composer-icon-badge.feature{background:linear-gradient(135deg,#F7B733,#FC4A1A);}
+  .composer-action-btn.checked .composer-icon-badge.feature{box-shadow:0 0 0 2px var(--glow);}
   .hidden-file-input{display:none;}
   .composer-filename{display:flex; align-items:center; gap:8px; margin-top:10px; padding:8px 12px; border-radius:10px; background:var(--surface-2); font-size:12.5px; color:var(--ink-soft);}
   .composer-filename svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;}
@@ -459,17 +463,31 @@
   }
 
   .app-shell{display:flex; align-items:flex-start; gap:24px; max-width:none; margin:0; width:100%; padding:var(--header-h) 28px 0 calc(var(--sidebar-w) + 28px);}
-  .ad-sidebar{width:296px; flex-shrink:0; position:sticky; top:calc(var(--header-h) + 24px); display:flex; flex-direction:column; gap:14px; max-height:calc(100vh - var(--header-h) - 48px); overflow-y:auto;}
+  .ad-sidebar{width:236px; flex-shrink:0; position:sticky; top:calc(var(--header-h) + 24px); display:flex; flex-direction:column; gap:14px; max-height:calc(100vh - var(--header-h) - 48px); overflow-y:auto;}
   .ad-sidebar:empty{display:none;}
   .ad-sidebar-title{font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); padding:0 4px;}
-  .ad-card{background:var(--surface); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.5); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); cursor:pointer; transition:box-shadow .18s, transform .18s;}
-  .ad-card:hover{box-shadow:var(--shadow-md); transform:translateY(-3px);}
-  .ad-card-media{width:100%; height:150px; background:#0b1220; overflow:hidden; position:relative;}
-  .ad-card-media img{width:100%; height:100%; object-fit:cover; display:block;}
+  .ad-card-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  /* Facebook-story-style card: tall narrow tile, full-bleed image, avatar chip top-left, name overlay bottom */
+  .ad-card{
+    position:relative; width:100%; aspect-ratio:112/200; border-radius:14px; overflow:hidden;
+    background:linear-gradient(160deg, var(--navy), var(--navy-mid)); box-shadow:var(--shadow-sm);
+    cursor:pointer; transition:box-shadow .18s, transform .18s;
+  }
+  .ad-card:hover{box-shadow:var(--shadow-md); transform:translateY(-3px) scale(1.02);}
+  .ad-card-media{position:absolute; inset:0; background:#0b1220; overflow:hidden;}
+  .ad-card-media img, .ad-card-media video{width:100%; height:100%; object-fit:cover; display:block;}
   .ad-card-media iframe{width:100%; height:100%; border:0; pointer-events:none;}
-  .ad-card-body{padding:10px 12px;}
-  .ad-card-name{font-size:11.5px; font-weight:700; color:var(--navy);}
-  .ad-card-text{font-size:12.5px; color:var(--ink-soft); margin-top:3px; line-height:1.45;}
+  .ad-card::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,13,28,0) 45%, rgba(6,13,28,.78) 100%); pointer-events:none;}
+  .ad-card-avatar{
+    position:absolute; top:8px; left:8px; z-index:2; width:28px; height:28px; border-radius:50%;
+    background:linear-gradient(135deg, var(--glow), var(--navy-mid)); color:#fff; display:flex; align-items:center;
+    justify-content:center; font-weight:700; font-size:10.5px; box-shadow:0 0 0 2.5px var(--glow), 0 0 0 1px rgba(255,255,255,.9) inset;
+    overflow:hidden;
+  }
+  .ad-card-avatar img{width:100%; height:100%; object-fit:cover;}
+  .ad-card-body{position:absolute; left:0; right:0; bottom:0; z-index:2; padding:8px 9px;}
+  .ad-card-name{font-size:11px; font-weight:700; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.5); -webkit-line-clamp:1; display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden;}
+  .ad-card-text{font-size:10.5px; color:rgba(255,255,255,.88); margin-top:2px; line-height:1.35; text-shadow:0 1px 3px rgba(0,0,0,.5); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
   @media (max-width:1100px){ .ad-sidebar{display:none;} }
   .post-delete{margin-left:auto;}
   .comment-section{margin-top:6px; padding-top:8px;}
@@ -939,19 +957,19 @@
       <div class="panel post-composer" id="newPostPanel">
         <div class="composer-top">
           <div class="avatar" id="composerAvatar">--</div>
-          <textarea id="postContent" rows="1" placeholder="What's on your mind?" oninput="autoGrowComposer(this)"></textarea>
+          <textarea id="postContent" rows="1" placeholder="Make an Announcement" oninput="autoGrowComposer(this)"></textarea>
         </div>
         <div class="composer-filename hidden" id="composerFileName"></div>
         <div class="composer-divider"></div>
         <div class="composer-actions">
           <label class="composer-action-btn" for="postImageInput">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span class="composer-icon-badge media"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span>
             Photo / Video
           </label>
           <input type="file" id="postImageInput" accept="image/*,video/*" class="hidden-file-input" onchange="updateComposerFileName()">
           <label class="composer-action-btn hidden" id="postFeaturedWrap">
             <input type="checkbox" id="postFeatured" onchange="this.parentElement.classList.toggle('checked', this.checked)">
-            <svg viewBox="0 0 24 24"><path d="M12 2l1.8 5.6H20l-4.6 3.4 1.8 5.6L12 13.2 6.8 16.6l1.8-5.6L4 7.6h6.2z"/></svg>
+            <span class="composer-icon-badge feature"><svg viewBox="0 0 24 24"><path d="M12 2l1.8 5.6H20l-4.6 3.4 1.8 5.6L12 13.2 6.8 16.6l1.8-5.6L4 7.6h6.2z"/></svg></span>
             Feature in sidebar
           </label>
         </div>
@@ -1173,6 +1191,21 @@ function handleLogout(){
 }
 
 function initials(u){ return ((u.firstName||u.FirstName||'')[0]||'')+((u.lastName||u.LastName||'')[0]||''); }
+
+/* ---------- Title Case formatting for data-entry fields ---------- */
+function toTitleCase(str){
+  if(!str) return str;
+  return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+/** Wire an input/textarea so its value is auto-formatted to Title Case once the user leaves the field. */
+function titleCaseOnBlur(el){
+  if(!el) return;
+  el.addEventListener('blur', () => { el.value = toTitleCase(el.value); });
+}
+function initTitleCaseFields(){
+  ['regFirst','regMiddle','regLast','profFirst','profMiddle','profLast',
+   'newDeptName','newPosName','accompTitle','scheduleTitle'].forEach(id => titleCaseOnBlur(document.getElementById(id)));
+}
 
 function escapeHtml(str){
   const div = document.createElement('div');
@@ -2136,16 +2169,21 @@ function renderFeaturedSidebar(){
   if(!el) return;
   const featured = ALL_POSTS.filter(p=>p.Featured==='true');
   if(!featured.length){ el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="ad-sidebar-title">📌 Featured Announcements</div>` + featured.map(featuredCardHtml).join('');
+  el.innerHTML = `<div class="ad-sidebar-title">📌 Featured Announcements</div><div class="ad-card-grid">` + featured.map(featuredCardHtml).join('') + `</div>`;
 }
 
 function featuredCardHtml(p){
-  const preview = p.Content.length > 90 ? p.Content.slice(0,90)+'…' : p.Content;
+  const preview = p.Content.length > 60 ? p.Content.slice(0,60)+'…' : p.Content;
+  const authorName = p.authorName || 'PSA Cavite';
+  const avatarInner = p.authorProfilePic
+    ? `<img src="${p.authorProfilePic}">`
+    : initials({FirstName:authorName.split(' ')[0], LastName:authorName.split(' ').slice(1).join(' ')});
   return `
     <div class="ad-card" onclick="goToPostAndOpen('${p.ID}')">
-      ${postHasVisual(p) ? `<div class="ad-card-media">${mediaHtml(p)}${postIsVideoVisual(p) ? `<div class="play-badge"><div class="play-circle" style="width:40px;height:40px;"></div></div>` : ''}</div>` : ''}
+      <div class="ad-card-media">${postHasVisual(p) ? mediaHtml(p) : ''}${postIsVideoVisual(p) ? `<div class="play-badge"><div class="play-circle" style="width:34px;height:34px;"></div></div>` : ''}</div>
+      <div class="ad-card-avatar">${avatarInner}</div>
       <div class="ad-card-body">
-        <div class="ad-card-name">${escapeHtml(p.authorName || 'PSA Cavite')}</div>
+        <div class="ad-card-name">${escapeHtml(authorName)}</div>
         <div class="ad-card-text">${escapeHtml(preview)}</div>
       </div>
     </div>
@@ -2649,6 +2687,7 @@ async function deleteFileEntry(id){
 
 // Auto sign-in if a token is already stored
 (async function init(){
+  initTitleCaseFields();
   if(TOKEN){
     try{
       const me = await api('/api/users/me');
