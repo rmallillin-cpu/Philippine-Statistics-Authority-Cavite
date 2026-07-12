@@ -35,11 +35,12 @@
     --header-h:28px;
     --sidebar-w:264px;
     --mobile-header-h:64px;
+    --fb-header-h:56px;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
   body{
-    font-family:'Inter',sans-serif;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing:grayscale;
     text-rendering:optimizeLegibility;
@@ -181,7 +182,7 @@
   #app{display:none; min-height:100vh; flex-direction:column;}
   #app.shown{display:flex;}
   .topbar{
-    position:fixed; top:0; left:0; bottom:0; width:var(--sidebar-w); z-index:100;
+    position:fixed; top:var(--fb-header-h); left:0; bottom:0; width:var(--sidebar-w); z-index:100;
     background:linear-gradient(180deg, rgba(8,17,38,.96), rgba(6,12,28,.98));
     backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
     border-right:1px solid rgba(255,255,255,.06);
@@ -260,7 +261,54 @@
 
   .tb-spacer{flex:1;}
 
-  .account{position:relative; z-index:2; width:100%; padding:12px 14px 4px; border-top:1px solid rgba(255,255,255,.06); margin-top:6px;}
+  .account{display:none;}
+
+  /* ---------- Facebook-style top bar: logo, search, messenger/notifications/account ---------- */
+  .fb-topbar{
+    position:fixed; top:0; left:0; right:0; height:var(--fb-header-h); z-index:300;
+    background:#fff; border-bottom:1px solid var(--line); box-shadow:0 1px 3px rgba(15,34,82,.06);
+    display:flex; align-items:center; gap:10px; padding:0 14px;
+  }
+  .fb-topbar-left{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
+  .fb-logo{width:40px; height:40px; border-radius:50%; object-fit:cover; cursor:pointer; flex-shrink:0;}
+  .fb-search{display:flex; align-items:center; gap:8px; background:var(--surface-2); border-radius:999px; padding:9px 14px; width:240px; transition:box-shadow .15s;}
+  .fb-search:focus-within{box-shadow:0 0 0 2px rgba(47,211,232,.35);}
+  .fb-search svg{width:16px; height:16px; stroke:var(--ink-faint); fill:none; stroke-width:2; flex-shrink:0;}
+  .fb-search input{border:none; background:transparent; font-size:14px; font-family:inherit; outline:none; flex:1; color:var(--ink);}
+  .fb-topbar-right{margin-left:auto; display:flex; align-items:center; gap:8px;}
+  .fb-icon-wrap{position:relative;}
+  .fb-icon-btn{
+    width:40px; height:40px; border-radius:50%; background:var(--surface-2); border:none; display:flex;
+    align-items:center; justify-content:center; cursor:pointer; position:relative; transition:background .15s;
+  }
+  .fb-icon-btn:hover{background:rgba(18,42,82,.12);}
+  .fb-icon-btn svg{width:19px; height:19px; stroke:var(--navy); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .fb-badge{
+    position:absolute; top:-2px; right:-2px; background:var(--red); color:#fff; font-size:10px; font-weight:700;
+    padding:1px 5px; border-radius:10px; min-width:16px; text-align:center; box-shadow:0 0 0 2px #fff; line-height:1.4;
+  }
+  .fb-avatar-btn{display:flex; align-items:center; gap:5px; background:var(--surface-2); border:none; border-radius:24px; padding:4px 8px 4px 4px; cursor:pointer; transition:background .15s;}
+  .fb-avatar-btn:hover{background:rgba(18,42,82,.12);}
+  .fb-avatar-btn .avatar{box-shadow:none;}
+  .fb-avatar-btn .chev-icon{width:14px; height:14px; stroke:var(--ink-soft); fill:none; stroke-width:2;}
+  .fb-popover{
+    position:absolute; top:calc(100% + 10px); right:0; width:320px; max-height:420px; overflow-y:auto;
+    background:#fff; border-radius:14px; box-shadow:var(--shadow-md); border:1px solid var(--line);
+    opacity:0; visibility:hidden; transform:translateY(6px); transition:opacity .16s, transform .16s, visibility .16s; z-index:301;
+  }
+  .fb-popover.open{opacity:1; visibility:visible; transform:translateY(0);}
+  .fb-popover-head{font-size:16px; font-weight:700; color:var(--ink); padding:14px 16px 10px;}
+  .fb-popover-body{padding:4px 8px 8px;}
+  .fb-popover-empty{padding:16px; text-align:center; font-size:13px; color:var(--ink-faint);}
+  .fb-popover-item{display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; cursor:pointer; transition:background .12s;}
+  .fb-popover-item:hover{background:var(--surface-2);}
+  .fb-popover-item .c-info{flex:1; min-width:0;}
+  .fb-popover-item .c-name{font-size:13.5px; font-weight:600; color:var(--ink);}
+  .fb-popover-item .c-last{font-size:12px; color:var(--ink-soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .fb-popover-foot{text-align:center; font-size:13px; font-weight:600; color:var(--navy); padding:10px; border-top:1px solid var(--line); cursor:pointer;}
+  .fb-popover-foot:hover{background:var(--surface-2);}
+  .fb-account-popover{width:220px; padding:6px;}
+  @media (max-width:900px){ .fb-topbar{display:none;} }
   .account-trigger{
     display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10);
     padding:6px 12px 6px 6px; border-radius:30px; cursor:pointer; transition:background .15s; width:100%;
@@ -462,33 +510,46 @@
     .lightbox-media{height:60%;}
   }
 
-  .app-shell{display:flex; align-items:flex-start; gap:24px; max-width:none; margin:0; width:100%; padding:var(--header-h) 28px 0 calc(var(--sidebar-w) + 28px);}
-  .ad-sidebar{width:236px; flex-shrink:0; position:sticky; top:calc(var(--header-h) + 24px); display:flex; flex-direction:column; gap:14px; max-height:calc(100vh - var(--header-h) - 48px); overflow-y:auto;}
-  .ad-sidebar:empty{display:none;}
-  .ad-sidebar-title{font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); padding:0 4px;}
-  .ad-card-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-  /* Facebook-story-style card: tall narrow tile, full-bleed image, avatar chip top-left, name overlay bottom */
+  .app-shell{display:flex; align-items:flex-start; gap:24px; max-width:none; margin:0; width:100%; padding:calc(var(--fb-header-h) + var(--header-h)) 28px 0 calc(var(--sidebar-w) + 28px);}
+  #page-posts{max-width:680px; margin:0 auto; width:100%;}
+  /* Facebook-style horizontal story bar — sized to match FB's story tiles (~112x212) */
+  .story-bar-wrap{position:relative; margin-bottom:16px;}
+  .story-bar-wrap:has(.ad-card-grid:empty){display:none;}
+  .story-bar{display:flex; gap:8px; overflow-x:auto; scroll-behavior:smooth; padding-bottom:2px; scrollbar-width:none;}
+  .story-bar::-webkit-scrollbar{display:none;}
+  .ad-card-grid{display:flex; gap:8px;}
   .ad-card{
-    position:relative; width:100%; aspect-ratio:112/200; border-radius:14px; overflow:hidden;
+    position:relative; flex:0 0 112px; width:112px; height:200px; border-radius:14px; overflow:hidden;
     background:linear-gradient(160deg, var(--navy), var(--navy-mid)); box-shadow:var(--shadow-sm);
     cursor:pointer; transition:box-shadow .18s, transform .18s;
   }
-  .ad-card:hover{box-shadow:var(--shadow-md); transform:translateY(-3px) scale(1.02);}
-  .ad-card-media{position:absolute; inset:0; background:#0b1220; overflow:hidden;}
+  .ad-card:hover{box-shadow:var(--shadow-md); transform:translateY(-3px);}
+  .ad-card-media{position:absolute; inset:0; overflow:hidden; background:linear-gradient(160deg, var(--navy), var(--navy-mid));}
   .ad-card-media img, .ad-card-media video{width:100%; height:100%; object-fit:cover; display:block;}
-  .ad-card-media iframe{width:100%; height:100%; border:0; pointer-events:none;}
-  .ad-card::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,13,28,0) 45%, rgba(6,13,28,.78) 100%); pointer-events:none;}
+  .ad-card::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,13,28,0) 50%, rgba(6,13,28,.82) 100%); pointer-events:none;}
   .ad-card-avatar{
-    position:absolute; top:8px; left:8px; z-index:2; width:28px; height:28px; border-radius:50%;
+    position:absolute; top:8px; left:8px; z-index:2; width:32px; height:32px; border-radius:50%;
     background:linear-gradient(135deg, var(--glow), var(--navy-mid)); color:#fff; display:flex; align-items:center;
-    justify-content:center; font-weight:700; font-size:10.5px; box-shadow:0 0 0 2.5px var(--glow), 0 0 0 1px rgba(255,255,255,.9) inset;
+    justify-content:center; font-weight:700; font-size:11px; box-shadow:0 0 0 3px #2FD3E8, 0 0 0 1px rgba(255,255,255,.9) inset;
     overflow:hidden;
   }
   .ad-card-avatar img{width:100%; height:100%; object-fit:cover;}
   .ad-card-body{position:absolute; left:0; right:0; bottom:0; z-index:2; padding:8px 9px;}
-  .ad-card-name{font-size:11px; font-weight:700; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.5); -webkit-line-clamp:1; display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden;}
-  .ad-card-text{font-size:10.5px; color:rgba(255,255,255,.88); margin-top:2px; line-height:1.35; text-shadow:0 1px 3px rgba(0,0,0,.5); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-  @media (max-width:1100px){ .ad-sidebar{display:none;} }
+  .ad-card-name{font-size:11.5px; font-weight:700; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.55); display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;}
+  .ad-card-text{font-size:10.5px; color:rgba(255,255,255,.9); margin-top:2px; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; text-shadow:0 1px 3px rgba(0,0,0,.5);}
+  .ad-card-media .play-badge{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; background:rgba(6,13,28,.18);}
+  .ad-card-media .play-circle{width:36px; height:36px; border-radius:50%; background:rgba(6,13,28,.55); display:flex; align-items:center; justify-content:center;}
+  .ad-card-media .play-circle::after{content:''; width:0; height:0; border-top:8px solid transparent; border-bottom:8px solid transparent; border-left:13px solid #fff; margin-left:3px;}
+  .ad-thumb-fallback{width:100%; height:100%; display:flex; align-items:center; justify-content:center;}
+  .ad-thumb-fallback svg{width:26px; height:26px; stroke:rgba(255,255,255,.75); fill:none; stroke-width:1.6;}
+  .story-scroll-btn{
+    position:absolute; top:50%; transform:translateY(-50%); width:32px; height:32px; border-radius:50%;
+    background:#fff; border:1px solid var(--line); box-shadow:var(--shadow-sm); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; z-index:3;
+  }
+  .story-scroll-btn svg{width:16px; height:16px; stroke:var(--navy); fill:none; stroke-width:2.2;}
+  .story-scroll-btn.next{right:-4px;}
+  .story-scroll-btn.prev{left:-4px;}
   .post-delete{margin-left:auto;}
   .comment-section{margin-top:6px; padding-top:8px;}
   .comment-item{display:flex; gap:8px; margin-bottom:8px;}
@@ -725,6 +786,51 @@
 
 <!-- ================= APP SHELL ================= -->
 <div id="app">
+  <!-- Facebook-style top bar (desktop): logo, search, messenger, notifications, account -->
+  <div class="fb-topbar">
+    <div class="fb-topbar-left">
+      <img class="fb-logo" src="/psa-logo.png" alt="PSA Cavite" onclick="goPage('posts')">
+      <div class="fb-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="fbSearchInput" placeholder="Search announcements" onkeydown="if(event.key==='Enter') fbGlobalSearch()">
+      </div>
+    </div>
+    <div class="fb-topbar-right">
+      <div class="fb-icon-wrap">
+        <button class="fb-icon-btn" onclick="toggleFbPopover(event,'messengerPopover')" title="Messages">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span class="fb-badge hidden" id="fbMsgBadge">0</span>
+        </button>
+        <div class="fb-popover" id="messengerPopover">
+          <div class="fb-popover-head">Chats</div>
+          <div class="fb-popover-body" id="messengerPopoverBody"><div class="fb-popover-empty">Loading...</div></div>
+          <div class="fb-popover-foot" onclick="goPage('messages')">See all in Messages</div>
+        </div>
+      </div>
+      <div class="fb-icon-wrap">
+        <button class="fb-icon-btn" onclick="toggleFbPopover(event,'notifPopover')" title="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="fb-badge hidden" id="fbNotifBadge">0</span>
+        </button>
+        <div class="fb-popover" id="notifPopover">
+          <div class="fb-popover-head">Notifications</div>
+          <div class="fb-popover-body" id="notifPopoverBody"><div class="fb-popover-empty">Loading...</div></div>
+          <div class="fb-popover-foot" onclick="goPage('schedule')">See all in Schedule</div>
+        </div>
+      </div>
+      <div class="fb-icon-wrap">
+        <button class="fb-avatar-btn" onclick="toggleFbPopover(event,'fbAccountPopover')">
+          <div class="avatar" id="fbAvatar" style="width:32px;height:32px;">--</div>
+          <svg class="chev-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="fb-popover fb-account-popover" id="fbAccountPopover">
+          <div class="dropdown-item" onclick="goPage('profile')"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item danger" onclick="handleLogout()"><svg class="smi-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
   <header class="topbar">
     <div class="topbar-brand-row">
       <div class="tb-center-brand" onclick="goPage('posts')">
@@ -954,6 +1060,16 @@
     <!-- ANNOUNCEMENTS -->
     <section id="page-posts" class="hidden">
       <div class="page-head"><div><div class="eyebrow">Community</div><h2>Announcements</h2></div></div>
+      <div class="story-bar-wrap">
+        <div class="ad-sidebar-title">📌 Featured Announcements</div>
+        <button class="story-scroll-btn prev" onclick="document.getElementById('storyBar').scrollBy({left:-240,behavior:'smooth'})">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="story-bar" id="storyBar"><div class="ad-card-grid" id="adSidebar"></div></div>
+        <button class="story-scroll-btn next" onclick="document.getElementById('storyBar').scrollBy({left:240,behavior:'smooth'})">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
       <div class="panel post-composer" id="newPostPanel">
         <div class="composer-top">
           <div class="avatar" id="composerAvatar">--</div>
@@ -1063,7 +1179,6 @@
       </div>
     </section>
   </main>
-  <aside class="ad-sidebar" id="adSidebar"></aside>
   </div>
 
   <div class="lightbox-overlay hidden" id="lightboxOverlay" onclick="if(event.target===this) closeLightbox()">
@@ -1098,9 +1213,64 @@ function toggleAccountMenu(e){
   e.stopPropagation();
   document.getElementById('accountMenu').classList.toggle('open');
 }
+/* ---------- Facebook-style top bar: popovers + search ---------- */
+function toggleFbPopover(e, id){
+  e.stopPropagation();
+  const el = document.getElementById(id);
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.fb-popover.open').forEach(p=>p.classList.remove('open'));
+  if(wasOpen) return;
+  el.classList.add('open');
+  if(id==='messengerPopover') loadMessengerPopover();
+  if(id==='notifPopover') loadNotifPopover();
+}
+async function loadMessengerPopover(){
+  const body = document.getElementById('messengerPopoverBody');
+  try{
+    const conversations = await api('/api/messages/conversations');
+    if(!conversations.length){ body.innerHTML = `<div class="fb-popover-empty">No conversations yet.</div>`; return; }
+    body.innerHTML = conversations.slice(0,8).map(c=>`
+      <div class="fb-popover-item" onclick="goPage('messages'); setTimeout(()=>openThread('${c.partner.id}'),0);">
+        <div class="avatar" style="width:36px;height:36px;">${c.partner.profilePicUrl ? `<img src="${c.partner.profilePicUrl}">` : initials({FirstName:c.partner.name.split(' ')[0], LastName:c.partner.name.split(' ').slice(1).join(' ')})}</div>
+        <div class="c-info">
+          <div class="c-name">${escapeHtml(c.partner.name)}</div>
+          <div class="c-last">${c.lastMessageMine ? 'You: ' : ''}${escapeHtml(c.lastMessage)}</div>
+        </div>
+        ${c.unread ? `<span class="badge">${c.unread>9?'9+':c.unread}</span>` : ''}
+      </div>
+    `).join('');
+  }catch(e){ body.innerHTML = `<div class="fb-popover-empty">Couldn't load messages.</div>`; }
+}
+function loadNotifPopover(){
+  const body = document.getElementById('notifPopoverBody');
+  const entries = (typeof LAST_SCHEDULE_ENTRIES !== 'undefined' && LAST_SCHEDULE_ENTRIES) ? LAST_SCHEDULE_ENTRIES : [];
+  if(!entries.length){ body.innerHTML = `<div class="fb-popover-empty">No upcoming schedule items.</div>`; return; }
+  const upcoming = [...entries].sort((a,b)=> (a.Date+((a.TimeStart)||'')).localeCompare(b.Date+((b.TimeStart)||''))).slice(0,8);
+  body.innerHTML = upcoming.map(e=>{
+    const niceDate = new Date(e.Date+'T00:00:00').toLocaleDateString('en-US',{month:'short', day:'numeric'});
+    return `
+      <div class="fb-popover-item" onclick="goPage('schedule')">
+        <div class="avatar" style="width:36px;height:36px;">📅</div>
+        <div class="c-info">
+          <div class="c-name">${escapeHtml(e.Title)}</div>
+          <div class="c-last">${niceDate}${e.TimeStart ? ' · '+e.TimeStart : ''}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+function fbGlobalSearch(){
+  const q = document.getElementById('fbSearchInput').value.trim();
+  goPage('posts').then(()=>{
+    const input = document.getElementById('postSearchInput');
+    input.value = q;
+    filterPosts();
+  });
+}
 document.addEventListener('click', ()=>{
   document.querySelectorAll('.menu-item.has-sub').forEach(el=>el.classList.remove('open'));
   document.getElementById('accountMenu').classList.remove('open');
+  document.querySelectorAll('.fb-popover.open').forEach(p=>p.classList.remove('open'));
 });
 function toggleMobileMenu(){
   document.getElementById('mobileMenuPanel').classList.toggle('shown');
@@ -1280,6 +1450,8 @@ async function enterApp(){
   if(CURRENT_USER.profilePicUrl){ document.getElementById('sbAvatar').innerHTML = `<img src="${CURRENT_USER.profilePicUrl}">`; }
   document.getElementById('composerAvatar').textContent = initials(CURRENT_USER);
   if(CURRENT_USER.profilePicUrl){ document.getElementById('composerAvatar').innerHTML = `<img src="${CURRENT_USER.profilePicUrl}">`; }
+  document.getElementById('fbAvatar').textContent = initials(CURRENT_USER);
+  if(CURRENT_USER.profilePicUrl){ document.getElementById('fbAvatar').innerHTML = `<img src="${CURRENT_USER.profilePicUrl}">`; }
 
   const isAdmin = CURRENT_USER.role === 'Admin';
   document.getElementById('adminMenuItem').classList.toggle('hidden', !isAdmin);
@@ -1300,7 +1472,7 @@ async function refreshUnreadBadge(){
     // A rising unread count means a new message came in since the last check — play the message ringtone.
     if(PREV_UNREAD_COUNT !== null && count > PREV_UNREAD_COUNT) playNotificationSound(MESSAGE_SOUND);
     PREV_UNREAD_COUNT = count;
-    ['navMsgBadge','navMsgBadgeMobile'].forEach(id=>{
+    ['navMsgBadge','navMsgBadgeMobile','fbMsgBadge'].forEach(id=>{
       const el = document.getElementById(id);
       el.textContent = count > 9 ? '9+' : count;
       el.classList.toggle('hidden', count===0);
@@ -1322,6 +1494,13 @@ async function pollScheduleNotifications(){
     }
     LAST_SCHEDULE_IDS = new Set(entries.map(e=>e.ID));
     LAST_SCHEDULE_ENTRIES = entries;
+    const todayStr = new Date().toISOString().slice(0,10);
+    const upcomingCount = entries.filter(e => e.Date >= todayStr).length;
+    const notifBadge = document.getElementById('fbNotifBadge');
+    if(notifBadge){
+      notifBadge.textContent = upcomingCount > 9 ? '9+' : upcomingCount;
+      notifBadge.classList.toggle('hidden', upcomingCount===0);
+    }
     // Keep an already-open Schedule page live without waiting for the next manual reload.
     const schedPage = document.getElementById('page-schedule');
     if(schedPage && !schedPage.classList.contains('hidden')){
@@ -2167,21 +2346,43 @@ async function refreshFeaturedSidebar(){
 function renderFeaturedSidebar(){
   const el = document.getElementById('adSidebar');
   if(!el) return;
+  const wrap = document.querySelector('.story-bar-wrap');
   const featured = ALL_POSTS.filter(p=>p.Featured==='true');
-  if(!featured.length){ el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="ad-sidebar-title">📌 Featured Announcements</div><div class="ad-card-grid">` + featured.map(featuredCardHtml).join('') + `</div>`;
+  if(!featured.length){ el.innerHTML = ''; if(wrap) wrap.classList.add('hidden'); return; }
+  if(wrap) wrap.classList.remove('hidden');
+  el.innerHTML = featured.map(featuredCardHtml).join('');
+}
+
+/** Static thumbnail for the small Featured Announcements card — deliberately never returns a
+    live iframe (YouTube/Vimeo iframes render their own title/channel UI, which overlapped and
+    clashed with our avatar + caption at this small size). Falls back to a plain icon tile when
+    no static image is available (uploaded videos, Vimeo links, direct .mp4 links). */
+function featuredThumbHtml(p){
+  if(p.ImageUrl && p.MediaType!=='video') return `<img src="${p.ImageUrl}" alt="">`;
+  if(!p.ImageUrl){
+    const url = linkVisualUrl(p.Content);
+    if(url){
+      const yt = youTubeId(url);
+      if(yt) return `<img src="https://img.youtube.com/vi/${yt}/hqdefault.jpg" alt="">`;
+      if(!youTubeId(url) && !vimeoId(url) && /\.(png|jpe?g|gif|webp|svg)(\?[^\s]*)?$/i.test(url)) return `<img src="${url}" alt="">`;
+    }
+  }
+  return `<div class="ad-thumb-fallback"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`;
 }
 
 function featuredCardHtml(p){
-  const preview = p.Content.length > 60 ? p.Content.slice(0,60)+'…' : p.Content;
+  const preview = p.Content.length > 70 ? p.Content.slice(0,70)+'…' : p.Content;
   const authorName = p.authorName || 'PSA Cavite';
   const avatarInner = p.authorProfilePic
     ? `<img src="${p.authorProfilePic}">`
     : initials({FirstName:authorName.split(' ')[0], LastName:authorName.split(' ').slice(1).join(' ')});
   return `
     <div class="ad-card" onclick="goToPostAndOpen('${p.ID}')">
-      <div class="ad-card-media">${postHasVisual(p) ? mediaHtml(p) : ''}${postIsVideoVisual(p) ? `<div class="play-badge"><div class="play-circle" style="width:34px;height:34px;"></div></div>` : ''}</div>
-      <div class="ad-card-avatar">${avatarInner}</div>
+      <div class="ad-card-media">
+        ${featuredThumbHtml(p)}
+        ${postIsVideoVisual(p) ? `<div class="play-badge"><div class="play-circle"></div></div>` : ''}
+        <div class="ad-card-avatar">${avatarInner}</div>
+      </div>
       <div class="ad-card-body">
         <div class="ad-card-name">${escapeHtml(authorName)}</div>
         <div class="ad-card-text">${escapeHtml(preview)}</div>
